@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="buzzer-b" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="60%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </radialGradient>
+  </defs>
+  <line x1="26" y1="48" x2="26" y2="58" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+  <line x1="38" y1="48" x2="38" y2="58" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="32" cy="30" r="20" fill="url(#buzzer-b)" stroke="#020617" stroke-width="1.2"/>
+  <circle cx="32" cy="30" r="17" fill="none" stroke="#334155" stroke-width="1"/>
+  <circle cx="32" cy="30" r="5" fill="#020617" stroke="#1e293b" stroke-width="1"/>
+  <text x="22" y="24" text-anchor="middle" font-family="system-ui,sans-serif" font-size="7" font-weight="bold" fill="#ef4444">+</text>
+  <text x="32" y="44" text-anchor="middle" font-family="system-ui,sans-serif" font-size="4" font-weight="bold" fill="#94a3b8">BUZZER</text>
+</svg>

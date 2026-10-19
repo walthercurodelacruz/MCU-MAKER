@@ -1,0 +1,15 @@
+[package]
+name = "mcu-maker-worker"
+version = "1.0.0"
+edition = "2021"
+
+[[bin]]
+name = "mcu-maker-worker"
+path = "src/main.rs"
+test = false
+
+[dependencies]
+libloading = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"] }
+base64 = "0.22"

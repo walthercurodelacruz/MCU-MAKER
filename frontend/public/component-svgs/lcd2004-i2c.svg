@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect x="6" y="10" width="52" height="44" rx="2.5" fill="#1e3a8a" stroke="#172554" stroke-width="1"/>
+  <rect x="10" y="14" width="44" height="36" rx="1.5" fill="#0f172a"/>
+  <rect x="13" y="17" width="38" height="30" rx="1" fill="#38bdf8"/>
+  <text x="32" y="34" text-anchor="middle" font-family="monospace" font-size="6" font-weight="bold" fill="#0c4a6e">LCD2004 I2C</text>
+</svg>

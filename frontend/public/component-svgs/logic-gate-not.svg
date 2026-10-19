@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <line x1="8" y1="32" x2="20" y2="32" stroke="#64748b" stroke-width="2"/>
+  <line x1="45" y1="32" x2="56" y2="32" stroke="#64748b" stroke-width="2"/>
+  
+  <path d="M 20 18 L 20 46 L 40 32 Z" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <circle cx="42.5" cy="32" r="2.5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="32" y="58" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5" font-weight="900" fill="#1e40af">NOT</text>
+</svg>

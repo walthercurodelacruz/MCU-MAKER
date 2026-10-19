@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="to92-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <line x1="25" y1="40" x2="25" y2="58" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="40" x2="32" y2="58" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+  <line x1="39" y1="40" x2="39" y2="58" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M 20 18 A 12 12 0 0 1 44 18 L 44 38 A 2 2 0 0 1 42 40 L 22 40 A 2 2 0 0 1 20 38 Z" fill="url(#to92-g)" stroke="#020617" stroke-width="1"/>
+  <rect x="22" y="24" width="20" height="14" rx="1" fill="#1e293b"/>
+  <text x="32" y="30" text-anchor="middle" font-family="system-ui,sans-serif" font-size="4.5" font-weight="bold" fill="#f8fafc">BC547</text>
+  <text x="32" y="36" text-anchor="middle" font-family="system-ui,sans-serif" font-size="3.5" font-weight="bold" fill="#94a3b8">NPN BJT</text>
+</svg>

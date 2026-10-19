@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <line x1="4" y1="32" x2="16" y2="32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="48" y1="32" x2="60" y2="32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+  <rect x="16" y="24" width="32" height="16" rx="4" fill="#d5b597" stroke="#a37b4f" stroke-width="1"/>
+  <rect x="22" y="24" width="3" height="16" fill="#8F4814"/>
+  <rect x="28" y="24" width="3" height="16" fill="#000000"/>
+  <rect x="34" y="24" width="3" height="16" fill="#FB0000"/>
+  <rect x="42" y="24" width="3" height="16" fill="#F1D863"/>
+  <text x="32" y="48" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" font-weight="bold" fill="#a37b4f">1 kΩ</text>
+</svg>

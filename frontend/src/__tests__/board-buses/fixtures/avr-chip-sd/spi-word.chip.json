@@ -1,0 +1,16 @@
+{
+  "schema": "mcu-maker-chip/v1",
+  "name": "spi-word",
+  "author": "MCU Maker tests",
+  "license": "MIT",
+  "description": "Answers one 16-bit word per chip select, MSB first (MAX6675-style).",
+  "pins": [
+    "SCK",
+    "MOSI",
+    "MISO",
+    "CS",
+    "VCC",
+    "GND"
+  ],
+  "attributes": []
+}

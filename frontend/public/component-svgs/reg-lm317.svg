@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="to220-tab" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#94a3b8"/>
+      <stop offset="50%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="to220-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <line x1="25" y1="46" x2="25" y2="58" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="32" y1="46" x2="32" y2="58" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="39" y1="46" x2="39" y2="58" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M 20 10 L 44 10 A 2 2 0 0 1 46 12 L 46 26 L 18 26 L 18 12 A 2 2 0 0 1 20 10 Z" fill="url(#to220-tab)" stroke="#475569" stroke-width="0.8"/>
+  <circle cx="32" cy="18" r="3.5" fill="#334155" stroke="#1e293b" stroke-width="0.8"/>
+  <rect x="18" y="24" width="28" height="22" rx="2" fill="url(#to220-body)" stroke="#020617" stroke-width="1"/>
+  <line x1="18" y1="28" x2="46" y2="28" stroke="#475569" stroke-width="0.6"/>
+  <text x="32" y="35" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5" font-weight="bold" fill="#f8fafc">LM317</text>
+  <text x="32" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="3.8" font-weight="bold" fill="#38bdf8">ADJ REG</text>
+</svg>

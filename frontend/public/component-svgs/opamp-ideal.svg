@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <line x1="18" y1="17" x2="18" y2="13" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="18" y1="47" x2="18" y2="51" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="27.333333333333336" y1="17" x2="27.333333333333336" y2="13" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="27.333333333333336" y1="47" x2="27.333333333333336" y2="51" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="36.66666666666667" y1="17" x2="36.66666666666667" y2="13" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="36.66666666666667" y1="47" x2="36.66666666666667" y2="51" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="46" y1="17" x2="46" y2="13" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/><line x1="46" y1="47" x2="46" y2="51" stroke="#cbd5e1" stroke-width="1.8" stroke-linecap="round"/>
+  <rect x="14" y="17" width="36" height="30" rx="2.5" fill="#1e293b" stroke="#0f172a" stroke-width="1.2"/>
+  <path d="M 14 29 A 3 3 0 0 1 14 35 Z" fill="#0f172a"/>
+  <circle cx="18" cy="22" r="1.2" fill="#64748b"/>
+  <text x="32" y="30" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5.5" font-weight="900" fill="#f8fafc">OP-AMP</text>
+  <text x="32" y="38" text-anchor="middle" font-family="system-ui,sans-serif" font-size="3.8" font-weight="bold" fill="#38bdf8">IDEAL</text>
+</svg>

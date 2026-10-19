@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 96" width="64" height="96">
+  <defs>
+    <radialGradient id="lbGlowGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.95"/>
+      <stop offset="30%" stop-color="#fde047" stop-opacity="0.85"/>
+      <stop offset="70%" stop-color="#f59e0b" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#d97706" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lbScrewMetal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="40%" stop-color="#cbd5e1"/>
+      <stop offset="80%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#475569"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="32" cy="34" r="28" fill="url(#lbGlowGrad)" opacity="0.6"/>
+
+  <!-- Glass Dome -->
+  <path d="M 32 8 C 16 8 10 22 10 36 C 10 48 20 54 22 64 L 42 64 C 44 54 54 48 54 36 C 54 22 48 8 32 8 Z"
+        fill="#f8fafc" fill-opacity="0.4" stroke="#94a3b8" stroke-width="1.5"/>
+
+  <!-- Filament Supports -->
+  <line x1="26" y1="64" x2="28" y2="34" stroke="#64748b" stroke-width="1.2"/>
+  <line x1="38" y1="64" x2="36" y2="34" stroke="#64748b" stroke-width="1.2"/>
+
+  <!-- Filament -->
+  <path d="M 28 34 Q 32 26 36 34" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Glass Highlight -->
+  <path d="M 16 24 C 18 16 26 12 32 12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Screw Base -->
+  <rect x="22" y="64" width="20" height="4" rx="1.5" fill="url(#lbScrewMetal)" stroke="#334155" stroke-width="0.8"/>
+  <rect x="21" y="68" width="22" height="4" rx="1.5" fill="url(#lbScrewMetal)" stroke="#334155" stroke-width="0.8"/>
+  <rect x="22" y="72" width="20" height="4" rx="1.5" fill="url(#lbScrewMetal)" stroke="#334155" stroke-width="0.8"/>
+  <rect x="21" y="76" width="22" height="4" rx="1.5" fill="url(#lbScrewMetal)" stroke="#334155" stroke-width="0.8"/>
+  <path d="M 24 80 L 40 80 L 37 86 L 27 86 Z" fill="#1e293b"/>
+
+  <!-- Bottom Foot & Pins -->
+  <circle cx="32" cy="87" r="4" fill="#94a3b8" stroke="#334155" stroke-width="1"/>
+  <line x1="22" y1="84" x2="22" y2="92" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
+  <line x1="42" y1="84" x2="42" y2="92" stroke="#64748b" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="22" cy="92" r="1.8" fill="#38bdf8"/>
+  <circle cx="42" cy="92" r="1.8" fill="#38bdf8"/>
+</svg>

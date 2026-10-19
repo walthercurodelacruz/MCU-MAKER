@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="relay-b" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <line x1="18" y1="48" x2="18" y2="56" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="48" x2="46" y2="56" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <line x1="32" y1="48" x2="32" y2="56" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+  <rect x="14" y="14" width="36" height="34" rx="3" fill="url(#relay-b)" stroke="#1e40af" stroke-width="1.2"/>
+  <text x="32" y="24" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5" font-weight="900" fill="#ffffff" letter-spacing="0.5">SONGLE</text>
+  <text x="32" y="32" text-anchor="middle" font-family="system-ui,sans-serif" font-size="4" font-weight="bold" fill="#93c5fd">5VDC RELAY</text>
+  <rect x="18" y="36" width="28" height="8" rx="1.5" fill="#1e40af" opacity="0.6"/>
+  <text x="32" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="4" font-weight="bold" fill="#ffffff">10A 250VAC</text>
+</svg>

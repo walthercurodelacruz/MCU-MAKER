@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="10" width="48" height="44" rx="2.5" fill="#1e3a8a" stroke="#1d4ed8" stroke-width="1"/>
+  <rect x="22" y="11" width="20" height="4" fill="#0f172a"/>
+  <line x1="25" y1="11" x2="25" y2="15" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="29" y1="11" x2="29" y2="15" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="33" y1="11" x2="33" y2="15" stroke="#cbd5e1" stroke-width="1"/>
+  <line x1="37" y1="11" x2="37" y2="15" stroke="#cbd5e1" stroke-width="1"/>
+  <rect x="12" y="18" width="40" height="32" rx="1" fill="#020617" stroke="#000" stroke-width="0.8"/>
+  <rect x="15" y="21" width="34" height="26" fill="#0c0a09"/>
+  <text x="32" y="32" text-anchor="middle" font-family="monospace" font-size="5" font-weight="bold" fill="#38bdf8">0.96" OLED</text>
+  <text x="32" y="40" text-anchor="middle" font-family="monospace" font-size="4" font-weight="bold" fill="#facc15">SSD1306 I2C</text>
+</svg>

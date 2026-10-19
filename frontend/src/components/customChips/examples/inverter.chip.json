@@ -1,0 +1,9 @@
+{
+  "schema": "mcu-maker-chip/v1",
+  "name": "Inverter",
+  "author": "MCU Maker",
+  "license": "MIT",
+  "description": "Single-input logic inverter — OUT = !IN",
+  "pins": ["IN", "OUT", "GND", "VCC"],
+  "attributes": []
+}

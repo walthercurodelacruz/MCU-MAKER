@@ -1,0 +1,310 @@
+/* Color tokens — primitive palette + semantic mappings.
+ *
+ * Layers:
+ *   1. Primitives (--gray-*, --blue-*, etc.) — raw scale, never used directly
+ *      in components.
+ *   2. Semantics (--color-bg-*, --color-fg-*, --color-action-*) — used by
+ *      components. Swap themes by remapping semantics to different primitives.
+ *   3. Legacy aliases (--accent, --bg, etc.) — kept temporarily so existing
+ *      components keep working. Remove after full migration.
+ *
+ * THEMES
+ * ------
+ * Dark is the product default and lives on bare `:root`, so a page with no
+ * JavaScript (SSR, the pre-hydration paint) is dark — never a white flash.
+ * Light is an opt-in override under `:root[data-theme='light']`, set by the
+ * bootstrap in index.html and by src/lib/theme.ts. Nothing keys off
+ * `prefers-color-scheme` at this layer: the OS hint is resolved once, in JS,
+ * and only when the user picked the "system" mode (see lib/theme.ts).
+ */
+
+:root {
+  /* Primitives — gray scale */
+  --gray-0:   #ffffff;
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-850: #141b2b;
+  --gray-900: #0c111c;
+  --gray-950: #05080e;
+  --gray-1000: #000000;
+
+  /* Primitives — cyber / high-tech accents (Next Serial palette) */
+  --blue-400:  #38bdf8;
+  --blue-500:  #0ea5e9;
+  --blue-600:  #0284c7;
+  --blue-700:  #0369a1;
+
+  --cyan-300:  #67e8f9;
+  --cyan-400:  #22d3ee;
+  --cyan-500:  #00e5ff;
+  --cyan-600:  #00b8d4;
+
+  --red-500:   #ef4444;
+  --red-600:   #dc2626;
+  --green-500: #10b981;
+  --green-600: #059669;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+}
+
+/* Everything below is THEMED. The dual selector is what lets a subtree pin
+ * itself to dark inside a light page (see DarkSurface in the pro overlay:
+ * the marketing pages are art-directed on black and opt out of light mode).
+ * `:root` alone would only ever theme the document element. */
+:root,
+[data-theme='dark'] {
+
+  /* ── Workbench ramp (--wb-0 … --wb-13) ────────────────────────────────
+   * MCU Maker / Next Serial Tech Palette: Deep tech obsidian charcoal
+   * with vibrant electric cyan (#00E5FF) and clean high-contrast slate.
+   */
+  --wb-0:  #070a12;  /* deepest ground — terminal bed */
+  --wb-1:  #0a0e17;  /* canvas ground — high contrast for electronics */
+  --wb-2:  #0d131f;  /* editor / dialog surface */
+  --wb-3:  #111827;  /* panel: headers, toolbars, sidebars */
+  --wb-4:  #162033;  /* panel alt: rows, inputs, hover beds */
+  --wb-5:  #1c2842;  /* elevated: dropdowns, popovers */
+  --wb-6:  #202e49;  /* border, and the hover fill over --wb-4 */
+  --wb-7:  #2a3d61;  /* strong border, pressed fill */
+  --wb-8:  #3a537f;  /* disabled fill, divider on elevated surfaces */
+  --wb-9:  #647b9d;  /* faint text — placeholders, timestamps */
+  --wb-10: #8ea3bf;  /* subtle text — secondary labels */
+  --wb-11: #cbd5e1;  /* muted text — icons, inactive tabs */
+  --wb-12: #e2e8f0;  /* body text */
+  --wb-13: #f8fafc;  /* strong text — titles, active tab */
+
+  /* Semantic — backgrounds (dark theme baseline) */
+  --color-bg-canvas:    var(--wb-0);
+  --color-bg-surface-1: var(--wb-2);
+  --color-bg-surface-2: var(--wb-3);
+  --color-bg-surface-3: var(--wb-4);
+  --color-bg-input:     var(--wb-2);
+  --color-bg-overlay:   rgba(4, 7, 13, 0.82);
+  --color-bg-header:    rgba(10, 14, 23, 0.92);
+
+  /* Semantic — foreground */
+  --color-fg-default: var(--wb-13);
+  --color-fg-muted:   var(--wb-10);
+  --color-fg-subtle:  var(--wb-9);
+  --color-fg-on-action: #050b14;
+
+  /* Semantic — borders */
+  --color-border-default: rgba(0, 229, 255, 0.14);
+  --color-border-strong:  rgba(0, 229, 255, 0.28);
+  --color-border-subtle:  rgba(255, 255, 255, 0.06);
+
+  /* Semantic — hover/selection washes */
+  --color-wash-hover:    rgba(0, 229, 255, 0.08);
+  --color-wash-active:   rgba(0, 229, 255, 0.14);
+  --color-wash-selected: rgba(0, 229, 255, 0.22);
+
+  /* Semantic — actions (Next Serial signature electric cyan) */
+  --color-action-primary:         #00e5ff;
+  --color-action-primary-hover:   #33ecff;
+  --color-action-primary-fg:      #050b14;
+  --color-action-secondary:       var(--wb-4);
+  --color-action-secondary-hover: var(--wb-5);
+
+  /* Accent washes — tinted backgrounds for selected/active accents. */
+  --color-accent-soft:        rgba(0, 229, 255, 0.12);
+  --color-accent-soft-strong: rgba(0, 229, 255, 0.24);
+  --color-accent-fg:          #00e5ff;
+
+  /* Semantic — feedback */
+  --color-feedback-error:   var(--red-500);
+  --color-feedback-success: var(--green-500);
+  --color-feedback-warning: var(--amber-500);
+  --color-feedback-info:    var(--cyan-500);
+
+  --color-feedback-error-soft:   rgba(239, 68, 68, 0.14);
+  --color-feedback-success-soft: rgba(16, 185, 129, 0.14);
+  --color-feedback-warning-soft: rgba(245, 158, 11, 0.14);
+
+  /* Borders for tinted panels */
+  --color-feedback-error-border:   rgba(239, 68, 68, 0.35);
+  --color-feedback-success-border: rgba(16, 185, 129, 0.35);
+  --color-feedback-warning-border: rgba(245, 158, 11, 0.35);
+  --color-accent-border:           rgba(0, 229, 255, 0.35);
+
+  /* Focus ring */
+  --color-focus-ring: 0 0 0 2px rgba(0, 229, 255, 0.45);
+
+  /* Tier badges */
+  --color-tier-free:  var(--wb-10);
+  --color-tier-pro:   var(--cyan-500);
+  --color-tier-team:  var(--amber-500);
+
+  /* ── Simulator canvas ───────────────────────────────────────────────── */
+  --color-canvas-bg:        var(--wb-1);
+  --color-canvas-grid:      rgba(0, 229, 255, 0.04);
+  --color-canvas-panel:     var(--wb-2);
+  --color-canvas-panel-fg:  var(--wb-12);
+  --color-canvas-shadow:    rgba(0, 0, 0, 0.65);
+
+  --color-symbol-ink:   #e2e8f0;
+  --color-symbol-lead:  #94a3b8;
+  --color-symbol-label: #cbd5e1;
+  --color-symbol-body:  #64748b;
+
+  --color-wire-outline: #070a12;
+  --color-wire-marker:  #00e5ff;
+
+  --color-canvas-label-bg: rgba(13, 19, 31, 0.92);
+  --color-probe-dc:        #fbbf24;
+  --color-probe-dc-dim:    #d97706;
+  --color-probe-ac:        #38bdf8;
+  --color-probe-error:     #ef4444;
+  --color-probe-error-dim: #dc2626;
+
+  /* Serial monitor — phosphor cyan cyber terminal */
+  --color-terminal-bg: #070a12;
+  --color-terminal-fg: #00e5ff;
+
+  /* Scrollbars (the editor panes style their own) */
+  --color-scrollbar-thumb:       var(--wb-7);
+  --color-scrollbar-thumb-hover: var(--wb-8);
+  --color-scrollbar-track:       transparent;
+
+  /* Legacy aliases — DO NOT use in new code. Remove after migration. */
+  --accent:       var(--color-action-primary);
+  --accent-hover: var(--color-action-primary-hover);
+  --bg:           var(--color-bg-canvas);
+  --bg-card:      var(--color-bg-surface-1);
+  --bg-elevated:  var(--color-bg-surface-3);
+  --bg-input:     var(--color-bg-input);
+  --border:       var(--color-border-default);
+  --border-hi:    var(--color-border-strong);
+  --text:         var(--color-fg-default);
+  --text-muted:   var(--color-fg-muted);
+  --text-dim:     var(--color-fg-subtle);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+ * LIGHT THEME
+ * ══════════════════════════════════════════════════════════════════════
+ * Only semantics are remapped — primitives never change. Every value here
+ * has a counterpart above; adding a semantic token without a light value is
+ * the one way to break this file, so keep the two blocks in the same order.
+ */
+:root[data-theme='light'],
+[data-theme='light'] {
+  /* Workbench ramp, inverted. Anchored on VS Code's Light+ workbench so the
+   * editor reads as a familiar light IDE rather than an inverted dark one:
+   * white editor bed, grey everywhere else, GitHub-ish neutral text.
+   *
+   * Only --wb-2 and --wb-5 are pure white, and both are earned: wb-2 is the
+   * bed you read CODE on, and wb-5 is what makes a dropdown or a dialog lift
+   * off the page. Everything structural -- the canvas (wb-1), the panels and
+   * toolbars (wb-3), the rows and hover beds (wb-4) -- is grey, which is how
+   * the light themes people compare us against read: white is the content,
+   * grey is the chrome around it. An all-white build looks unfinished and
+   * loses every edge between panes. */
+  --wb-0:  #fbfbfc;
+  --wb-1:  #e9ebee;
+  --wb-2:  #ffffff;
+  --wb-3:  #eceef1;
+  --wb-4:  #e0e3e8;
+  --wb-5:  #ffffff;
+  --wb-6:  #d5d9df;
+  --wb-7:  #c4c9d1;
+  --wb-8:  #aab0ba;
+  --wb-9:  #8c949e;
+  --wb-10: #6e7781;
+  --wb-11: #57606a;
+  --wb-12: #24292f;
+  --wb-13: #0d1117;
+
+  /* Backgrounds. Surface-1 is the card white; the canvas behind it is the
+   * light-gray ground, mirroring how dark puts the darkest value furthest
+   * back. */
+  --color-bg-canvas:    #eef0f3;
+  --color-bg-surface-1: var(--gray-0);
+  --color-bg-surface-2: #f6f7f9;
+  --color-bg-surface-3: var(--gray-200);
+  --color-bg-input:     var(--gray-0);
+  --color-bg-overlay:   rgba(20, 20, 22, 0.40);
+  --color-bg-header:    rgba(252, 252, 253, 0.88);
+
+  /* Foreground */
+  --color-fg-default: var(--gray-850);
+  --color-fg-muted:   var(--gray-600);
+  --color-fg-subtle:  var(--gray-500);
+  --color-fg-on-action: var(--gray-0);
+
+  /* Borders — black at low alpha, the mirror of dark's white-at-low-alpha. */
+  --color-border-default: rgba(0, 0, 0, 0.12);
+  --color-border-strong:  rgba(0, 0, 0, 0.22);
+  --color-border-subtle:  rgba(0, 0, 0, 0.06);
+
+  --color-wash-hover:    rgba(0, 0, 0, 0.05);
+  --color-wash-active:   rgba(0, 0, 0, 0.09);
+  --color-wash-selected: rgba(0, 113, 227, 0.16);
+
+  /* Actions. Hover DARKENS on light (blue-700) where dark LIGHTENS it
+   * (blue-500) — hover has to move away from the page, not toward it. */
+  --color-action-primary:       var(--blue-600);
+  --color-action-primary-hover: var(--blue-700);
+  --color-action-primary-fg:    var(--gray-0);
+  --color-action-secondary:     var(--gray-200);
+  --color-action-secondary-hover: var(--gray-300);
+
+  --color-accent-soft:        rgba(0, 113, 227, 0.10);
+  --color-accent-soft-strong: rgba(0, 113, 227, 0.20);
+  --color-accent-fg:          var(--blue-700);
+
+  /* Feedback — the 500s are tuned for contrast against black and go muddy
+   * on white, so light mode drops to the 600s. */
+  --color-feedback-error:   var(--red-600);
+  --color-feedback-success: var(--green-600);
+  --color-feedback-warning: var(--amber-600);
+  --color-feedback-info:    var(--blue-600);
+
+  --color-feedback-error-soft:   rgba(215, 0, 21, 0.10);
+  --color-feedback-success-soft: rgba(36, 138, 61, 0.12);
+  --color-feedback-warning-soft: rgba(201, 52, 0, 0.10);
+
+  --color-feedback-error-border:   rgba(215, 0, 21, 0.32);
+  --color-feedback-success-border: rgba(36, 138, 61, 0.35);
+  --color-feedback-warning-border: rgba(201, 52, 0, 0.30);
+  --color-accent-border:           rgba(0, 113, 227, 0.35);
+
+  --color-tier-free:  var(--gray-600);
+  --color-tier-pro:   var(--blue-600);
+  --color-tier-team:  var(--amber-600);
+
+  /* Canvas */
+  --color-canvas-bg:        var(--wb-1);
+  --color-canvas-grid:      rgba(23, 32, 48, 0.07);
+  --color-canvas-panel:     var(--wb-2);
+  --color-canvas-panel-fg:  var(--wb-12);
+  --color-canvas-shadow:    rgba(15, 15, 20, 0.16);
+
+  --color-symbol-ink:   #1f2430;
+  --color-symbol-lead:  #4a515e;
+  --color-symbol-label: #2b303a;
+  --color-symbol-body:  #8a909c;
+
+  --color-wire-outline: #ffffff;
+  --color-wire-marker:  #1f2430;
+
+  --color-canvas-label-bg: rgba(255, 255, 255, 0.92);
+  --color-probe-dc:        #8a6100;
+  --color-probe-dc-dim:    #9a5c00;
+  --color-probe-ac:        #0b6b78;
+  --color-probe-error:     #b3261e;
+  --color-probe-error-dim: #d70015;
+
+  --color-terminal-bg: var(--gray-0);
+  --color-terminal-fg: #0a7d33;
+
+  --color-scrollbar-thumb:       var(--wb-7);
+  --color-scrollbar-thumb-hover: var(--wb-8);
+  --color-scrollbar-track:       transparent;
+}

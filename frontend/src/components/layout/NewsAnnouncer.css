@@ -1,0 +1,254 @@
+.mcu-maker-news-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-overlay);
+  animation: mcu-maker-news-fade 0.2s ease-out;
+}
+
+@keyframes mcu-maker-news-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mcu-maker-news-modal {
+  background: var(--wb-1);
+  border: 1px solid var(--wb-6);
+  border-radius: 12px;
+  /* Deliberately wider than the starter dialog's min(840px, 94vw): on
+     editor entry the announcement shows first and should read as the
+     headline, with "Start a new project" following after close. */
+  width: min(880px, 94vw);
+  max-height: min(84vh, 720px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-4);
+  animation: mcu-maker-news-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes mcu-maker-news-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.mcu-maker-news-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--wb-4);
+}
+
+.mcu-maker-news-kicker {
+  display: block;
+  color: var(--color-accent-fg);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.mcu-maker-news-title {
+  color: var(--wb-13);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.mcu-maker-news-close {
+  background: none;
+  border: none;
+  color: var(--wb-10);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.mcu-maker-news-close:hover {
+  color: var(--wb-13);
+  background: var(--wb-4);
+}
+
+.mcu-maker-news-body {
+  padding: 14px 20px;
+  overflow-y: auto;
+  color: var(--wb-12);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.mcu-maker-news-body h1,
+.mcu-maker-news-body h2,
+.mcu-maker-news-body h3 {
+  color: var(--wb-13);
+  margin: 14px 0 6px;
+  line-height: 1.3;
+}
+
+.mcu-maker-news-body h1 { font-size: 17px; }
+.mcu-maker-news-body h2 { font-size: 15px; }
+.mcu-maker-news-body h3 { font-size: 14px; }
+
+.mcu-maker-news-body p {
+  margin: 0 0 10px;
+}
+
+.mcu-maker-news-body ul,
+.mcu-maker-news-body ol {
+  margin: 0 0 10px;
+  padding-left: 22px;
+}
+
+.mcu-maker-news-body li {
+  margin-bottom: 4px;
+}
+
+.mcu-maker-news-body a {
+  color: var(--color-accent-fg);
+  text-decoration: none;
+}
+
+.mcu-maker-news-body a:hover {
+  text-decoration: underline;
+}
+
+/* `[label](url "button")` in the post body: the post's call to action. */
+.mcu-maker-news-body a.mcu-maker-news-cta {
+  display: inline-block;
+  margin: 2px 8px 6px 0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-accent-fg);
+  color: var(--color-accent-fg);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.mcu-maker-news-body a.mcu-maker-news-cta:hover {
+  text-decoration: none;
+  background: var(--wb-4);
+}
+
+.mcu-maker-news-body code {
+  background: var(--wb-4);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12.5px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.mcu-maker-news-body pre {
+  background: var(--wb-1);
+  border: 1px solid var(--wb-4);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 0 0 10px;
+}
+
+.mcu-maker-news-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.mcu-maker-news-body img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.mcu-maker-news-video {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 4px 0 10px;
+  padding: 0;
+  background: #000;
+  cursor: pointer;
+}
+
+.mcu-maker-news-video iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.mcu-maker-news-video-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  display: block;
+}
+
+.mcu-maker-news-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  /* Play button over a video still — it has to read against the artwork, not
+     against the page, so it keeps a dark scrim and a white glyph in both
+     themes. */
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--color-fg-on-action);
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+  transition: background 0.15s;
+}
+
+.mcu-maker-news-video-thumb:hover .mcu-maker-news-play {
+  background: #e62117;
+}
+
+.mcu-maker-news-body table {
+  border-collapse: collapse;
+  margin: 0 0 10px;
+}
+
+.mcu-maker-news-body th,
+.mcu-maker-news-body td {
+  border: 1px solid var(--wb-6);
+  padding: 5px 10px;
+  font-size: 12.5px;
+}
+
+.mcu-maker-news-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--wb-4);
+}
+
+.mcu-maker-news-ok {
+  background: var(--color-accent-fg);
+  color: var(--wb-0);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  cursor: pointer;
+}
+
+.mcu-maker-news-ok:hover {
+  filter: brightness(1.1);
+}

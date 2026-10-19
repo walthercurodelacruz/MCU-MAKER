@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect x="14" y="10" width="36" height="44" rx="2" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <line x1="6" y1="20" x2="14" y2="20" stroke="#64748b" stroke-width="1.8"/>
+  <line x1="6" y1="32" x2="14" y2="32" stroke="#64748b" stroke-width="1.8"/>
+  <line x1="6" y1="44" x2="14" y2="44" stroke="#64748b" stroke-width="1.8"/>
+  <polyline points="14,29 18,32 14,35" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+  <line x1="50" y1="20" x2="58" y2="20" stroke="#64748b" stroke-width="1.8"/>
+  <line x1="50" y1="44" x2="58" y2="44" stroke="#64748b" stroke-width="1.8"/>
+  <text x="17" y="22" font-family="system-ui,sans-serif" font-size="5" font-weight="bold" fill="#1e40af">J</text>
+  <text x="17" y="46" font-family="system-ui,sans-serif" font-size="5" font-weight="bold" fill="#1e40af">K</text>
+  <text x="47" y="22" text-anchor="end" font-family="system-ui,sans-serif" font-size="5" font-weight="bold" fill="#1e40af">Q</text>
+  <text x="47" y="46" text-anchor="end" font-family="system-ui,sans-serif" font-size="5" font-weight="bold" fill="#1e40af">Q̄</text>
+  <text x="32" y="34" text-anchor="middle" font-family="system-ui,sans-serif" font-size="6" font-weight="900" fill="#2563eb">JK-FF</text>
+</svg>

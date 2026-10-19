@@ -1,0 +1,351 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tinkercad Circuits Component Drawer
+   Docked to the right edge of the workbench canvas
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tinkercad-drawer {
+  position: absolute;
+  top: 44px; /* below tinkercad canvas toolbar */
+  right: 0;
+  bottom: 0;
+  width: 310px;
+  background: var(--wb-2);
+  border-left: 1px solid var(--wb-6);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  z-index: 35;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  user-select: none;
+}
+
+.tinkercad-drawer--closed {
+  transform: translateX(100%);
+  pointer-events: none;
+}
+
+.tinkercad-drawer--open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* ── Toggle tab on the left edge of drawer ── */
+.tinkercad-drawer-toggle-tab {
+  position: absolute;
+  left: -28px;
+  top: 14px;
+  width: 28px;
+  height: 48px;
+  background: var(--wb-2);
+  border: 1px solid var(--wb-6);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  color: var(--wb-11);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: -3px 2px 8px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tinkercad-drawer-toggle-tab:hover {
+  background: var(--wb-3);
+  color: var(--color-action-primary);
+}
+
+/* ── Header ── */
+.tinkercad-drawer-header {
+  padding: 12px 14px 10px;
+  background: var(--wb-3);
+  border-bottom: 1px solid var(--wb-6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.tinkercad-drawer-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tinkercad-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wb-13);
+  letter-spacing: 0.2px;
+}
+
+.tinkercad-drawer-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--wb-10);
+  background: var(--wb-4);
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--wb-6);
+}
+
+.tinkercad-drawer-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--wb-10);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tinkercad-drawer-close-btn:hover {
+  background: var(--wb-4);
+  color: var(--wb-13);
+}
+
+/* ── Category Selector Row ── */
+.tinkercad-category-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tinkercad-category-select {
+  width: 100%;
+  height: 32px;
+  padding: 0 28px 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--wb-6);
+  background: var(--wb-2);
+  color: var(--wb-13);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tinkercad-category-select:hover {
+  border-color: var(--wb-8);
+}
+
+.tinkercad-category-select:focus {
+  border-color: var(--color-action-primary);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.25);
+}
+
+.tinkercad-category-caret {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  color: var(--wb-10);
+}
+
+/* ── Search Input ── */
+.tinkercad-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tinkercad-search-icon {
+  position: absolute;
+  left: 9px;
+  color: var(--wb-9);
+  pointer-events: none;
+}
+
+.tinkercad-search-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 26px 0 28px;
+  border-radius: 6px;
+  border: 1px solid var(--wb-6);
+  background: var(--wb-1);
+  color: var(--wb-13);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.tinkercad-search-input:focus {
+  border-color: var(--color-action-primary);
+  background: var(--wb-2);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.25);
+}
+
+.tinkercad-search-clear {
+  position: absolute;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--wb-9);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tinkercad-search-clear:hover {
+  color: var(--wb-13);
+  background: var(--wb-5);
+}
+
+/* ── Body: Cards Scroll Grid ── */
+.tinkercad-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  align-content: start;
+}
+
+/* Scrollbar styling */
+.tinkercad-drawer-body::-webkit-scrollbar {
+  width: 6px;
+}
+.tinkercad-drawer-body::-webkit-scrollbar-thumb {
+  background: var(--wb-6);
+  border-radius: 3px;
+}
+.tinkercad-drawer-body::-webkit-scrollbar-thumb:hover {
+  background: var(--wb-7);
+}
+
+/* ── Component Card ── */
+.tc-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 116px;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--wb-3);
+  border: 1px solid var(--wb-6);
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+  cursor: grab;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.tc-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-action-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+  background: var(--wb-4);
+}
+
+.tc-card:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+.tc-card-preview {
+  height: 68px;
+  min-height: 68px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-bottom: 1px solid var(--wb-6);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='light'] .tc-card-preview {
+  background: #f8fafc;
+}
+
+.tc-card-img {
+  width: auto;
+  height: auto;
+  max-width: 84px;
+  max-height: 56px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.25));
+}
+
+
+.tc-card-info {
+  flex: 1;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 7px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.tc-card-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--wb-13);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc-card-desc {
+  font-size: 10px;
+  color: var(--wb-10);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge for PRO boards in drawer */
+.tc-card-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: rgba(0, 242, 254, 0.12);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  letter-spacing: 0.5px;
+}
+
+/* Empty State */
+.tinkercad-drawer-empty {
+  grid-column: 1 / -1;
+  padding: 30px 16px;
+  text-align: center;
+  color: var(--wb-10);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}

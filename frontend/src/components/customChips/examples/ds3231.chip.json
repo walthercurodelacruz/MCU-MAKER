@@ -1,0 +1,9 @@
+{
+  "schema": "mcu-maker-chip/v1",
+  "name": "DS3231",
+  "author": "MCU Maker",
+  "license": "MIT",
+  "description": "Extremely accurate I2C real-time clock (address 0x68).",
+  "pins": ["SDA", "SCL", "INT", "RST", "32K", "GND", "VCC"],
+  "attributes": []
+}

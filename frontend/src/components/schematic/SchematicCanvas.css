@@ -1,0 +1,331 @@
+/* ── Schematic Canvas Modern Styles ── */
+
+.sch-canvas-container {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--wb-1, #0a0e17);
+  color: var(--wb-13, #f1f5f9);
+  user-select: none;
+}
+
+/* Light paper mode for traditional schematics (warm engineering paper for high-quality printing) */
+.sch-canvas-container[data-theme='light'] {
+  --sch-symbol-fill: #ffffff;
+  --sch-ic-title: #0284c7;
+  --sch-pin-label: #334155;
+  background-color: #faf8f5;
+  color: #0f172a;
+}
+
+/* ── Schematic Floating Tool Palette (Right Side) ── */
+.sch-tool-palette {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: var(--wb-2, #141721);
+  border: 1px solid var(--wb-6, #2d3343);
+  border-radius: 8px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  z-index: 20;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-tool-palette {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.sch-palette-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wb-11, #cbd5e1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.sch-palette-btn:hover:not(:disabled) {
+  background: var(--wb-4, #212636);
+  color: var(--color-action-primary, #00e5ff);
+  border-color: var(--wb-6, #2d3343);
+}
+
+.sch-canvas-container[data-theme='light'] .sch-palette-btn {
+  color: #475569;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-palette-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0284c7;
+  border-color: #cbd5e1;
+}
+
+.sch-palette-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sch-palette-divider {
+  width: 20px;
+  height: 1px;
+  background: var(--wb-6, #2d3343);
+  margin: 3px 0;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-palette-divider {
+  background: #e2e8f0;
+}
+
+.sch-palette-zoom-badge {
+  font-size: 10px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: var(--wb-10, #94a3b8);
+  padding: 2px 0;
+  text-align: center;
+  user-select: none;
+  min-width: 32px;
+}
+
+/* ── Interactive SVG Area ── */
+.sch-svg-viewport {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  outline: none;
+}
+
+.sch-svg-viewport:active {
+  cursor: grabbing;
+}
+
+/* ── Schematic Symbol Graphics ── */
+.sch-symbol-group {
+  cursor: move;
+  transition: filter 0.12s ease;
+}
+
+.sch-symbol-group:hover {
+  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.5));
+}
+
+.sch-symbol-group--selected {
+  filter: drop-shadow(0 0 8px #00e5ff) !important;
+}
+
+.sch-symbol-group--selected rect,
+.sch-symbol-group--selected polygon,
+.sch-symbol-group--selected circle {
+  stroke: #00e5ff !important;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-symbol-group:hover {
+  filter: drop-shadow(0 0 6px rgba(2, 132, 199, 0.45));
+}
+
+.sch-canvas-container[data-theme='light'] .sch-symbol-group--selected {
+  filter: drop-shadow(0 0 8px rgba(2, 132, 199, 0.65)) !important;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-symbol-group--selected rect,
+.sch-canvas-container[data-theme='light'] .sch-symbol-group--selected polygon,
+.sch-canvas-container[data-theme='light'] .sch-symbol-group--selected circle {
+  stroke: #0284c7 !important;
+}
+
+.sch-ref-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: bold;
+  fill: var(--color-action-primary, #00e5ff);
+  user-select: none;
+}
+
+.sch-val-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  fill: var(--wb-10, #94a3b8);
+  user-select: none;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-ref-label {
+  fill: #0284c7;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-val-label {
+  fill: #64748b;
+}
+
+/* ── Schematic Wires & Junctions ── */
+.sch-wire {
+  fill: none;
+  stroke: #10b981;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.15s ease, stroke-width 0.15s ease;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-wire {
+  stroke: #059669;
+}
+
+.sch-wire--highlighted {
+  stroke: #00e5ff !important;
+  stroke-width: 3.5 !important;
+  filter: drop-shadow(0 0 5px rgba(0, 229, 255, 0.8));
+}
+
+.sch-canvas-container[data-theme='light'] .sch-wire--highlighted {
+  stroke: #0284c7 !important;
+  filter: drop-shadow(0 0 4px rgba(2, 132, 199, 0.5));
+}
+
+.sch-junction-dot {
+  fill: #10b981;
+  transition: transform 0.1s ease;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-junction-dot {
+  fill: #059669;
+}
+
+.sch-junction-dot--highlighted {
+  fill: #00e5ff !important;
+}
+
+.sch-canvas-container[data-theme='light'] .sch-junction-dot--highlighted {
+  fill: #0284c7 !important;
+}
+
+/* Pin Terminals */
+.sch-pin-terminal {
+  cursor: crosshair;
+  transition: r 0.15s ease, fill 0.15s ease;
+}
+
+.sch-pin-terminal:hover {
+  r: 5;
+  fill: #00e5ff;
+}
+
+.sch-pin-terminal--active {
+  r: 5.5 !important;
+  fill: #00e5ff !important;
+  stroke: #ffffff !important;
+  stroke-width: 2 !important;
+  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.9));
+}
+
+.sch-pin-terminal--candidate {
+  animation: schPulse 1s infinite alternate;
+}
+
+@keyframes schPulse {
+  from {
+    r: 3.5;
+    fill: #10b981;
+  }
+  to {
+    r: 5;
+    fill: #00e5ff;
+  }
+}
+
+/* Wire hit area */
+.sch-wire-hitarea {
+  cursor: pointer;
+}
+
+/* Trunk drag handles */
+.sch-wire-trunk-handle {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sch-wire-trunk-handle--visible,
+.sch-wire-trunk-handle:hover {
+  opacity: 1;
+}
+
+.sch-trunk-handle-pill {
+  fill: #00e5ff;
+  stroke: var(--wb-2, #141721);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.8));
+  transition: r 0.12s ease, fill 0.12s ease;
+}
+
+.sch-wire-trunk-handle:hover .sch-trunk-handle-pill {
+  r: 7.5;
+  fill: #38bdf8;
+}
+
+/* Wire preview when routing */
+.sch-wire-preview {
+  fill: none;
+  stroke: #00e5ff;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+  animation: schDash 0.8s linear infinite;
+}
+
+@keyframes schDash {
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+/* Danger / Delete button hover in palette */
+.sch-palette-btn--danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Floating Zoom Badge */
+.sch-zoom-badge {
+  font-size: 11px;
+  font-family: var(--font-mono, monospace);
+  color: var(--wb-10, #94a3b8);
+  min-width: 42px;
+  text-align: center;
+}
+
+/* ── Tinkercad-Style Engineering Drawing Sheet ── */
+.sch-drawing-sheet text {
+  user-select: none;
+  font-family: var(--font-mono, 'Courier New', monospace);
+}
+
+.sch-drawing-sheet-btn--active {
+  background: var(--wb-4, #212636) !important;
+  color: var(--color-action-primary, #00e5ff) !important;
+  border-color: var(--wb-6, #2d3343) !important;
+}
+
+/* ── Ground Rake Symbol ── */
+.sch-gnd-symbol text {
+  user-select: none;
+  font-family: var(--font-mono, monospace);
+}

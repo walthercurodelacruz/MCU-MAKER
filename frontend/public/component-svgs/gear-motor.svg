@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <defs>
+    <linearGradient id="gmYellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="60%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="gmMetal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e2e8f0"/>
+      <stop offset="50%" stop-color="#94a3b8"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="gmShaft" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- DC Motor Canister (rear) -->
+  <rect x="10" y="24" width="34" height="32" rx="4" fill="url(#gmMetal)" stroke="#334155" stroke-width="1.2"/>
+  <line x1="14" y1="28" x2="14" y2="52" stroke="#475569" stroke-width="1"/>
+  <line x1="20" y1="28" x2="20" y2="52" stroke="#475569" stroke-width="1"/>
+
+  <!-- Motor Terminals (+ and -) -->
+  <rect x="4" y="24" width="8" height="8" rx="1.5" fill="#ef4444" stroke="#991b1b" stroke-width="1"/>
+  <text x="8" y="30.5" font-family="sans-serif" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">+</text>
+  <rect x="4" y="48" width="8" height="8" rx="1.5" fill="#334155" stroke="#0f172a" stroke-width="1"/>
+  <text x="8" y="54.5" font-family="sans-serif" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">−</text>
+
+  <!-- Main Yellow Gearbox Housing -->
+  <path d="M 40 12 L 104 12 A 6 6 0 0 1 110 18 L 110 62 A 6 6 0 0 1 104 68 L 40 68 A 4 4 0 0 1 36 64 L 36 16 A 4 4 0 0 1 40 12 Z"
+        fill="url(#gmYellow)" stroke="#b45309" stroke-width="1.8"/>
+
+  <!-- Housing details & screws -->
+  <circle cx="48" cy="20" r="2.8" fill="#78350f" stroke="#451a03" stroke-width="0.8"/>
+  <circle cx="48" cy="60" r="2.8" fill="#78350f" stroke="#451a03" stroke-width="0.8"/>
+  <rect x="56" y="22" width="16" height="36" rx="2" fill="#d97706" opacity="0.6"/>
+  <line x1="64" y1="24" x2="64" y2="56" stroke="#b45309" stroke-width="1" stroke-dasharray="2,2"/>
+
+  <!-- Gearbox Hub Bushing -->
+  <circle cx="85" cy="40" r="16" fill="#d97706" stroke="#b45309" stroke-width="1.2"/>
+  <circle cx="85" cy="40" r="13" fill="#fbbf24"/>
+
+  <!-- Output Shaft / Cross -->
+  <circle cx="85" cy="40" r="9" fill="url(#gmShaft)" stroke="#64748b" stroke-width="1.2"/>
+  <path d="M 81 35 L 89 35 A 6 6 0 0 1 89 45 L 81 45 Z" fill="#f97316"/>
+  <line x1="85" y1="31" x2="85" y2="33" stroke="#ea580c" stroke-width="2" stroke-linecap="round"/>
+  <line x1="85" y1="47" x2="85" y2="49" stroke="#ea580c" stroke-width="2" stroke-linecap="round"/>
+  <line x1="76" y1="40" x2="78" y2="40" stroke="#ea580c" stroke-width="2" stroke-linecap="round"/>
+  <line x1="92" y1="40" x2="94" y2="40" stroke="#ea580c" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Brand Label -->
+  <text x="56" y="75" font-family="sans-serif" font-size="6.5" font-weight="bold" fill="#78350f">TT 1:48</text>
+</svg>

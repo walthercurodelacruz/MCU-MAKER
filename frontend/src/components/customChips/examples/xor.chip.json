@@ -1,0 +1,9 @@
+{
+  "schema": "mcu-maker-chip/v1",
+  "name": "XOR Gate",
+  "author": "MCU Maker",
+  "license": "MIT",
+  "description": "2-input exclusive-OR logic gate. OUT = A xor B.",
+  "pins": ["A", "B", "OUT", "GND", "VCC"],
+  "attributes": []
+}

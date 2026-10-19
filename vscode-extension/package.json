@@ -1,0 +1,170 @@
+{
+  "name": "mcu-maker-simulator",
+  "displayName": "MCU Maker Simulator",
+  "description": "Local Arduino & ESP32 simulator for VS Code — compile, simulate, and debug embedded projects without leaving your editor. Requires a MCU Maker Pro subscription; 30-day free trial included.",
+  "version": "0.2.0",
+  "publisher": "mcu_maker",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidmonterocrespo24/mcu_maker"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Testing",
+    "Education"
+  ],
+  "keywords": [
+    "arduino",
+    "esp32",
+    "simulator",
+    "emulator",
+    "embedded",
+    "micropython",
+    "raspberry-pi-pico",
+    "wokwi",
+    "electronics"
+  ],
+  "activationEvents": [
+    "workspaceContains:mcu_maker.toml",
+    "workspaceContains:diagram.json",
+    "onUri"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mcu_maker.openSimulator",
+        "title": "Open Simulator",
+        "category": "MCU Maker",
+        "icon": "$(circuit-board)"
+      },
+      {
+        "command": "mcu_maker.compile",
+        "title": "Compile Sketch",
+        "category": "MCU Maker",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "mcu_maker.run",
+        "title": "Run Simulation",
+        "category": "MCU Maker",
+        "icon": "$(play)"
+      },
+      {
+        "command": "mcu_maker.stop",
+        "title": "Stop Simulation",
+        "category": "MCU Maker",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "mcu_maker.selectBoard",
+        "title": "Select Board",
+        "category": "MCU Maker",
+        "icon": "$(list-selection)"
+      },
+      {
+        "command": "mcu_maker.signIn",
+        "title": "Sign In",
+        "category": "MCU Maker",
+        "icon": "$(sign-in)"
+      },
+      {
+        "command": "mcu_maker.pasteLicenseKey",
+        "title": "Paste License Key",
+        "category": "MCU Maker",
+        "icon": "$(key)"
+      },
+      {
+        "command": "mcu_maker.signOut",
+        "title": "Sign Out",
+        "category": "MCU Maker",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "mcu_maker.showLicenseStatus",
+        "title": "Show License Status",
+        "category": "MCU Maker",
+        "icon": "$(info)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mcu_maker.run",
+          "when": "resourceExtname == .ino || resourceExtname == .py",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "MCU Maker Simulator",
+      "properties": {
+        "mcu_maker.defaultBoard": {
+          "type": "string",
+          "default": "arduino-uno",
+          "enum": [
+            "arduino-uno",
+            "arduino-nano",
+            "arduino-mega",
+            "raspberry-pi-pico",
+            "pi-pico-w",
+            "esp32",
+            "esp32-s3",
+            "esp32-c3",
+            "attiny85"
+          ],
+          "description": "Default board type for new projects"
+        },
+        "mcu_maker.autoStartBackend": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start the compilation backend when needed"
+        },
+        "mcu_maker.backendPort": {
+          "type": "number",
+          "default": 0,
+          "description": "Fixed port for the backend (0 = auto-assign)"
+        },
+        "mcu_maker.arduinoCliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to arduino-cli executable (leave empty to auto-detect)"
+        },
+        "mcu_maker.licenseApiBase": {
+          "type": "string",
+          "default": "https://mcumaker.dev",
+          "description": "Base URL for license validation. Override only if you're a MCU Maker developer testing against a staging environment."
+        }
+      }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "diagram.json",
+        "url": "./schemas/diagram.schema.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:extension && npm run build:webview",
+    "build:extension": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node18 --sourcemap",
+    "build:webview": "cd webview && npm run build",
+    "watch": "esbuild ./src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --target=node18 --sourcemap --watch",
+    "lint": "eslint src/",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5"
+  }
+}

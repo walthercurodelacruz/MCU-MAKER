@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect x="8" y="10" width="48" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1"/>
+  <rect x="12" y="13" width="40" height="34" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.6"/>
+  <text x="32" y="32" text-anchor="middle" font-family="monospace" font-size="5" font-weight="bold" fill="#334155">4.2" EPD</text>
+  <rect x="24" y="50" width="16" height="8" fill="#d97706" rx="1"/>
+</svg>

@@ -1,0 +1,14 @@
+[workspace]
+members = [
+    "crates/mcu-maker-server",
+    "crates/mcu-maker-launcher",
+    "crates/mcu-maker-worker",
+]
+resolver = "2"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <line x1="8" y1="23" x2="18" y2="23" stroke="#64748b" stroke-width="2"/><line x1="8" y1="41" x2="18" y2="41" stroke="#64748b" stroke-width="2"/>
+  <line x1="46" y1="32" x2="56" y2="32" stroke="#64748b" stroke-width="2"/>
+  
+  <path d="M 18 16 L 32 16 A 16 16 0 0 1 32 48 L 18 48 Z" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  
+  <text x="32" y="58" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5" font-weight="900" fill="#1e40af">AND</text>
+</svg>

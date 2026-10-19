@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <line x1="8" y1="18" x2="18" y2="18" stroke="#64748b" stroke-width="1.8"/><line x1="8" y1="27" x2="18" y2="27" stroke="#64748b" stroke-width="1.8"/><line x1="8" y1="37" x2="18" y2="37" stroke="#64748b" stroke-width="1.8"/><line x1="8" y1="46" x2="18" y2="46" stroke="#64748b" stroke-width="1.8"/>
+  <line x1="51" y1="32" x2="56" y2="32" stroke="#64748b" stroke-width="2"/>
+  
+  <path d="M 18 16 Q 30 32 18 48 Q 40 48 46 32 Q 40 16 18 16 Z" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.8"/>
+  <circle cx="48.5" cy="32" r="2.5" fill="#f8fafc" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="32" y="58" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5" font-weight="900" fill="#1e40af">NOR (4 IN)</text>
+</svg>
