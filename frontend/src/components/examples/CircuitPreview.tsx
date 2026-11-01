@@ -120,7 +120,7 @@ const BOARD_DEFS: Record<string, CompDef> = {
   esp32: { svg: 'esp32-devkit-v1.svg', w: 107, h: 204 },
   'esp32-devkit-c-v4': { svg: 'esp32-devkit-c-v4.svg', w: 105, h: 212 },
   'esp32-cam': { svg: 'esp32-cam.svg', w: 102, h: 152 },
-  'wemos-lolin32-lite': { svg: 'esp32-devkit-v1.svg', w: 107, h: 204 },
+  'wemos-lolin32-lite': { svg: 'wemos-lolin32-lite.svg', w: 107, h: 204 },
   'esp32-s3': { svg: 'esp32-s3.svg', w: 72, h: 199 },
   'xiao-esp32-s3': { svg: 'xiao-esp32-s3.svg', w: 68, h: 88 },
   'arduino-nano-esp32': { svg: 'arduino-nano-esp32.svg', w: 170, h: 72 },
@@ -128,7 +128,7 @@ const BOARD_DEFS: Record<string, CompDef> = {
   'xiao-esp32-c3': { svg: 'xiao-esp32-c3.svg', w: 68, h: 88 },
   'aitewinrobot-esp32c3-supermini': { svg: 'esp32c3-supermini.svg', w: 68, h: 92 },
   // ATtiny85 — DIP-8, drawn inline (no wokwi element ships its SVG).
-  attiny85: { svg: '', inline: Attiny85InlinePreview, w: 160, h: 100 },
+  attiny85: { svg: 'attiny85.svg', w: 160, h: 132 },
 };
 
 // LED color → SVG filename

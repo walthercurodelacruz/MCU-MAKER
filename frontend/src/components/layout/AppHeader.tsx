@@ -118,27 +118,28 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ editorMenu, editorToolbar 
     const ro = new ResizeObserver(schedule);
     const content = header.querySelector<HTMLElement>(':scope > .header-content');
     const left = content?.querySelector<HTMLElement>(':scope > .header-left');
+    const right = content?.querySelector<HTMLElement>(':scope > .header-right');
     const host = content?.querySelector<HTMLElement>(':scope > .header-editor-toolbar');
     const strip = host?.firstElementChild;
-    for (const el of [left, host, ...(strip ? Array.from(strip.children) : [])]) {
+    for (const el of [left, right, host, ...(strip ? Array.from(strip.children) : [])]) {
       if (el) ro.observe(el);
     }
     // Zones mount their controls later (the canvas side is a portal) —
-    // pick up children that appear after mount.
+    // pick up children that appear after mount, including sub-mode buttons inside code toggle.
     const mo = strip
       ? new MutationObserver(() => {
           for (const z of Array.from(strip.children)) ro.observe(z);
           schedule();
         })
       : null;
-    if (strip && mo) mo.observe(strip, { childList: true });
+    if (strip && mo) mo.observe(strip, { childList: true, subtree: true });
     return () => {
       ro.disconnect();
       mo?.disconnect();
       if (raf) cancelAnimationFrame(raf);
       header.classList.remove(STRIP_BELOW_CLASS);
     };
-  }, [hasStrip]);
+  }, [hasStrip, editorToolbar]);
 
   // Tauri desktop: no brand row. Brand/auto-save/share/auth-slot all live
   // elsewhere in desktop: the title bar shows "MCU Maker Desktop", the native

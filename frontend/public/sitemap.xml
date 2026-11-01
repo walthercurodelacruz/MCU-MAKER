@@ -134,132 +134,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://mcumaker.dev/examples/stm32-oled-4pin-i2c/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://mcumaker.dev/examples/ky-040-rotary-encoder/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-serial-counter/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-f4-discovery-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-olimex-h405-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-netduino-plus2-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-netduino2-serial/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-blackpill-f401-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-f103cb-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-uno-gpio-mirror/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-uno-serial-link/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-esp32-gpio-sync/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-blackpill-blink/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-blackpill-gpio/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-bmp280/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-oled/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-mpu6050/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-rtc/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-blackpill-oled/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-weather-station/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-7segment/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-rgb/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-button/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-switch/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/stm32-bluepill-stepper/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -425,11 +300,6 @@
   </url>
   <url>
     <loc>https://mcumaker.dev/examples/esp32-serial-echo/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi-to-arduino-led-control/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -740,36 +610,6 @@
   </url>
   <url>
     <loc>https://mcumaker.dev/examples/esp32-doom/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi3-blink-led/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi3-running-lights/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi4-button-led/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi4-rgb-color-cycle/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi5-pir-motion-alarm/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/pi5-traffic-light/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

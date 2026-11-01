@@ -114,6 +114,8 @@ const PREFERRED_BLINK_EXAMPLE: Record<string, string> = {
   'arduino-uno': 'blink-led',
   'arduino-mega': 'mega-blink',
   'arduino-nano': 'nano-blink',
+  attiny85: 'attiny85-blink',
+  'pi-pico-w': 'picow-wifi-async-led',
   // Camera board: the webcam demo IS its "blink" — the board exists to
   // show the sensor, a bare LED sketch would be a misleading first run.
   'esp32-cam': 'esp32cam-webcam-demo',

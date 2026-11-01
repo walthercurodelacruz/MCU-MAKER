@@ -587,6 +587,26 @@ async fn handle_socket(socket: WebSocket, client_id: String, mgr: Arc<Simulation
                     "ping" => {
                         let _ = ws_tx.send(serde_json::json!({ "type": "pong" }).to_string());
                     }
+                    "start_pi" => {
+                        let pi_board = data.get("board").and_then(|b| b.as_str()).unwrap_or("raspberry-pi-3");
+                        let err_msg = serde_json::json!({
+                            "type": "error",
+                            "data": {
+                                "message": format!("La simulación de {} requiere qemu-system-aarch64 e imágenes de kernel Linux (boot_images) que no están presentes en esta instalación.", pi_board)
+                            }
+                        });
+                        let _ = ws_tx.send(err_msg.to_string());
+                        let serial_msg = serde_json::json!({
+                            "type": "serial_output",
+                            "data": {
+                                "data": format!("\r\n[MCU Maker] {}: Simulación de Raspberry Pi OS suspendida. Se requieren imágenes de arranque del sistema AArch64.\r\n", pi_board)
+                            }
+                        });
+                        let _ = ws_tx.send(serial_msg.to_string());
+                    }
+                    "stop_pi" => {
+                        // Cleanly acknowledge stop_pi
+                    }
                     _ => {
                         // Forward arbitrary bus/sensor messages to worker
                         let workers = mgr_clone.workers.read().await;

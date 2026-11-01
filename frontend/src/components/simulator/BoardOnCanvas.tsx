@@ -118,7 +118,7 @@ export const BoardOnCanvas = ({
       // (rp2040:rp2040:rpipico) and every Pi-Pico sketch's #defines.
       case 'raspberry-pi-pico':
       case 'pi-pico-w':
-        return <PiPicoW id={id} x={x} y={y} />;
+        return <PiPicoW id={id} x={x} y={y} boardKind={boardKind} />;
       case 'esp32':
       case 'esp32-devkit-c-v4':
       case 'esp32-cam':

@@ -220,6 +220,11 @@ static PINMAP: [i16; 41] = [
     20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
 ];
 
+static PINMAP_C3: [i16; 23] = [
+    22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21,
+];
+
 unsafe extern "C" fn on_write_pin(slot: i32, value: i32) {
     if !(1..=40).contains(&slot) {
         return;
@@ -409,7 +414,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         picsimlab_i2c_event: Some(on_i2c_event),
         picsimlab_spi_event: Some(on_spi_event),
         picsimlab_uart_tx_event: Some(on_uart_tx),
-        pinmap: PINMAP.as_ptr(),
+        pinmap: if cfg.machine == "esp32c3-picsimlab" {
+            PINMAP_C3.as_ptr()
+        } else {
+            PINMAP.as_ptr()
+        },
         picsimlab_rmt_event: Some(on_rmt_event),
         picsimlab_gpio_matrix_cb: None,
         picsimlab_spi_event_batch: None,

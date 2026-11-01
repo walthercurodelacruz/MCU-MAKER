@@ -24,7 +24,6 @@ export type EditorCommandId =
   | 'project.export'
   | 'project.exportVlx'
   | 'project.exportBom'
-  | 'project.exportScreenshot'
   | 'file.new'
   // Monaco's own Format Document action, registered by CodeEditor while the
   // open file has a formatter (C/C++, Python, JSON) — see codeFormatters.ts.
@@ -56,8 +55,7 @@ export type EditorCommandId =
   | 'view.toggleConsole'
   | 'view.reset'
   | 'view.zoomIn'
-  | 'view.zoomOut'
-  | 'view.toggleSchematic';
+  | 'view.zoomOut';
 
 const handlers = new Map<EditorCommandId, () => void>();
 

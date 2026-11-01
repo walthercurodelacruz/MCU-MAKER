@@ -142,7 +142,6 @@ export const CHIP_GROUP_PREFIX = 'group-chip-';
  * workflow.
  */
 export type EditorViewMode = 'code' | 'circuit' | 'both';
-export type CircuitDisplayMode = 'physical' | 'schematic';
 
 interface EditorState {
   files: WorkspaceFile[];
@@ -157,26 +156,6 @@ interface EditorState {
   fontSize: number;
   viewMode: EditorViewMode;
   setViewMode: (mode: EditorViewMode) => void;
-  circuitDisplayMode: CircuitDisplayMode;
-  setCircuitDisplayMode: (mode: CircuitDisplayMode) => void;
-  /** Persisted schematic layout: component coordinates, rotations, and custom wire offsets */
-  schematicPositions: Record<string, { x: number; y: number; rotation?: number }>;
-  schematicWireLayouts: Record<string, { trunkOffset?: number; vOffset?: number }>;
-  setSchematicPositions: (
-    updater:
-      | Record<string, { x: number; y: number; rotation?: number }>
-      | ((
-          prev: Record<string, { x: number; y: number; rotation?: number }>,
-        ) => Record<string, { x: number; y: number; rotation?: number }>),
-  ) => void;
-  setSchematicWireLayouts: (
-    updater:
-      | Record<string, { trunkOffset?: number; vOffset?: number }>
-      | ((
-          prev: Record<string, { trunkOffset?: number; vOffset?: number }>,
-        ) => Record<string, { trunkOffset?: number; vOffset?: number }>),
-  ) => void;
-  resetSchematicLayout: () => void;
   /** Desktop file-explorer pane. Lives in the store (not EditorPage state) so
    *  the header's View menu can show its checkmark and toggle it — the
    *  toolbar's own segmented toggle hides on narrow bars. */
@@ -273,21 +252,6 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   fontSize: 14,
   viewMode: 'both',
   setViewMode: (mode) => set({ viewMode: mode }),
-  circuitDisplayMode: 'physical',
-  setCircuitDisplayMode: (mode) => set({ circuitDisplayMode: mode }),
-  schematicPositions: {},
-  schematicWireLayouts: {},
-  setSchematicPositions: (updater) =>
-    set((s) => ({
-      schematicPositions:
-        typeof updater === 'function' ? updater(s.schematicPositions) : updater,
-    })),
-  setSchematicWireLayouts: (updater) =>
-    set((s) => ({
-      schematicWireLayouts:
-        typeof updater === 'function' ? updater(s.schematicWireLayouts) : updater,
-    })),
-  resetSchematicLayout: () => set({ schematicPositions: {}, schematicWireLayouts: {} }),
   explorerOpen: false,
   setExplorerOpen: (open) => set({ explorerOpen: open }),
   toggleExplorer: () => set((s) => ({ explorerOpen: !s.explorerOpen })),

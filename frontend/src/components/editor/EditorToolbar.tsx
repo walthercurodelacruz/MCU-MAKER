@@ -47,6 +47,7 @@ import {
   trackOpenLibraryManager,
 } from '../../utils/analytics';
 import './EditorToolbar.css';
+import { toggleSimulationRecording } from '../../services/simulationRecorder';
 import { getResolvedTheme } from '../../lib/theme';
 
 /**
@@ -1445,65 +1446,6 @@ export const EditorToolbar = ({
     }
   };
 
-  // Phase 3 D3.2 — Schematic screenshot. Pro-tier-gated by the backend.
-  // Same UX pattern as BOM export: everyone can click; 402 redirects to
-  // /pricing. The server-side headless chromium renders the canvas and
-  // returns a PNG, which we trigger a download for.
-  const handleExportScreenshot = async () => {
-    const projectId = currentProject?.id;
-    if (!projectId) {
-      setMessage({ type: 'error', text: 'Save the project before exporting an image.' });
-      return;
-    }
-    setMessage({ type: 'info', text: 'Rendering screenshot — may take 5-10 seconds…' });
-    try {
-      // The render happens in a headless browser on the server, which has
-      // no localStorage and therefore no idea which theme the user is
-      // looking at -- it used to hand back a dark image to someone working
-      // in light mode. Pass the RESOLVED theme so the export matches the
-      // canvas it was taken from.
-      const resp = await fetch(
-        `/api/pro/projects/${projectId}/screenshot.png?theme=${getResolvedTheme()}`,
-        { credentials: 'include' },
-      );
-      if (resp.status === 402) {
-        // Fire the in-place upgrade modal instead of bouncing to /pricing —
-        // keeps the user in the editor with full context. The pro overlay's
-        // UpgradeGate listens for this event and opens UpgradePromptModal.
-        window.dispatchEvent(new CustomEvent('mcu-maker-pro-upgrade-prompt', {
-          detail: { componentName: 'Schematic screenshot export' },
-        }));
-        return;
-      }
-      if (resp.status === 401) {
-        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
-        return;
-      }
-      if (resp.status === 422) {
-        setMessage({ type: 'error', text: 'Add at least one component to export an image.' });
-        return;
-      }
-      if (!resp.ok) {
-        setMessage({ type: 'error', text: 'Screenshot export failed.' });
-        return;
-      }
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const cd = resp.headers.get('Content-Disposition') || '';
-      const m = /filename="?([^"]+)"?/.exec(cd);
-      a.download = m ? m[1] : `mcu-maker-${projectId}.png`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setMessage({ type: 'success', text: 'Screenshot downloaded.' });
-    } catch {
-      setMessage({ type: 'error', text: 'Screenshot export failed.' });
-    }
-  };
-
   // Phase 3 D3.1 — BOM export. Pro-tier-gated by the backend (402 if not pro).
   // We let everyone click; the 402 response feeds the upgrade prompt below
   // so free/maker users hit the funnel naturally instead of an obviously-
@@ -1694,7 +1636,6 @@ export const EditorToolbar = ({
     export: () => void handleExport(),
     exportVlx: () => handleExportVlx(),
     bom: () => void handleExportBom(),
-    screenshot: () => void handleExportScreenshot(),
     firmware: () => firmwareInputRef.current?.click(),
     // Pro actions fire the same window events the old "..." menu items
     // fired; without the overlay they are silent no-ops, which is fine —
@@ -1707,10 +1648,12 @@ export const EditorToolbar = ({
       window.dispatchEvent(new CustomEvent('mcu-maker-pro-github-sync-prompt', {
         detail: { projectId: currentProject?.id ?? null },
       })),
-    record: () =>
-      window.dispatchEvent(new CustomEvent('mcu-maker-pro-replay-record-toggle', {
-        detail: { projectId: currentProject?.id ?? null },
-      })),
+    record: () => {
+      const projName = currentProject?.slug || 'simulacion';
+      void toggleSimulationRecording(projName, undefined, (msg) => {
+        setMessage(msg);
+      });
+    },
     compile: () => void handleCompile(),
     run: () => void handleRun(),
     stop: () => handleStop(),
@@ -1725,7 +1668,6 @@ export const EditorToolbar = ({
       registerEditorCommand('project.export', () => menuCommandsRef.current.export()),
       registerEditorCommand('project.exportVlx', () => menuCommandsRef.current.exportVlx()),
       registerEditorCommand('project.exportBom', () => menuCommandsRef.current.bom()),
-      registerEditorCommand('project.exportScreenshot', () => menuCommandsRef.current.screenshot()),
       registerEditorCommand('firmware.upload', () => menuCommandsRef.current.firmware()),
       registerEditorCommand('project.share', () => menuCommandsRef.current.share()),
       registerEditorCommand('project.githubSync', () => menuCommandsRef.current.githubSync()),

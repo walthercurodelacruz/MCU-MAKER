@@ -23,6 +23,8 @@ export interface StripFitInput {
   contentWidth: number;
   /** Width of `.header-left` (brand + menus), pinned to the first row. */
   leftWidth: number;
+  /** Width of `.header-right` (theme toggle, scope, libraries, actions), pinned to the first row. */
+  rightWidth?: number;
   /** Horizontal margins of the strip host (`.header-editor-toolbar`) on the
    *  brand row (positive) and as its own bar (negative: it bleeds into the
    *  header padding). */
@@ -73,7 +75,7 @@ export function stripNeededWidth(
 
 /** Width the strip gets on the brand row next to the brand + menus. */
 export function stripAvailableInline(i: StripFitInput): number {
-  return i.contentWidth - i.leftWidth - i.hostMarginXInline;
+  return i.contentWidth - i.leftWidth - (i.rightWidth ?? 0) - i.hostMarginXInline;
 }
 
 /** Width the strip gets as its own bar. */
@@ -110,6 +112,7 @@ export const STRIP_COMPACT_CLASS = 'unified-toolbar--compact';
 export function measureStripFit(header: HTMLElement): StripFitInput | null {
   const content = header.querySelector<HTMLElement>(':scope > .header-content');
   const left = content?.querySelector<HTMLElement>(':scope > .header-left');
+  const right = content?.querySelector<HTMLElement>(':scope > .header-right');
   const host = content?.querySelector<HTMLElement>(':scope > .header-editor-toolbar');
   const strip = host?.firstElementChild as HTMLElement | null | undefined;
   if (!content || !left || !host || !strip) return null;
@@ -136,7 +139,8 @@ export function measureStripFit(header: HTMLElement): StripFitInput | null {
     const stripPaddingX = px(stripCs.paddingLeft) + px(stripCs.paddingRight);
     const hostMarginXInline = marginX(host);
     const contentWidth = content.clientWidth;
-    const leftWidth = left.getBoundingClientRect().width;
+    const leftWidth = left.getBoundingClientRect().width + marginX(left);
+    const rightWidth = right ? right.getBoundingClientRect().width + marginX(right) : 0;
 
     strip.classList.add(STRIP_COMPACT_CLASS);
     const inlineCompactZoneWidths = zoneWidths();
@@ -149,6 +153,7 @@ export function measureStripFit(header: HTMLElement): StripFitInput | null {
     return {
       contentWidth,
       leftWidth,
+      rightWidth,
       hostMarginXInline,
       hostMarginXBelow,
       stripPaddingX,

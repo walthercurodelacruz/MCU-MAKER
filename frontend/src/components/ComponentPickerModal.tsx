@@ -62,6 +62,7 @@ import {
   type OnlineOnlyComponentAd,
 } from '../lib/onlineOnlyBoards';
 import { Attiny85 } from './mcu-maker-components/Attiny85';
+import './mcu-maker-components/Attiny85Element';
 import './mcu-maker-components/Esp32Element'; // registers mcu-maker-esp32
 import './mcu-maker-components/PiPicoWElement'; // registers mcu-maker-pi-pico-w
 import './mcu-maker-components/Ssd1306I2cElement'; // registers mcu-maker-ssd1306-i2c-4pin
@@ -106,7 +107,7 @@ const BOARD_DESCRIPTIONS: Record<BoardKind, string> = {
  * NOT deleted from components-metadata.json, because saved projects that
  * already contain one still need the element to render.
  */
-const UNSIMULATED_BOARD_SHELLS = new Set(['nano-rp2040-connect', 'esp32-devkit-v1']);
+const UNSIMULATED_BOARD_SHELLS = new Set(['nano-rp2040-connect', 'esp32-devkit-v1', 'arduino-mega', 'arduino-nano', 'arduino-uno']);
 
 /**
  * Parts created only by canvas gestures, never placed from the picker. The
@@ -321,7 +322,8 @@ export const ComponentPickerModal: React.FC<ComponentPickerModalProps> = ({
     // shows every BoardKind with the real art, and adding one through the
     // component path drops a dead canvas part instead of a running board
     // (that is how "add a Pi 4" placed a 40-pin prop that never boots).
-    components = components.filter((c) => !(c.id in BOARD_KIND_LABELS));
+    // Boards are offered in the dedicated Boards section via onSelectBoard; filter out category 'boards' and board shells.
+    components = components.filter((c) => !(c.id in BOARD_KIND_LABELS) && c.category !== 'boards');
 
     // wokwi-elements board shells with no simulator behind them. They come
     // in through the metadata auto-scan and offering them reads as board
@@ -656,6 +658,12 @@ export const ComponentPickerModal: React.FC<ComponentPickerModalProps> = ({
    * nothing was placed.
    */
   const handleSelectComponent = (component: ComponentMetadata) => {
+    if (onSelectBoard && (component.category === 'boards' || component.id in BOARD_KIND_LABELS || component.id === 'esp32-devkit-v1')) {
+      const targetKind = component.id === 'esp32-devkit-v1' ? 'esp32' : (component.id as BoardKind);
+      onSelectBoard(targetKind);
+      onClose();
+      return;
+    }
     if (component.pro_only) {
       const gate = (
         window as unknown as {
@@ -1013,12 +1021,19 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ component, onSelect, hove
   //      preview came up blank — which is what happened to every part drawn in
   //      React rather than as a web component (the SPICE probes, tagged
   //      `mcu-maker-instr-voltmeter` / `mcu-maker-instr-ammeter`).
-  const hasSvgThumbnail =
-    typeof component.thumbnail === 'string' && component.thumbnail.trim().startsWith('<svg');
+  const svgMatch =
+    typeof component.thumbnail === 'string'
+      ? component.thumbnail.match(/<svg[\s\S]*<\/svg>/i)
+      : null;
+  const cleanSvgThumbnail = svgMatch ? svgMatch[0] : null;
+  const hasSvgThumbnail = cleanSvgThumbnail !== null;
   const tagIsRegistered =
     typeof customElements !== 'undefined' && customElements.get(component.tagName) !== undefined;
   const usePresetSvg =
-    hasSvgThumbnail && (PASSIVE_TAGS.has(component.tagName) || !tagIsRegistered);
+    hasSvgThumbnail &&
+    (PASSIVE_TAGS.has(component.tagName) ||
+      component.tagName.startsWith('mcu-maker-') ||
+      !tagIsRegistered);
   const boardArt = PI_BOARD_ART[component.tagName];
 
   // Render actual web component as thumbnail
@@ -1098,7 +1113,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ component, onSelect, hove
         ) : usePresetSvg ? (
           <div
             className="component-preview"
-            dangerouslySetInnerHTML={{ __html: component.thumbnail }}
+            dangerouslySetInnerHTML={{ __html: cleanSvgThumbnail }}
           />
         ) : (
           <div ref={thumbnailRef} className="component-preview" />
@@ -1118,11 +1133,32 @@ const ComponentCard: React.FC<ComponentCardProps> = ({ component, onSelect, hove
 
 // Tag name used to render a thumbnail for each board kind.
 // Boards without a tag will show a generic chip icon.
+// Static photo artwork for boards so picker cards display high-resolution photos
+const BOARD_ART: Partial<Record<BoardKind, string>> = {
+  'arduino-uno': '/boards/arduino-uno.png',
+  'arduino-nano': '/boards/arduino-nano.png',
+  'arduino-mega': '/boards/arduino-mega.png',
+  attiny85: '/boards/attiny85.png',
+  'raspberry-pi-pico': '/boards/raspberry-pi-pico.png',
+  'pi-pico-w': '/boards/pi-pico-w.png',
+  esp32: '/boards/esp32.png',
+  'esp32-devkit-c-v4': '/boards/esp32-devkit-c-v4.png',
+  'esp32-cam': '/boards/esp32-cam.png',
+  'wemos-lolin32-lite': '/boards/wemos-lolin32-lite.png',
+  'esp32-s3': '/boards/esp32-s3.png',
+  'xiao-esp32-s3': '/boards/xiao-esp32-s3.png',
+  'arduino-nano-esp32': '/boards/arduino-nano-esp32.png',
+  'esp32-c3': '/boards/esp32-c3.png',
+  'xiao-esp32-c3': '/boards/xiao-esp32-c3.png',
+  'aitewinrobot-esp32c3-supermini': '/boards/aitewinrobot-esp32c3-supermini.png',
+};
+
 const BOARD_TAG: Partial<Record<BoardKind, string>> = {
   'arduino-uno': 'wokwi-arduino-uno',
   'arduino-nano': 'wokwi-arduino-nano',
   'arduino-mega': 'wokwi-arduino-mega',
-  'raspberry-pi-pico': 'wokwi-nano-rp2040-connect',
+  attiny85: 'mcu-maker-attiny85',
+  'raspberry-pi-pico': 'mcu-maker-pi-pico-w',
   'pi-pico-w': 'mcu-maker-pi-pico-w',
   esp32: 'mcu-maker-esp32',
   'esp32-devkit-c-v4': 'mcu-maker-esp32',
@@ -1160,10 +1196,12 @@ const BoardCard: React.FC<BoardCardProps> = ({ kind, onSelect, hoverApi }) => {
     hoverApi,
   );
 
+  const artUrl = BOARD_ART[kind];
+
   React.useEffect(() => {
+    if (artUrl) return; // Dedicated photo is rendered directly in JSX below
     if (!thumbnailRef.current) return;
     if (!nearViewport) return; // off-screen: don't pay for a custom element yet
-    if (kind === 'attiny85') return;
 
     const tag = BOARD_TAG[kind] ?? getProBoard(kind)?.tag;
     if (!tag) return;
@@ -1174,7 +1212,8 @@ const BoardCard: React.FC<BoardCardProps> = ({ kind, onSelect, hoverApi }) => {
     for (const [name, value] of Object.entries(getProBoard(kind)?.thumbnailAttrs ?? {})) {
       el.setAttribute(name, value);
     }
-    el.style.transform = 'scale(0.28)';
+    const scale = kind === 'attiny85' ? 0.45 : 0.28;
+    el.style.transform = `scale(${scale})`;
     el.style.transformOrigin = 'center center';
 
     thumbnailRef.current.innerHTML = '';
@@ -1183,14 +1222,7 @@ const BoardCard: React.FC<BoardCardProps> = ({ kind, onSelect, hoverApi }) => {
     return () => {
       if (thumbnailRef.current) thumbnailRef.current.innerHTML = '';
     };
-  }, [kind, nearViewport]);
-
-  const reactThumbnail =
-    kind === 'attiny85' ? (
-      <div style={{ transform: 'scale(0.55)', transformOrigin: 'center center' }}>
-        <Attiny85 />
-      </div>
-    ) : null;
+  }, [kind, nearViewport, artUrl]);
 
   return (
     <button
@@ -1202,11 +1234,27 @@ const BoardCard: React.FC<BoardCardProps> = ({ kind, onSelect, hoverApi }) => {
     >
       {isProBoardKind(kind) && <ProBadge />}
       <div className="card-thumbnail">
-        {reactThumbnail ? reactThumbnail : <div ref={thumbnailRef} className="component-preview" />}
+        {artUrl ? (
+          <img
+            src={artUrl}
+            alt={BOARD_KIND_LABELS[kind]}
+            style={{
+              maxHeight: '62px',
+              maxWidth: '85%',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))',
+            }}
+            loading="lazy"
+          />
+        ) : (
+          <div ref={thumbnailRef} className="component-preview" />
+        )}
       </div>
       <div className="card-content">
         <div className="card-name">{BOARD_KIND_LABELS[kind]}</div>
-        <div className="card-description">{BOARD_DESCRIPTIONS[kind] ?? getProBoard(kind)?.description}</div>
+        <div className="card-description">
+          {BOARD_DESCRIPTIONS[kind] ?? getProBoard(kind)?.description ?? ''}
+        </div>
       </div>
     </button>
   );

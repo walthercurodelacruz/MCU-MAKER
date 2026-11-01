@@ -1,12 +1,13 @@
 /**
- * Raspberry Pi Pico W Web Component
+ * Raspberry Pi Pico / Pico W Web Component
  *
  * Dimensions: 20.9 mm × 52.75 mm → 105 × 264 px (× 5 px/mm)
  */
 
 const piPicoWSvgUrl = '/boards/pi-pico-w.svg';
+const piPicoSvgUrl = '/boards/pi-pico.svg';
 
-// Pi Pico W pins: 1.6 mm → x=8 (left), 19.3 mm → x=97 (right)
+// Pi Pico / Pico W pins: 1.6 mm → x=8 (left), 19.3 mm → x=97 (right)
 const PINS_PI_PICO_W = [
   { name: 'GP0', x: 8, y: 17 },
   { name: 'GP1', x: 8, y: 30 },
@@ -62,6 +63,10 @@ const PINS_PI_PICO_W = [
 ];
 
 class PiPicoWElement extends HTMLElement {
+  static get observedAttributes() {
+    return ['board-kind'];
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -71,33 +76,42 @@ class PiPicoWElement extends HTMLElement {
     this.render();
   }
 
+  attributeChangedCallback() {
+    this.render();
+  }
+
   get pinInfo() {
     return PINS_PI_PICO_W;
   }
 
+  private get config() {
+    const kind = this.getAttribute('board-kind');
+    const isPico = kind === 'raspberry-pi-pico';
+    return {
+      svgUrl: isPico ? piPicoSvgUrl : piPicoWSvgUrl,
+      alt: isPico ? 'Raspberry Pi Pico' : 'Raspberry Pi Pico W',
+    };
+  }
+
   private render() {
     if (!this.shadowRoot) return;
+    const { svgUrl, alt } = this.config;
     this.shadowRoot.innerHTML = `
       <style>
-        :host { display: inline-block; line-height: 0; }
+        :host { display: inline-block; line-height: 0; position: relative; }
         img   { display: block; }
       </style>
       <img
-        src="${piPicoWSvgUrl}"
+        src="${svgUrl}"
         width="105"
         height="264"
         draggable="false"
-        alt="Raspberry Pi Pico W"
+        alt="${alt}"
       />
     `;
   }
 }
 
 if (!customElements.get('mcu-maker-pi-pico-w')) {
-  if (!customElements.get('mcu-maker-pi-pico-w')) {
   customElements.define('mcu-maker-pi-pico-w', PiPicoWElement);
-}
-if (!customElements.get('mcu-maker-pi-pico-w')) {
-  customElements.define('mcu-maker-pi-pico-w', class extends PiPicoWElement {});
-}
 }

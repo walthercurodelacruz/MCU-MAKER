@@ -228,12 +228,7 @@ body {
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
-  /* When the row genuinely cannot fit (narrow window + docked chat), wrap
-     the canvas controls onto a second line instead of letting flexbox
-     squeeze fixed blocks below their content — that used to crush the
-     Code/Both/Circuit toggle to a third of its width, clipping two of its
-     buttons into unreachable slivers. Two short rows beat hidden buttons. */
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   background: var(--wb-3);
   border-bottom: 1px solid var(--wb-6);
   min-height: 38px;
@@ -738,6 +733,7 @@ body {
   border-bottom: none;
   min-height: 44px;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 /* Keep the brand block flush to the left and right controls pinned to the right
@@ -749,6 +745,7 @@ body {
   align-items: center;
   margin-left: 0;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .app-header--with-toolbar .header-right {
@@ -757,6 +754,7 @@ body {
   display: flex;
   align-items: center;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .header-editor-actions {
@@ -932,16 +930,23 @@ body {
    header again. */
 .app-header--with-toolbar.app-header--strip-below .header-content {
   flex-wrap: wrap;
+  row-gap: 0;
 }
 .app-header--with-toolbar.app-header--strip-below .header-editor-toolbar {
   flex-basis: 100%;
   order: 10;
   margin: 0 -16px;
-}
-.app-header--with-toolbar.app-header--strip-below .header-editor-toolbar .unified-toolbar {
   background: var(--wb-3);
   border-top: 1px solid var(--wb-6);
+}
+.app-header--with-toolbar.app-header--strip-below .header-editor-toolbar .unified-toolbar {
+  background: transparent;
+  border-top: none;
   min-height: 38px;
+  flex-wrap: nowrap;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
 /* ── Editor corner box (bottom-left) ─────────────────────────────────────
@@ -966,7 +971,7 @@ body {
 /* With the chat rising to the very top (agent CSS sets the header's
    padding-right), the strip must NOT also pad itself — that would double
    the reservation and squeeze the toolbar by another panel-width. */
-.app-header--with-toolbar .header-editor-toolbar .unified-toolbar {
+.app-header--with-toolbar:not(.app-header--strip-below) .header-editor-toolbar .unified-toolbar {
   padding-right: 6px !important;
 }
 

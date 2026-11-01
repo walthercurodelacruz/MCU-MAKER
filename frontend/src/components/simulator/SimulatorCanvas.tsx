@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import { adcPinMapFor } from '../mcu-maker-components/Esp32Element';
 import { ComponentPickerModal } from '../ComponentPickerModal';
 import { TinkercadComponentDrawer } from './TinkercadComponentDrawer';
-import { SchematicCanvas } from '../schematic/SchematicCanvas';
 import { PartInspectorDialog, type InspectorAction } from './PartInspectorDialog';
 import { CustomChipDialog } from '../customChips/CustomChipDialog';
 import { seedChipFileGroups, isChipSourceFile } from '../../services/chipFiles';
@@ -239,9 +238,6 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
 
   // Keyboard → pushbutton bindings (component `key` property).
   useButtonKeyBindings(components);
-
-  const circuitDisplayMode = useEditorStore((s) => s.circuitDisplayMode);
-  const setCircuitDisplayMode = useEditorStore((s) => s.setCircuitDisplayMode);
 
   // Legacy derived values for components that still use them
   const boardType = useSimulatorStore((s) => s.boardType);
@@ -1486,6 +1482,22 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
         }),
       );
       unsubscribers.push(unsubscribe);
+      if (pinManager.onPwmChange) {
+        const unsubPwm = pinManager.onPwmChange(pin, (_p, dutyCycle) => {
+          const hasGnd = !wireConnected || componentHasGndWire(component);
+          const effectiveDuty = hasGnd ? dutyCycle : 0;
+          const isLit = effectiveDuty > 0.005;
+          const el = document.getElementById(component.id);
+          if (el) {
+            if (component.metadataId === 'led' || el.tagName.toLowerCase() === 'wokwi-led') {
+              el.value = isLit;
+              el.style.opacity = isLit ? String(Math.max(0.12, Math.min(1.0, effectiveDuty))) : '0.4';
+            }
+          }
+          updateComponentState(component.id, isLit);
+        });
+        unsubscribers.push(unsubPwm);
+      }
     };
 
     components.forEach((component) => {
@@ -2488,11 +2500,6 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
       registerEditorCommand('view.reset', handleResetView),
       registerEditorCommand('view.zoomIn', () => viewCommandsRef.current.zoom(-100)),
       registerEditorCommand('view.zoomOut', () => viewCommandsRef.current.zoom(100)),
-      registerEditorCommand('view.toggleSchematic', () =>
-        setCircuitDisplayMode(
-          useEditorStore.getState().circuitDisplayMode === 'schematic' ? 'physical' : 'schematic',
-        ),
-      ),
     ];
     return () => offs.forEach((off) => off());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -3306,32 +3313,6 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
               </div>
 
               <div className="canvas-header-right">
-                {/* View Switcher: Circuito (Físico) vs Esquema (Normalizado) */}
-                <div className="canvas-view-mode-toggle" role="group" aria-label="Modo de visualización del circuito">
-                  <button
-                    type="button"
-                    className={`canvas-view-mode-btn ${circuitDisplayMode === 'physical' ? 'canvas-view-mode-btn--active' : ''}`}
-                    onClick={() => setCircuitDisplayMode('physical')}
-                    title="Vista de componentes y protoboard (Diseño físico)"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <rect x="2" y="7" width="20" height="14" rx="2" />
-                      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-                    </svg>
-                    <span className="canvas-view-mode-label">Circuito</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`canvas-view-mode-btn ${circuitDisplayMode === 'schematic' ? 'canvas-view-mode-btn--active' : ''}`}
-                    onClick={() => setCircuitDisplayMode('schematic')}
-                    title="Vista de diagrama esquemático (Símbolos electrónicos)"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                    </svg>
-                    <span className="canvas-view-mode-label">Esquema</span>
-                  </button>
-                </div>
 
                 {/* Component count */}
                 <span
@@ -3585,21 +3566,8 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
             </div>
           );
         })()}
-
-        {circuitDisplayMode === 'schematic' ? (
-          <SchematicCanvas
-            onSwitchToPhysical={() => setCircuitDisplayMode('physical')}
-            selectedComponentId={selectedComponentId}
-            onSelectComponent={setSelectedComponentId}
-            onRotateComponent={(id) => handleRotateComponent(id)}
-            onDeleteComponent={(id) => {
-              recordRemoveComponent(id);
-              setSelectedComponentId(null);
-            }}
-          />
-        ) : (
-          <div
-            ref={canvasRef}
+        <div
+          ref={canvasRef}
             className="canvas-content"
           onDragOver={handleCanvasDragOver}
           onDrop={handleCanvasDrop}
@@ -4011,7 +3979,6 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
             </button>
           </div>
         </div>
-        )}
       </div>
 
       {/* Touch-friendly pin picker — used to pick a pin from a list when the
@@ -4342,15 +4309,13 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
         })()}
 
       {/* Tinkercad Component Drawer */}
-      {circuitDisplayMode === 'physical' && (
-        <TinkercadComponentDrawer
-          isOpen={componentDrawerOpen}
+      <TinkercadComponentDrawer
+        isOpen={componentDrawerOpen}
           onClose={() => setComponentDrawerOpen(false)}
           onToggle={() => setComponentDrawerOpen((prev) => !prev)}
           onSelectComponent={handleSelectComponent}
           onSelectBoard={handleSelectBoard}
         />
-      )}
 
       {/* Component Picker Modal */}
       <ComponentPickerModal

@@ -329,11 +329,7 @@ const BOARD_COPIES = [
   ['esp32c3-supermini',            'esp32c3-supermini.svg'],
   ['arduino-nano-esp32',           'arduino-nano-esp32.svg'],
   ['wemos-lolin32-lite',           'wemos-lolin32-lite.svg'],
-  ['stm32-bluepill',               'stm32-bluepill.svg'],
-  ['stm32-blackpill',              'stm32-blackpill.svg'],
   ['attiny85',                     'attiny85.svg'],
-  ['raspberry-pi-3',               'Raspberry_Pi_3.svg'],
-  ['mcu-maker-raspberry-pi-3',     'Raspberry_Pi_3.svg'],
 ];
 
 console.log('\n📋 Copying Board SVGs...');

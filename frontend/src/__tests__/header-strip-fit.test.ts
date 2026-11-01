@@ -108,4 +108,15 @@ describe('header strip layout', () => {
       compact: false,
     });
   });
+
+  it('accurately subtracts rightWidth (ThemeToggle, Scope, Bibliotecas) and drops below when inline space is starved', () => {
+    // With 240px rightWidth, available inline space drops from 672 to 432.
+    // Uno needs 656px (or compact 596px), neither fits in 432px, so it cleanly drops below!
+    const withRight = { ...base, rightWidth: 240, ...uno };
+    expect(stripAvailableInline(withRight)).toBe(432);
+    expect(decideStripLayout(withRight)).toEqual({
+      below: true,
+      compact: false,
+    });
+  });
 });

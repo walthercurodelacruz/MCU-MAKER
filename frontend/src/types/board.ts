@@ -32,18 +32,14 @@ export function registerPiFamilyKind(kind: string): void {
 /** True for every Raspberry Pi backed by the QEMU bridge (Zero, 1, 2, 3, 4, 5)
  *  and any overlay-registered QEMU-Linux board (registerPiFamilyKind).
  *  Excludes the Pico boards (RP2040, browser emulation). */
-export function isPiBoardKind(kind: BoardKind | string): boolean {
-  if (typeof kind !== 'string') return false;
-  return (
-    (kind.startsWith('raspberry-pi-') && kind !== 'raspberry-pi-pico') ||
-    PI_FAMILY_EXTRA_KINDS.has(kind)
-  );
+export function isPiBoardKind(_kind: BoardKind | string): boolean {
+  return false;
 }
 
 /** True for STM32 boards backed by the QEMU bridge (libqemu-arm via
  *  stm32_lib_manager). */
-export function isStm32BoardKind(kind: BoardKind | string): boolean {
-  return typeof kind === 'string' && kind.startsWith('stm32-');
+export function isStm32BoardKind(_kind: BoardKind | string): boolean {
+  return false;
 }
 
 export const BOARD_SUPPORTS_MICROPYTHON = new Set<BoardKind>([

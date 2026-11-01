@@ -69,8 +69,8 @@ class Attiny85Element extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        :host { display: inline-block; line-height: 0; }
-        svg   { display: block; overflow: visible; }
+        :host { display: inline-block; line-height: 0; position: relative; }
+        img   { display: block; }
         .pin-label {
           font: 600 7px monospace;
           fill: #cdf;
@@ -79,33 +79,38 @@ class Attiny85Element extends HTMLElement {
         }
         .pin-label.power { fill: #aaa; }
       </style>
-      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-        <!-- Fritzing ATtiny85 DIP-8 artwork (CC-BY-SA). Scaled to fill
-             the 160x132 box; aspect ratio matches the source 1.211:1. -->
-        <image href="/component-svgs/attiny85.svg" x="0" y="0" width="${W}" height="${H}" />
+      <div style="position: relative; width: ${W}px; height: ${H}px;">
+        <img
+          src="/component-svgs/attiny85.svg"
+          width="${W}"
+          height="${H}"
+          draggable="false"
+          alt="ATtiny85 DIP-8"
+        />
+        <svg
+          width="${W}"
+          height="${H}"
+          viewBox="0 0 ${W} ${H}"
+          style="position: absolute; inset: 0; pointer-events: none; overflow: visible;"
+        >
+          <!-- Pin labels overlaid above/below the connector pads. -->
+          <text class="pin-label power" x="${PIN_X[0]}" y="${TOP_Y - 22}">VCC</text>
+          <text class="pin-label"       x="${PIN_X[1]}" y="${TOP_Y - 22}">PB2</text>
+          <text class="pin-label"       x="${PIN_X[2]}" y="${TOP_Y - 22}">PB1</text>
+          <text class="pin-label"       x="${PIN_X[3]}" y="${TOP_Y - 22}">PB0</text>
 
-        <!-- Pin labels overlaid above/below the connector pads. -->
-        <text class="pin-label power" x="${PIN_X[0]}" y="${TOP_Y - 22}">VCC</text>
-        <text class="pin-label"       x="${PIN_X[1]}" y="${TOP_Y - 22}">PB2</text>
-        <text class="pin-label"       x="${PIN_X[2]}" y="${TOP_Y - 22}">PB1</text>
-        <text class="pin-label"       x="${PIN_X[3]}" y="${TOP_Y - 22}">PB0</text>
-
-        <text class="pin-label"       x="${PIN_X[0]}" y="${BOT_Y + 12}">PB5</text>
-        <text class="pin-label"       x="${PIN_X[1]}" y="${BOT_Y + 12}">PB3</text>
-        <text class="pin-label"       x="${PIN_X[2]}" y="${BOT_Y + 12}">PB4</text>
-        <text class="pin-label power" x="${PIN_X[3]}" y="${BOT_Y + 12}">GND</text>
-      </svg>
+          <text class="pin-label"       x="${PIN_X[0]}" y="${BOT_Y + 12}">PB5</text>
+          <text class="pin-label"       x="${PIN_X[1]}" y="${BOT_Y + 12}">PB3</text>
+          <text class="pin-label"       x="${PIN_X[2]}" y="${BOT_Y + 12}">PB4</text>
+          <text class="pin-label power" x="${PIN_X[3]}" y="${BOT_Y + 12}">GND</text>
+        </svg>
+      </div>
     `;
   }
 }
 
 if (!customElements.get('mcu-maker-attiny85')) {
-  if (!customElements.get('mcu-maker-attiny85')) {
   customElements.define('mcu-maker-attiny85', Attiny85Element);
-}
-if (!customElements.get('mcu-maker-attiny85')) {
-  customElements.define('mcu-maker-attiny85', class extends Attiny85Element {});
-}
 }
 
 export {};

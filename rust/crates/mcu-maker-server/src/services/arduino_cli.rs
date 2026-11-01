@@ -223,7 +223,9 @@ impl ArduinoCLIService {
         }
 
         let mut effective_fqbn = board_fqbn.to_string();
-        if is_esp32 && !effective_fqbn.contains("FlashMode") {
+        let no_flashmode = board_fqbn.contains("nano_nora")
+            || board_fqbn.contains("lolin32-lite");
+        if is_esp32 && !no_flashmode && !effective_fqbn.contains("FlashMode") {
             effective_fqbn = format!("{}:FlashMode=dio", effective_fqbn);
         }
 
@@ -233,9 +235,11 @@ impl ArduinoCLIService {
             .arg(&effective_fqbn);
 
         if is_esp32 {
+            if !board_fqbn.contains("nano_nora") {
+                cmd.arg("--build-property")
+                    .arg("build.extra_flags=-DARDUINO_ESP32_LCGAMBOA=1");
+            }
             cmd.arg("--build-property")
-                .arg("build.extra_flags=-DARDUINO_ESP32_LCGAMBOA=1")
-                .arg("--build-property")
                 .arg("compiler.cpp.extra_flags=-DBitOrder=uint8_t");
         }
 

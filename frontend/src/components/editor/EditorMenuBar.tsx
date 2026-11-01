@@ -88,7 +88,6 @@ export const EditorMenuBar: React.FC = () => {
   const toggleExplorer = useEditorStore((s) => s.toggleExplorer);
   const viewMode = useEditorStore((s) => s.viewMode);
   const setViewMode = useEditorStore((s) => s.setViewMode);
-  const circuitDisplayMode = useEditorStore((s) => s.circuitDisplayMode);
   const [themeMode, setThemeMode] = useThemeMode();
   const undo = useSimulatorStore((s) => s.undo);
   const redo = useSimulatorStore((s) => s.redo);
@@ -135,29 +134,10 @@ export const EditorMenuBar: React.FC = () => {
     { kind: 'command', id: 'project.import', label: t('editor.toolbar.importLabel', 'Import project') },
     { kind: 'command', id: 'project.exportVlx', label: t('editor.toolbar.exportVlxLabel', 'Export project (.vlx)') },
     { kind: 'command', id: 'project.export', label: t('editor.toolbar.exportLabel', 'Export project (.zip)') },
-    { kind: 'command', id: 'project.exportBom', label: t('editor.toolbar.exportBomLabel', 'Bill of Materials (CSV)'), pro: true },
-    {
-      kind: 'command',
-      id: 'project.exportScreenshot',
-      label: t('editor.toolbar.exportScreenshotLabel', 'Schematic image (PNG)'),
-      pro: true,
-    },
     { kind: 'separator' },
-    // The toolbar's "..." menu folded in here — same actions, same PRO
-    // pills, one button fewer in the strip.
     { kind: 'command', id: 'project.share', label: t('editor.toolbar.shareLabel', 'Share / Embed') },
-    { kind: 'command', id: 'project.githubSync', label: t('editor.toolbar.githubSyncLabel', 'Sync to GitHub'), pro: true },
-    {
-      kind: 'command',
-      id: 'project.connectAgent',
-      label: t('editor.toolbar.connectAgentLabel', 'Connect AI agent (Claude/Codex)'),
-      pro: true,
-      // Only the pro overlay registers a handler; hide (not grey out) the
-      // row in builds where connecting an external agent cannot exist.
-      optional: true,
-    },
     { kind: 'command', id: 'firmware.upload', label: t('editor.toolbar.uploadFirmwareLabel', 'Upload firmware') },
-    { kind: 'command', id: 'sim.record', label: t('editor.toolbar.recordLabel', 'Record simulation'), pro: true },
+    { kind: 'command', id: 'sim.record', label: t('editor.toolbar.recordLabel', 'Record simulation') },
   ];
 
   // Sign in / My projects for the Account menu. The bottom-left account
@@ -226,15 +206,6 @@ export const EditorMenuBar: React.FC = () => {
     { kind: 'command', id: 'view.reset', label: t('editor.menu.centerView', 'Center canvas view') },
     { kind: 'command', id: 'view.zoomIn', label: t('editor.canvas.zoomIn', 'Zoom in') },
     { kind: 'command', id: 'view.zoomOut', label: t('editor.canvas.zoomOut', 'Zoom out') },
-    { kind: 'separator' },
-    {
-      kind: 'command',
-      id: 'view.toggleSchematic',
-      label:
-        circuitDisplayMode === 'schematic'
-          ? t('editor.menu.viewPhysical', 'Vista de circuito (Física)')
-          : t('editor.menu.viewSchematic', 'Vista de diagrama esquemático'),
-    },
   ];
 
   const themeModes: { key: ThemeMode; label: string }[] = [

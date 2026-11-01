@@ -45,8 +45,6 @@ const BOARD_TABS: BoardTab[] = [
   { id: 'esp32-cam', label: 'ESP32-CAM', color: '#ffffff', bg: '#d35400' },
   { id: 'esp32-s3', label: 'ESP32-S3 (Xtensa)', color: '#ffffff', bg: '#b3540e' },
   { id: 'esp32-c3', label: 'ESP32-C3 (RISC-V)', color: '#ffffff', bg: '#27ae60' },
-  { id: 'stm32-bluepill', label: 'STM32 Blue Pill', color: '#ffffff', bg: '#0a7ea4' },
-  { id: 'stm32-blackpill', label: 'STM32 Black Pill', color: '#ffffff', bg: '#2d3436' },
   { id: 'attiny85', label: 'ATtiny85', color: '#ffffff', bg: '#5d4037' },
   { id: 'multi', label: 'Multi-Board', color: '#ffffff', bg: '#7b2d8b' },
   { id: 'analog', label: 'Analog', color: '#ffffff', bg: '#0ea5a5' },

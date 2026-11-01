@@ -59,6 +59,10 @@ export function pinStateEchoHandler(o: PinStateEchoOptions): (pin: number, state
     const level = hasGnd(selfManaged) && state;
     if (!selfManaged && (logic || o.isKnownPart(o.metadataId))) {
       o.updateComponentState(o.componentId, level);
+      const el = elementOf(o.componentId);
+      if (el && (o.metadataId === 'led' || el.tagName.toLowerCase() === 'wokwi-led')) {
+        el.style.opacity = level ? '1' : '';
+      }
     }
     if (logic?.onPinStateChange) {
       const el = elementOf(o.componentId);
