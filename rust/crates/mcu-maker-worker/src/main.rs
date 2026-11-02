@@ -103,14 +103,14 @@ mod sys {
 
         // Redirect fd 0 and fd 1 to NUL to protect QEMU stdio mux from corrupting our JSON pipe
         unsafe {
-            let nul_r = _open(b"NUL\0".as_ptr() as *const i8, 0);
+            let nul_r = _open(c"NUL".as_ptr(), 0);
             if nul_r >= 0 {
                 let nul_r_os = _get_osfhandle(nul_r);
                 SetStdHandle(0xFFFFFFF6, nul_r_os);
                 _dup2(nul_r, 0);
                 _close(nul_r);
             }
-            let nul_w = _open(b"NUL\0".as_ptr() as *const i8, 1);
+            let nul_w = _open(c"NUL".as_ptr(), 1);
             if nul_w >= 0 {
                 let nul_w_os = _get_osfhandle(nul_w);
                 SetStdHandle(0xFFFFFFF5, nul_w_os);
@@ -829,6 +829,9 @@ mod tests {
         };
 
         if let Some(xtensa_path) = find_lib(xtensa_name) {
+            if let Some(dir) = xtensa_path.parent() {
+                sys::set_dll_directory(dir);
+            }
             unsafe {
                 let lib = libloading::Library::new(&xtensa_path);
                 assert!(lib.is_ok(), "Failed to load xtensa library at {:?}", xtensa_path);

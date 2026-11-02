@@ -322,7 +322,21 @@ impl ArduinoCLIService {
 #include <stdbool.h>
 #include "esp32-hal-gpio.h"
 #include "esp32-hal-rgb-led.h"
+#if __has_include("esp_arduino_version.h")
+#include "esp_arduino_version.h"
+#endif
 #include "soc/soc_caps.h"
+
+#if !defined(ESP_ARDUINO_VERSION) || ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(3, 0, 0)
+typedef enum {
+    LED_COLOR_ORDER_RGB,
+    LED_COLOR_ORDER_RBG,
+    LED_COLOR_ORDER_GRB,
+    LED_COLOR_ORDER_GBR,
+    LED_COLOR_ORDER_BRG,
+    LED_COLOR_ORDER_BGR
+} rgb_led_color_order_t;
+#endif
 
 extern void __pinMode(uint8_t pin, uint8_t mode);
 extern void __digitalWrite(uint8_t pin, uint8_t val);
@@ -616,27 +630,31 @@ void neopixelWrite(uint8_t pin, uint8_t red_val, uint8_t green_val, uint8_t blue
                         }
                     }
 
-                    const FLASH_SIZE: usize = 4 * 1024 * 1024;
-                    let mut flash = vec![0xFFu8; FLASH_SIZE];
-                    let is_c3 = board_fqbn.contains("esp32c3") || board_fqbn.contains("c3");
-                    let bootloader_offset = if is_c3 { 0x0000 } else { 0x1000 };
+                    let fqbn_lower = board_fqbn.to_lowercase();
+                    let is_s3 = fqbn_lower.contains("esp32s3") || fqbn_lower.contains("s3");
+                    let is_c3 = fqbn_lower.contains("esp32c3") || fqbn_lower.contains("c3");
+                    let is_zero_offset = is_c3 || is_s3 || fqbn_lower.contains("c6") || fqbn_lower.contains("h2");
+                    let bootloader_offset = if is_zero_offset { 0x0000 } else { 0x1000 };
+
+                    let flash_size: usize = if is_s3 { 8 * 1024 * 1024 } else { 4 * 1024 * 1024 };
+                    let mut flash = vec![0xFFu8; flash_size];
 
                     if let Ok(b_bytes) = tokio::fs::read(&bootloader_file).await {
-                        let end = (bootloader_offset + b_bytes.len()).min(FLASH_SIZE);
+                        let end = (bootloader_offset + b_bytes.len()).min(flash_size);
                         flash[bootloader_offset..end].copy_from_slice(&b_bytes[..end - bootloader_offset]);
                     }
                     if let Ok(p_bytes) = tokio::fs::read(&partitions_file).await {
-                        let end = (0x8000 + p_bytes.len()).min(FLASH_SIZE);
+                        let end = (0x8000 + p_bytes.len()).min(flash_size);
                         flash[0x8000..end].copy_from_slice(&p_bytes[..end - 0x8000]);
                     }
                     if let Some(ref ba_path) = boot_app0_path {
                         if let Ok(ba_bytes) = tokio::fs::read(ba_path).await {
-                            let end = (0xe000 + ba_bytes.len()).min(FLASH_SIZE);
+                            let end = (0xe000 + ba_bytes.len()).min(flash_size);
                             flash[0xe000..end].copy_from_slice(&ba_bytes[..end - 0xe000]);
                         }
                     }
                     if let Ok(app_bytes) = tokio::fs::read(&bin_file).await {
-                        let end = (0x10000 + app_bytes.len()).min(FLASH_SIZE);
+                        let end = (0x10000 + app_bytes.len()).min(flash_size);
                         flash[0x10000..end].copy_from_slice(&app_bytes[..end - 0x10000]);
                     }
 
@@ -897,6 +915,14 @@ mod tests {
             compile_res_esp32.stderr
         );
 
+        // Verify classic ESP32 flash layout: bootloader at 0x1000, 0x0..0x1000 empty (0xFF)
+        if let Some(ref b64) = compile_res_esp32.binary_content {
+            use base64::Engine;
+            let flash_esp32 = base64::engine::general_purpose::STANDARD.decode(b64).unwrap();
+            assert_eq!(flash_esp32[0], 0xFF, "ESP32 classic flash at offset 0x0 must be 0xFF");
+            assert_eq!(flash_esp32[0x1000], 0xE9, "ESP32 classic bootloader magic byte 0xE9 must be at offset 0x1000");
+        }
+
         // Test ESP32-S3 with LED_BUILTIN
         let res = service.compile(&arduino_files, "esp32:esp32:esp32s3").await;
         let compile_res = res.expect("compile call failed");
@@ -906,6 +932,15 @@ mod tests {
             compile_res.error,
             compile_res.stderr
         );
+
+        // Verify ESP32-S3 flash layout: bootloader at 0x0000 (magic 0xE9), flash size 8MB
+        if let Some(ref b64) = compile_res.binary_content {
+            use base64::Engine;
+            let flash_s3 = base64::engine::general_purpose::STANDARD.decode(b64).unwrap();
+            assert_eq!(flash_s3.len(), 8 * 1024 * 1024, "ESP32-S3 flash image size must be 8MB");
+            assert_eq!(flash_s3[0], 0xE9, "ESP32-S3 bootloader magic byte 0xE9 must be at offset 0x0000");
+            assert_eq!(flash_s3[0x10000], 0xE9, "ESP32-S3 app magic byte 0xE9 must be at offset 0x10000");
+        }
 
         let idf_files = vec![SketchFile {
             name: "main.c".to_string(),
