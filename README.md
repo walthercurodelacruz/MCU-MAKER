@@ -8,7 +8,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPLv3" />
-  <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen.svg" alt="Version 1.0.0" />
+  <img src="https://img.shields.io/badge/Version-1.1.0-brightgreen.svg" alt="Version 1.1.0" />
   <img src="https://img.shields.io/badge/Platforms-Ubuntu%2024.04%2B%20%7C%20Windows%2010%2F11%20x64%20%7C%20Web-orange.svg" alt="Platforms" />
   <img src="https://img.shields.io/badge/macOS-Unsupported%20%2F%20Discarded-lightgrey.svg" alt="macOS Discarded" />
   <img src="https://img.shields.io/badge/Core-Rust%20(Axum%20%2B%20Tokio)-red.svg" alt="Rust Core" />
@@ -53,10 +53,10 @@ Como parte de los estándares de aseguramiento de calidad (Senior QA), el alcanc
 ### ✅ Plataformas Oficialmente Soportadas (Nivel 1 / Tier-1)
 * **Linux x86_64:**
   * **Sistemas objetivo:** Ubuntu 24.04 LTS (Noble Numbat), Debian 12 (Bookworm) y derivados directos (Linux Mint, Pop!_OS).
-  * **Formato de distribución:** Paquete nativo Debian (`dist-installer/mcu-maker_1.0.0_amd64.deb`), integrando binarios nativos en `/opt/mcu-maker/`, acceso directo de escritorio `.desktop` y lanzador `/usr/bin/mcu-maker`.
+  * **Formato de distribución:** Paquete nativo Debian (`dist-installer/mcu-maker_1.1.0_amd64.deb`), integrando binarios nativos en `/opt/mcu-maker/`, acceso directo de escritorio `.desktop` y lanzador `/usr/bin/mcu-maker`.
   * **Librerías dinámicas:** QEMU runtime precompilado en formato ELF de 64 bits (`libqemu-xtensa.so`, `libqemu-riscv32.so`) y binario ROM oficial `esp32s3_rev0_rom.bin`.
 * **Windows 10 / Windows 11 (64-bit):**
-  * **Formato de distribución:** Instalador ejecutable oficial (`dist-installer/MCU-Maker-Setup-v1.0.0.exe`) y ejecución portable en un clic (`start-launcher.bat`).
+  * **Formato de distribución:** Instalador ejecutable oficial (`dist-installer/MCU-Maker-Setup-v1.1.0.exe`) y ejecución portable en un clic (`start-launcher.bat`).
   * **Librerías dinámicas:** QEMU runtime precompilado en formato PE/DLL de 64 bits (`libqemu-xtensa.dll`, `libqemu-riscv32.dll`).
 * **Web / Navegador Moderno:**
   * **Navegadores:** Google Chrome, Microsoft Edge, Mozilla Firefox, Brave, Opera.
@@ -164,7 +164,7 @@ graph TD
 Si tienes el archivo `.deb` generado:
 ```bash
 sudo apt update
-sudo apt install ./dist-installer/mcu-maker_1.0.0_amd64.deb
+sudo apt install ./dist-installer/mcu-maker_1.1.0_amd64.deb
 ```
 Una vez instalado, abre **MCU Maker** desde el menú de aplicaciones de tu entorno gráfico o ejecutando `mcu-maker` en la terminal.
 
@@ -193,7 +193,7 @@ Si has clonado el repositorio:
 #### Opción A: Instalador Asistido (.exe)
 1. Descarga y ejecuta el instalador oficial:
    ```
-   dist-installer/MCU-Maker-Setup-v1.0.0.exe
+   dist-installer/MCU-Maker-Setup-v1.1.0.exe
    ```
 2. Sigue los pasos del asistente de instalación.
 3. Inicia **MCU Maker** desde el acceso directo del Escritorio.
@@ -322,4 +322,4 @@ Este proyecto se distribuye bajo los términos de la **[GNU Affero General Publi
   * Emulación de microcontroladores QEMU adaptada del fork de **lcgamboa (PICSimLab)**.
 
 ---
-*MCU Maker Suite v1.0.0 Oficial — 2026. Calidad Verificada.*
+*MCU Maker Suite v1.1.0 Oficial — 2026. Calidad Verificada.*

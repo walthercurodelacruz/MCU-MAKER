@@ -1,8 +1,8 @@
-# MCU Maker — Manual Integral del Proyecto, Instalación y Diagnóstico (v1.0.0)
+# MCU Maker — Manual Integral del Proyecto, Instalación y Diagnóstico (v1.1.0)
 
 <p align="center">
   <strong>MCU Maker — Un proyecto basado en Velxio.dev con Backend 100% en Rust</strong><br />
-  <strong>Desarrollador:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Versión:</strong> 1.0.0 &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
+  <strong>Desarrollador:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Versión:</strong> 1.1.0 &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
 </p>
 
 ---
@@ -13,7 +13,7 @@
 
 ### Datos del Proyecto
 - **Nombre Oficial:** MCU Maker Desktop Suite
-- **Versión Actual:** 1.0.0 (Release Oficial para Windows)
+- **Versión Actual:** 1.1.0 (Release Oficial para Windows)
 - **Lema del Proyecto:** *Un proyecto basado en Velxio.dev con Backend 100% en Rust*
 - **Desarrollador Principal:** **Walther Curo De La Cruz**
 - **Base y Reconocimiento de Código Abierto:** Basado e inspirado en el frontend de **Velxio.dev** (creado por **David Montero Crespo**), bajo licencia **GNU AGPLv3**, incorporando componentes de emulación de **Wokwi** (`avr8js`, `rp2040js` por Uri Shaked), motor analógico `ngspice-WASM` y emulación QEMU adaptada.
@@ -93,10 +93,10 @@ El ecosistema de MCU Maker está desacoplado en componentes modulares para garan
 
 ---
 
-### Opción A: Instalador Oficial (`MCU-Maker-Setup-v1.0.0.exe`) - Recomendado
+### Opción A: Instalador Oficial (`MCU-Maker-Setup-v1.1.0.exe`) - Recomendado
 
 1. **Descarga y Ejecución:**
-   - Ejecuta el instalador `MCU-Maker-Setup-v1.0.0.exe`.
+   - Ejecuta el instalador `MCU-Maker-Setup-v1.1.0.exe`.
    - **Instalación estándar (sin permisos de administrador):** Por defecto se instala en tu carpeta de usuario (`AppData\Local\Programs\MCU Maker`), ideal para laboratorios de computación o computadoras escolares/universitarias donde no tienes clave de Administrador.
    - **Instalación para todos los usuarios:** Si ejecutas el instalador como Administrador, podrás instalarlo en `C:\Program Files\MCU Maker`.
 
@@ -216,4 +216,4 @@ Este software se distribuye bajo la licencia **GNU Affero General Public License
 Arduino®, ESP32®, Raspberry Pi®, STM32® y todas las marcas registradas citadas en este software pertenecen a sus respectivos fabricantes y propietarios. Su mención es estrictamente con fines de referencia y compatibilidad técnica en la emulación de hardware. MCU Maker es un proyecto independiente de código abierto y no está afiliado ni patrocinado por ninguna de las entidades citadas.
 
 ---
-*Manual generado para MCU Maker v1.0.0 Oficial — 2026.*
+*Manual generado para MCU Maker v1.1.0 Oficial — 2026.*

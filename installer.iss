@@ -2,7 +2,7 @@
 ; Genera el instalador oficial de Windows para estudiantes y desarrolladores.
 
 #define MyAppName "MCU Maker"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Walther Curo De La Cruz"
 #define MyAppURL "http://localhost:8001"
 #define MyAppExeName "mcu-maker-launcher.exe"

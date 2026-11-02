@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 PKG="mcu-maker"
 ARCH="amd64"
 ARDUINO_CLI_VERSION="${ARDUINO_CLI_VERSION:-1.1.1}"

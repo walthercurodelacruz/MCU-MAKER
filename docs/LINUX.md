@@ -2,7 +2,7 @@
 
 ## Instalar
 ```bash
-sudo apt install ./mcu-maker_1.0.0_amd64.deb
+sudo apt install ./mcu-maker_1.1.0_amd64.deb
 ```
 Se instala en `/opt/mcu-maker`, crea el comando `mcu-maker` y la entrada **MCU Maker** en el menú de aplicaciones. Los datos de usuario (`wifi_config.json`, caché de compilación) se guardan en `~/.local/share/mcu-maker`.
 
@@ -10,7 +10,7 @@ Se instala en `/opt/mcu-maker`, crea el comando `mcu-maker` y la entrada **MCU M
 ```bash
 sudo apt install build-essential pkg-config libssl-dev dpkg-dev curl nodejs npm
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-./build-installer.sh      # genera dist-installer/mcu-maker_1.0.0_amd64.deb
+./build-installer.sh      # genera dist-installer/mcu-maker_1.1.0_amd64.deb
 ```
 
 ## Estado de compatibilidad por componente
