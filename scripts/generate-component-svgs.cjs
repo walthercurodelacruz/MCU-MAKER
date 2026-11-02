@@ -327,7 +327,6 @@ const BOARD_COPIES = [
   ['xiao-esp32-s3',                'xiao-esp32-s3.svg'],
   ['xiao-esp32-c3',                'xiao-esp32-c3.svg'],
   ['esp32c3-supermini',            'esp32c3-supermini.svg'],
-  ['arduino-nano-esp32',           'arduino-nano-esp32.svg'],
   ['wemos-lolin32-lite',           'wemos-lolin32-lite.svg'],
   ['attiny85',                     'attiny85.svg'],
 ];

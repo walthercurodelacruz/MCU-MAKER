@@ -239,7 +239,7 @@
       "ltTutorials": "Sistema tutorial integrato, progetti guidati passo-passo all'interno dell'editor",
       "ltSdk": "SDK componenti personalizzati, definisci nuovi componenti con API JSON/TypeScript",
       "ltMobile": "Supporto mobile/tablet, layout reattivo per dispositivi touch",
-      "contributeCallout": "<strong>Vuoi contribuire?</strong> Richieste di funzionalità, segnalazioni di bug e pull request sono benvenute su <a>github.com/davidmonterocrespo24/mcu_maker</a>."
+      "contributeCallout": "<strong>Vuoi contribuire?</strong> Richieste di funzionalità, segnalazioni di bug e pull request sono benvenute su <a>github.com/walthercurodelacruz/MCU-MAKER</a>."
     },
     "emulator": {
       "label": "// interni",

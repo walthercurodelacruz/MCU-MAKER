@@ -23,7 +23,6 @@ const ESP32_KINDS: BoardKind[] = [
   'esp32',
   'esp32-cam',
   'esp32-s3',
-  'arduino-nano-esp32',
   'esp32-c3',
 ];
 
@@ -71,7 +70,6 @@ describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot',
     ['esp32', 'led'],
     ['esp32-cam', 'led'],
     ['esp32-cam', 'flash'],
-    ['arduino-nano-esp32', 'led'],
   ] as const)('%s / %s', (kind, id) => {
     const el = mount(kind);
     el.onboardLeds = { [id]: true };
@@ -95,7 +93,7 @@ describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot',
     expect(dot(el, 'led')!.style.opacity).toBe('1');
   });
 
-  it.each(['esp32-s3', 'esp32-c3', 'arduino-nano-esp32'] as const)(
+  it.each(['esp32-s3', 'esp32-c3'] as const)(
     '%s: an RGB visual colours the dot, black darkens it',
     (kind) => {
       const el = mount(kind);

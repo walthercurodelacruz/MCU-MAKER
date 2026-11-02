@@ -34,6 +34,7 @@
 import {
   useSimulatorStore,
   getBoardSimulator,
+  getBoardPinManager,
 } from '../../store/useSimulatorStore';
 import { useElectricalStore } from '../../store/useElectricalStore';
 import { setAdcVoltage } from '../parts/partUtils';
@@ -101,7 +102,6 @@ export const ADC_PIN_MAP: Partial<Record<BoardKind, Array<{ pinName: string; cha
   esp32: adcRange('', 32, 8),
   'esp32-cam': adcRange('', 32, 8),
   'esp32-s3': adcRange('', 1, 10),
-  'arduino-nano-esp32': adcRange('A', 0, 8),
   'esp32-c3': adcRange('', 0, 6),
 };
 
@@ -125,7 +125,6 @@ const ADC_PIN_TO_GPIO: Partial<Record<BoardKind, (pinName: string, channel: numb
   esp32: gpioPinFromName,
   'esp32-cam': gpioPinFromName,
   'esp32-s3': gpioPinFromName,
-  'arduino-nano-esp32': avrPinFromName,
   'esp32-c3': gpioPinFromName,
 };
 
@@ -147,7 +146,7 @@ function adcPinsFor(kind: BoardKind): Array<{ pinName: string; channel: number }
  * legacy per-kind converters (their sims expect Arduino pin numbers, not
  * GPIOs — e.g. uno 'A0' -> 14). */
 function gpioForBoardPin(kind: BoardKind, pinName: string, channel: number): number {
-  if (kind === 'esp32' || kind.startsWith('esp32') || kind === 'arduino-nano-esp32') {
+  if (kind === 'esp32' || kind.startsWith('esp32')) {
     const n = boardPinToNumber(kind, pinName);
     if (n != null && n >= 0) return n;
   }
@@ -179,6 +178,8 @@ export function connectAnalogInputsToMcu(): () => void {
       if (!adcPins) continue;
       const sim = getBoardSimulator(board.id);
       if (!sim) continue;
+      const pm = getBoardPinManager(board.id);
+      const driven = pm ? pm.getOutputPins() : new Set<number>();
       const vMax = board.boardKind.startsWith('esp32') ? 3.3 : 5.0;
       for (const { pinName, channel } of adcPins) {
         const netName = pinNetMap.get(`${board.id}:${pinName}`);
@@ -200,6 +201,8 @@ export function connectAnalogInputsToMcu(): () => void {
         const clamped = Math.max(0, Math.min(vMax, v));
         const gpioPin = gpioForBoardPin(board.boardKind, pinName, channel);
         if (gpioPin < 0) continue;
+        // Never inject ADC voltages into a pin the MCU is actively driving as an OUTPUT
+        if (driven.has(gpioPin)) continue;
         // A part drives this channel itself — leave it alone (see above).
         if (isPartOwnedPin(board.id, gpioPin)) continue;
         setAdcVoltage(sim, gpioPin, clamped);
@@ -227,6 +230,8 @@ export function connectAnalogInputsToMcu(): () => void {
       if (!adcPins) continue;
       const sim = getBoardSimulator(board.id);
       if (!sim) continue;
+      const pm = getBoardPinManager(board.id);
+      const driven = pm ? pm.getOutputPins() : new Set<number>();
       const shim = sim as unknown as {
         setAdcWaveform?: (pin: number, samples: Uint16Array, periodNs: number) => boolean;
       };
@@ -240,6 +245,9 @@ export function connectAnalogInputsToMcu(): () => void {
         if (period > 0) {
           const periodNs = Math.round(period * 1e9);
           for (const { pinName, channel } of adcPins) {
+            const gpioPin = gpioFn(pinName, channel);
+            if (gpioPin < 0) continue;
+            if (driven.has(gpioPin)) continue;
             const net = pinNetMap.get(`${boardId}:${pinName}`);
             const samples = net ? timeWaveforms.nodes.get(net) : undefined;
             if (!samples || samples.length === 0) continue;
@@ -267,8 +275,6 @@ export function connectAnalogInputsToMcu(): () => void {
                 `[adc-clip] ${clipKey}: ${clipped}/${samples.length} samples outside [0, 3.3] V (range ${observedMin.toFixed(2)}…${observedMax.toFixed(2)} V). ESP32 ADC reads will saturate at the rails. Add a divider or clamp if you need the full swing.`,
               );
             }
-            const gpioPin = gpioFn(pinName, channel);
-            if (gpioPin < 0) continue;
             if (isPartOwnedPin(boardId, gpioPin)) continue;
             shim.setAdcWaveform(gpioPin, u12, periodNs);
             qemuWaveformChannels.add(`${boardId}:${channel}`);

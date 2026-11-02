@@ -87,6 +87,14 @@ impl ProcessManager {
         }
 
         let port = *self.server_port.lock().unwrap();
+
+        // Si el puerto ya está escuchando (instancia previa activa), vincularla sin colisionar
+        if std::net::TcpStream::connect(("127.0.0.1", port)).is_ok() {
+            self.add_log("SUCCESS", &format!("Servidor MCU Maker ya activo y respondiendo en el puerto {}.", port));
+            *self.is_running.lock().unwrap() = true;
+            return;
+        }
+
         let mut cmd = if let Some(bin) = binary {
             self.add_log("INFO", &format!("Ejecutando binario nativo: {:?}", bin));
             let mut c = Command::new(bin);
@@ -125,7 +133,7 @@ impl ProcessManager {
                     let logs = self.logs.clone();
                     std::thread::spawn(move || {
                         let reader = BufReader::new(out);
-                        for line in reader.lines().flatten() {
+                        for line in reader.lines().map_while(Result::ok) {
                             let clean_line = strip_ansi(&line);
                             if clean_line.trim().is_empty() {
                                 continue;
@@ -148,7 +156,7 @@ impl ProcessManager {
                     let logs = self.logs.clone();
                     std::thread::spawn(move || {
                         let reader = BufReader::new(err);
-                        for line in reader.lines().flatten() {
+                        for line in reader.lines().map_while(Result::ok) {
                             let clean_line = strip_ansi(&line);
                             if clean_line.trim().is_empty() {
                                 continue;
@@ -187,6 +195,12 @@ impl ProcessManager {
         self.stop_server();
         std::thread::sleep(Duration::from_millis(500));
         self.start_server();
+    }
+}
+
+impl Drop for ProcessManager {
+    fn drop(&mut self) {
+        self.stop_server();
     }
 }
 

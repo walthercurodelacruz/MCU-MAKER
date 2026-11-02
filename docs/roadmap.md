@@ -24,7 +24,7 @@
 ### Microcontroladores y Placas (24 Modelos en 5 Arquitecturas)
 - **AVR8 (Navegador, `avr8js`):** Arduino Uno R3, Arduino Nano, Arduino Mega 2560, ATtiny85, Franzininho DIY.
 - **RP2040 (`rp2040js`):** Raspberry Pi Pico, Raspberry Pi Pico W (Wi-Fi CYW43439 integrado).
-- **Xtensa LX6/LX7 (QEMU Nativo):** ESP32 DevKit V1, DevKit-C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3 DevKit, XIAO ESP32-S3, Arduino Nano ESP32.
+- **Xtensa LX6/LX7 (QEMU Nativo):** ESP32 DevKit V1, DevKit-C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3 DevKit, XIAO ESP32-S3.
 - **RISC-V RV32IMC (QEMU Nativo):** ESP32-C3 DevKit, XIAO ESP32-C3, ESP32-C3 SuperMini, WCH CH32V003.
 - **ARM Cortex-M & Cortex-A:** STM32 Blue Pill (F103), Black Pill (F401/F411), Raspberry Pi Zero / 1 / 2 / 3B / 4B / 5.
 - **Procesadores Clásicos:** Zilog Z80, Intel 8080, Intel 4004 (SDK C-to-WASM).
@@ -42,7 +42,6 @@
 - ESP32 DevKit V1, ESP32 DevKit C V4
 - ESP32-CAM, Wemos Lolin32 Lite
 - ESP32-S3 DevKit, XIAO ESP32-S3
-- Arduino Nano ESP32
 
 #### RISC-V RV32IMC (backend, lcgamboa QEMU)
 

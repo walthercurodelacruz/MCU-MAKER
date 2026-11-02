@@ -29,22 +29,24 @@ export const jsemuChipExamples: ExampleProject[] = [
     boardFilter: 'esp32-s3',
     tags: ['esp32-s3', 'gpio', 'led', 'blink'],
     code: `// ESP32-S3 Blink LED
-// The DevKitC-1 has no plain built-in LED (its on-board LED is an RGB
-// WS2812 on GPIO48), so we blink an external LED wired to GPIO4.
+// Blinks both the on-board RGB LED (GPIO48 / LED_BUILTIN) and an external red LED (GPIO4).
 
 #define LED_PIN 4   // External red LED through a 220 Ohm resistor
 
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
   Serial.println("ESP32-S3 Blink ready!");
 }
 
 void loop() {
+  digitalWrite(LED_BUILTIN, HIGH);
   digitalWrite(LED_PIN, HIGH);
   Serial.println("LED ON");
   delay(500);
 
+  digitalWrite(LED_BUILTIN, LOW);
   digitalWrite(LED_PIN, LOW);
   Serial.println("LED OFF");
   delay(500);

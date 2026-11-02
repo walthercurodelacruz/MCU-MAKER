@@ -14,7 +14,6 @@
   <td align="center"><img src="img/boards/esp32-devkit-v1.png" width="160" alt="ESP32 DevKit V1"/><br/><b>ESP32 DevKit V1</b></td>
   <td align="center"><img src="img/boards/esp32-cam.png" width="160" alt="ESP32-CAM"/><br/><b>ESP32-CAM</b></td>
   <td align="center"><img src="img/boards/esp32-s3.png" width="160" alt="ESP32-S3"/><br/><b>ESP32-S3 DevKit</b></td>
-  <td align="center"><img src="img/boards/arduino-nano-esp32.png" width="160" alt="Arduino Nano ESP32"/><br/><b>Arduino Nano ESP32</b></td>
 </tr>
 </table>
 

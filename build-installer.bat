@@ -39,6 +39,12 @@ if not exist "rust\target\release\mcu-maker-launcher.exe" (
 
 :: 3. Verificar frontend precompilado
 echo [2/3] Verificando compilacion de interfaz web (frontend\dist)...
+if not exist "frontend\node_modules" (
+    echo Instalando dependencias del frontend...
+    pushd "%SCRIPT_DIR%frontend"
+    call npm.cmd install --legacy-peer-deps
+    popd
+)
 if not exist "frontend\dist\index.html" (
     echo Compilando frontend...
     pushd "%SCRIPT_DIR%frontend"
@@ -46,7 +52,11 @@ if not exist "frontend\dist\index.html" (
     popd
 )
 
-:: 4. Compilar instalador
+:: 4. Asegurar directorios de prebuilt opcionales
+if not exist "prebuilt\qemu_runtime" mkdir "prebuilt\qemu_runtime"
+if not exist "prebuilt\arduino-cli" mkdir "prebuilt\arduino-cli"
+
+:: 5. Compilar instalador
 echo [3/3] Compilando instalador de Windows (Inno Setup)...
 if not exist "dist-installer" mkdir "dist-installer"
 

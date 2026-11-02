@@ -9,7 +9,6 @@ export type BoardKind =
   | 'esp32' // Xtensa LX6, QEMU backend
   | 'esp32-cam' // ESP32-CAM, QEMU (esp32)
   | 'esp32-s3' // Xtensa LX7, QEMU backend
-  | 'arduino-nano-esp32' // Arduino Nano ESP32 (S3), QEMU (esp32-s3)
   | 'esp32-c3' // RISC-V RV32IMC, QEMU backend
   | 'attiny85'; // AVR ATtiny85, browser emulation (avr8js)
 
@@ -45,7 +44,6 @@ export const BOARD_SUPPORTS_MICROPYTHON = new Set<BoardKind>([
   'esp32-cam',
   // ESP32-S3 Xtensa (QEMU bridge)
   'esp32-s3',
-  'arduino-nano-esp32',
   // ESP32-C3 RISC-V (QEMU bridge)
   'esp32-c3',
 ]);
@@ -60,7 +58,6 @@ export const BOARD_SUPPORTS_ESPIDF = new Set<BoardKind>([
   'esp32-cam',
   // ESP32-S3 Xtensa (QEMU bridge)
   'esp32-s3',
-  'arduino-nano-esp32',
   // ESP32-C3 RISC-V (QEMU bridge)
   'esp32-c3',
 ]);
@@ -218,7 +215,6 @@ export const BOARD_KIND_LABELS: Record<BoardKind, string> = {
   esp32: 'ESP32 DevKit V1',
   'esp32-cam': 'ESP32-CAM',
   'esp32-s3': 'ESP32-S3 DevKit',
-  'arduino-nano-esp32': 'Arduino Nano ESP32',
   'esp32-c3': 'ESP32-C3 DevKit',
   attiny85: 'ATtiny85',
 };
@@ -239,7 +235,6 @@ export const BOARD_KIND_FQBN: Record<BoardKind, string | null> = {
   esp32: 'esp32:esp32:esp32',
   'esp32-cam': 'esp32:esp32:esp32cam',
   'esp32-s3': 'esp32:esp32:esp32s3',
-  'arduino-nano-esp32': 'esp32:esp32:nano_nora',
   'esp32-c3': 'esp32:esp32:esp32c3',
   attiny85: 'ATTinyCore:avr:attinyx5:chip=85,clock=16pll',
 };
@@ -337,16 +332,6 @@ export const BOARD_ONBOARD_LEDS: Record<BoardKind, readonly OnboardLed[]> = {
   // PIN_RGB_LED 48, LED_BUILTIN = SOC_GPIO_PIN_COUNT + 48, which is how the
   // core sends digitalWrite(LED_BUILTIN) through rgbLedWrite).
   'esp32-s3': [{ id: 'rgb', kind: 'ws2812', pin: 48 }],
-  // Arduino Nano ESP32: the yellow D13 LED is GPIO48 (variants/
-  // arduino_nano_nora: D13 = 48, LED_BUILTIN = D13; the Arduino-pin numbering
-  // maps D13 to the same GPIO and the engine reports GPIOs), HIGH lights it.
-  // The RGB LED is three plain GPIOs (LED_RED 46, LED_GREEN 0, LED_BLUE 45)
-  // with the common leg on 3V3: the Arduino docs switch a colour on "by
-  // pulling the GPIO lines to LOW".
-  'arduino-nano-esp32': [
-    { id: 'led', kind: 'gpio', pin: 48, activeLow: false },
-    { id: 'rgb', kind: 'rgb-gpio', pins: { r: 46, g: 0, b: 45 }, activeLow: true },
-  ],
   // ESP32-C3-DevKitM-1: addressable RGB LED on GPIO8 (variants/esp32c3:
   // PIN_RGB_LED 8).
   'esp32-c3': [{ id: 'rgb', kind: 'ws2812', pin: 8 }],

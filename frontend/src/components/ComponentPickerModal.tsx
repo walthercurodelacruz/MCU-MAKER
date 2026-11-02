@@ -91,7 +91,6 @@ const BOARD_DESCRIPTIONS: Record<BoardKind, string> = {
   esp32: 'Xtensa LX6 dual-core, WiFi+BT, 38 GPIO (QEMU)',
   'esp32-cam': 'ESP32 + 2MP camera, microSD (QEMU)',
   'esp32-s3': 'Xtensa LX7 dual-core, WiFi+BT, AI accel (QEMU)',
-  'arduino-nano-esp32': 'Nano form-factor, ESP32-S3, RGB LED (QEMU)',
   'esp32-c3': 'RISC-V single-core, WiFi+BLE, 22 GPIO (QEMU)',
 };
 
@@ -207,7 +206,6 @@ const ALL_BOARDS: BoardKind[] = [
   'esp32',
   'esp32-cam',
   'esp32-s3',
-  'arduino-nano-esp32',
   'esp32-c3',
 ];
 
@@ -1134,7 +1132,6 @@ const BOARD_ART: Partial<Record<BoardKind, string>> = {
   esp32: '/boards/esp32.png',
   'esp32-cam': '/boards/esp32-cam.png',
   'esp32-s3': '/boards/esp32-s3.png',
-  'arduino-nano-esp32': '/boards/arduino-nano-esp32.png',
   'esp32-c3': '/boards/esp32-c3.png',
 };
 
@@ -1148,7 +1145,6 @@ const BOARD_TAG: Partial<Record<BoardKind, string>> = {
   esp32: 'mcu-maker-esp32',
   'esp32-cam': 'mcu-maker-esp32',
   'esp32-s3': 'mcu-maker-esp32',
-  'arduino-nano-esp32': 'mcu-maker-esp32',
   'esp32-c3': 'mcu-maker-esp32',
 };
 

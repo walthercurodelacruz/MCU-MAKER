@@ -59,7 +59,6 @@ const ACCEPTED_UNCOVERED: ReadonlySet<BoardKind> = new Set([
   // emulator-ready but lacks a demo circuit.  Add one when product
   // wants S3 in the gallery.
   'esp32-s3',
-  'arduino-nano-esp32',
 
   // ESP32-C3 RISC-V family — share the `esp32-c3` backend.  Same as
   // above; no primary C3 example exists.

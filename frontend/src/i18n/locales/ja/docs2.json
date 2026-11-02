@@ -239,7 +239,7 @@
       "ltTutorials": "組み込みチュートリアルシステム、エディタ内でのステップバイステップのガイド付きプロジェクト",
       "ltSdk": "カスタムコンポーネントSDK、JSON/TypeScript APIで新しいコンポーネントを定義",
       "ltMobile": "モバイル/タブレットサポート、タッチデバイス向けレスポンシブレイアウト",
-      "contributeCallout": "<strong>貢献したいですか？</strong> 機能リクエスト、バグ報告、プルリクエストは <a>github.com/davidmonterocrespo24/mcu_maker</a> で歓迎します。"
+      "contributeCallout": "<strong>貢献したいですか？</strong> 機能リクエスト、バグ報告、プルリクエストは <a>github.com/walthercurodelacruz/MCU-MAKER</a> で歓迎します。"
     },
     "emulator": {
       "label": "// 内部構造",

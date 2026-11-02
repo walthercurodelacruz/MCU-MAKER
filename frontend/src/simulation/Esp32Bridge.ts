@@ -68,7 +68,7 @@ export function toQemuBoardType(kind: BoardKind): 'esp32' | 'esp32-s3' | 'esp32-
     );
   }
   if (proFam) return proFam;
-  if (kind === 'esp32-s3' || kind === 'arduino-nano-esp32')
+  if (kind === 'esp32-s3')
     return 'esp32-s3';
   if (kind === 'esp32-c3')
     return 'esp32-c3';
@@ -128,7 +128,11 @@ const API_BASE = (): string => {
   const fromEnv = import.meta.env.VITE_API_BASE as string | undefined;
   if (fromEnv) return fromEnv;
   if (typeof window !== 'undefined' && window.location?.hostname) {
-    return `${window.location.protocol}//${window.location.hostname}:8001/api`;
+    const port = window.location.port;
+    if (port === '5173' || port === '3000') {
+      return `${window.location.protocol}//${window.location.hostname}:8001/api`;
+    }
+    return `${window.location.origin}/api`;
   }
   return 'http://localhost:8001/api';
 };
@@ -375,7 +379,6 @@ export class Esp32Bridge {
   private uart0TxPin(): number {
     switch (this.boardKind) {
       case 'esp32-s3':
-      case 'arduino-nano-esp32':
         return 43;
       case 'esp32-c6':
         return 16; // U0TXD default on the C6 (silkscreen TX on the DevKitC-1)
@@ -795,7 +798,13 @@ export class Esp32Bridge {
   loadFirmware(firmwareBase64: string): void {
     this._pendingFirmware = firmwareBase64;
     if (this._connected && this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this._send({ type: 'load_firmware', data: { firmware_b64: firmwareBase64 } });
+      this._send({
+        type: 'load_firmware',
+        data: {
+          firmware_b64: firmwareBase64,
+          board: toQemuBoardType(this.boardKind),
+        },
+      });
     }
   }
 

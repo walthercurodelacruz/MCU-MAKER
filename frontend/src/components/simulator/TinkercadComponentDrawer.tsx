@@ -94,7 +94,6 @@ const BOARD_ITEMS: { kind: BoardKind; name: string; desc: string; img: string }[
   { kind: 'raspberry-pi-pico', name: 'Raspberry Pi Pico', desc: 'RP2040 dual ARM', img: '/component-svgs/raspberry-pi-pico.svg' },
   { kind: 'pi-pico-w', name: 'Pi Pico W', desc: 'RP2040 + WiFi', img: '/component-svgs/raspberry-pi-pico-w.svg' },
   { kind: 'esp32', name: 'ESP32 DevKit V1', desc: 'Xtensa dual-core + WiFi', img: '/component-svgs/esp32-devkit-v1.svg' },
-  { kind: 'arduino-nano-esp32', name: 'Arduino Nano ESP32', desc: 'ESP32-S3 · RGB LED', img: '/component-svgs/arduino-nano-esp32.svg' },
   { kind: 'esp32-s3', name: 'ESP32-S3 DevKit', desc: 'Xtensa LX7 + USB OTG', img: '/component-svgs/esp32-s3.svg' },
   { kind: 'esp32-c3', name: 'ESP32-C3 DevKit', desc: 'RISC-V single core', img: '/component-svgs/esp32-c3.svg' },
   { kind: 'esp32-cam', name: 'ESP32-CAM', desc: 'Cámara 2MP + WiFi', img: '/component-svgs/esp32-cam.svg' },

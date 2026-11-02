@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './GitHubStarBanner.css';
+import { GITHUB_URL } from '../../config/project';
 
-const GITHUB_URL = 'https://github.com/davidmonterocrespo24/mcu_maker';
 
 interface Props {
   onClose: () => void;

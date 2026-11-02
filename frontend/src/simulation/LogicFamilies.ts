@@ -202,7 +202,6 @@ const BOARD_FAMILY: Record<string, LogicFamilyId> = {
   'esp32-c3':          'LVCMOS33',
   'esp32-s3':          'LVCMOS33',
   'esp32-cam':         'LVCMOS33',
-  'arduino-nano-esp32':'LVCMOS33',
   'raspberry-pi-pico': 'LVCMOS33',
   'pi-pico-w':         'LVCMOS33',
   'raspberry-pi-3':    'LVCMOS33',

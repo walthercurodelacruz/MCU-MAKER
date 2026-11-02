@@ -12,8 +12,8 @@ import { applyStripLayout, STRIP_BELOW_CLASS } from './headerStripFit';
 import { runEditorCommand } from '../../lib/editorCommands';
 import { useOscilloscopeStore } from '../../store/useOscilloscopeStore';
 import './LanguageSwitcher.css';
+import { GITHUB_URL } from '../../config/project';
 
-const GITHUB_URL = 'https://github.com/davidmonterocrespo24/mcu_maker';
 const DISCORD_URL = 'https://discord.gg/3mARjJrh4E';
 
 interface AppHeaderProps {

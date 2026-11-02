@@ -1,6 +1,6 @@
 /**
  * Tests for GitHub issue #139 — pure ESP-IDF language mode
- * https://github.com/davidmonterocrespo24/mcu_maker/issues/139
+ * https://github.com/walthercurodelacruz/MCU-MAKER/issues/139
  *
  * The ESP32 family gains a third entry in the language selector next to
  * Arduino C++ and MicroPython: "ESP-IDF". In that mode the user writes a
@@ -22,7 +22,6 @@ describe('issue #139 — BOARD_SUPPORTS_ESPIDF', () => {
     'esp32',
     'esp32-cam',
     'esp32-s3',
-    'arduino-nano-esp32',
     'esp32-c3',
   ];
 

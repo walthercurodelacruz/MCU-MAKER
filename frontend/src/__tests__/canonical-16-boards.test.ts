@@ -14,15 +14,14 @@ const CANONICAL_BOARDS: BoardKind[] = [
   'esp32',
   'esp32-cam',
   'esp32-s3',
-  'arduino-nano-esp32',
   'esp32-c3',
   'attiny85',
 ];
 
 describe('Canonical Boards Parity and Integrity Test', () => {
-  it('has exactly 11 canonical boards defined', () => {
-    expect(CANONICAL_BOARDS).toHaveLength(11);
-    expect(Object.keys(BOARD_KIND_FQBN)).toHaveLength(11);
+  it('has exactly 10 canonical boards defined', () => {
+    expect(CANONICAL_BOARDS).toHaveLength(10);
+    expect(Object.keys(BOARD_KIND_FQBN)).toHaveLength(10);
   });
 
   for (const boardKind of CANONICAL_BOARDS) {

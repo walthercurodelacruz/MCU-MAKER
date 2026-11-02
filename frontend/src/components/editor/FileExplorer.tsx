@@ -309,7 +309,6 @@ const BOARD_ICON: Record<BoardKind, string> = {
   esp32: '⬡',
   'esp32-cam': '📷',
   'esp32-s3': '⬢',
-  'arduino-nano-esp32': '⬢',
   'esp32-c3': '⬡',
 };
 
@@ -324,7 +323,6 @@ const BOARD_COLOR: Record<BoardKind, string> = {
   esp32: 'var(--color-feedback-success)',
   'esp32-cam': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
-  'arduino-nano-esp32': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
 };
 

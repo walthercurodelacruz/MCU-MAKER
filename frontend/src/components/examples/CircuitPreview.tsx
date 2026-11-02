@@ -120,7 +120,6 @@ const BOARD_DEFS: Record<string, CompDef> = {
   esp32: { svg: 'esp32-devkit-v1.svg', w: 107, h: 204 },
   'esp32-cam': { svg: 'esp32-cam.svg', w: 102, h: 152 },
   'esp32-s3': { svg: 'esp32-s3.svg', w: 72, h: 199 },
-  'arduino-nano-esp32': { svg: 'arduino-nano-esp32.svg', w: 170, h: 72 },
   'esp32-c3': { svg: 'esp32-c3.svg', w: 95, h: 161 },
   // ATtiny85 — DIP-8, drawn inline (no wokwi element ships its SVG).
   attiny85: { svg: 'attiny85.svg', w: 160, h: 132 },

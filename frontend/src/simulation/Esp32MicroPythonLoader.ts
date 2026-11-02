@@ -36,8 +36,7 @@ const FIRMWARE_MAP: Record<string, FirmwareConfig> = {
 /** Map any ESP32-family board kind to firmware variant key */
 export function toFirmwareVariant(boardKind: BoardKind): 'esp32' | 'esp32-s3' | 'esp32-c3' {
   if (
-    boardKind === 'esp32-s3' ||
-    boardKind === 'arduino-nano-esp32'
+    boardKind === 'esp32-s3'
   ) {
     return 'esp32-s3';
   }
@@ -161,7 +160,7 @@ export function padToFlashSize(firmware: Uint8Array, boardKind?: BoardKind): Uin
   // Using a smaller image makes the SPI flash driver fail with:
   //   E (141) spi_flash: Detected size(2048k) smaller than the size in the
   //                      binary image header(4096k). Probe failed.
-  // (See https://github.com/davidmonterocrespo24/mcu_maker/issues/122)
+  // (See https://github.com/walthercurodelacruz/MCU-MAKER/issues/122)
   const MIN_BYTES = 4 * 1024 * 1024;
   const VALID_BYTES = [2, 4, 8, 16].map((mb) => mb * 1024 * 1024);
   const target = VALID_BYTES.find(

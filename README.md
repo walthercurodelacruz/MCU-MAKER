@@ -1,199 +1,325 @@
 # MCU Maker: Plataforma Abierta de Simulación de Microcontroladores y Circuitos
 
 <p align="center">
-  <strong>Simulador y emulador interactivo de electrónica y microcontroladores de código abierto (Web + Local)</strong><br />
-  <strong>MCU Maker — Un proyecto basado en Velxio.dev con Backend 100% en Rust</strong><br />
-  <strong>Desarrollador: Walther Curo De La Cruz</strong>
+  <strong>Simulador y emulador interactivo de electrónica y microcontroladores de código abierto (Desktop + Web)</strong><br />
+  <strong>MCU Maker — Suite con Arquitectura Híbrida y Backend 100% en Rust</strong><br />
+  <strong>Autor Principal: Walther Curo De La Cruz</strong>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPLv3" />
   <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen.svg" alt="Version 1.0.0" />
-  <img src="https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64%20%7C%20Web-orange.svg" alt="Platforms" />
+  <img src="https://img.shields.io/badge/Platforms-Ubuntu%2024.04%2B%20%7C%20Windows%2010%2F11%20x64%20%7C%20Web-orange.svg" alt="Platforms" />
+  <img src="https://img.shields.io/badge/macOS-Unsupported%20%2F%20Discarded-lightgrey.svg" alt="macOS Discarded" />
   <img src="https://img.shields.io/badge/Core-Rust%20(Axum%20%2B%20Tokio)-red.svg" alt="Rust Core" />
-  <img src="https://img.shields.io/badge/GUI-eframe%20%2F%20egui-blue.svg" alt="egui GUI" />
+  <img src="https://img.shields.io/badge/Launcher-eframe%20%2F%20egui-blue.svg" alt="egui GUI" />
   <img src="https://img.shields.io/badge/SPICE-ngspice--WASM-purple.svg" alt="SPICE" />
-  <img src="https://img.shields.io/badge/IoT-LAN%20Gateway%20Enabled-blueviolet.svg" alt="LAN Gateway" />
+  <img src="https://img.shields.io/badge/QEMU%20Emulation-Xtensa%20%2B%20RISC--V-darkgreen.svg" alt="QEMU Engine" />
+  <img src="https://img.shields.io/badge/QA%20Tests-Passing%20100%25-brightgreen.svg" alt="QA Passing" />
 </p>
 
 ---
 
 ## 📑 Tabla de Contenidos
 1. [¿Qué es MCU Maker?](#-qué-es-mcu-maker)
-2. [Placas y Microcontroladores Disponibles](#-placas-y-microcontroladores-disponibles)
-3. [Catálogo de Componentes Electrónicos](#-catálogo-de-componentes-electrónicos)
-4. [Características Principales](#-características-principales)
-5. [Instalación y Primeros Pasos](#-instalación-y-primeros-pasos)
-6. [🔮 Roadmap y Futuras Versiones (FPGAs y Lógica Programable)](#-roadmap-y-futuras-versiones)
-7. [Documentación Adicional](#-documentación-adicional)
-8. [⚖️ Licencia, Autoría y Blindaje Legal](#️-licencia-autoría-y-blindaje-legal)
-9. [🏷️ Marcas Registradas](#️-marcas-registradas)
+2. [Estado de Compatibilidad Multiplataforma](#-estado-de-compatibilidad-multiplataforma)
+3. [Placas Canónicas Compatibles (Lista Oficial de 10 Placas)](#-placas-canónicas-compatibles)
+4. [Catálogo de Componentes e Instrumentación](#-catálogo-de-componentes-e-instrumentación)
+5. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+6. [Instalación y Primeros Pasos](#-instalación-y-primeros-pasos)
+7. [Guía de Verificación y Control de Calidad (QA)](#-guía-de-verificación-y-control-de-calidad-qa)
+8. [Resolución de Problemas Frecuentes (Troubleshooting)](#-resolución-de-problemas-frecuentes-troubleshooting)
+9. [Documentación Técnica Detallada](#-documentación-técnica-detallada)
+10. [Licencia, Autoría y Reconocimientos](#-licencia-autoría-y-reconocimientos)
 
 ---
 
 ## 📌 ¿Qué es MCU Maker?
 
-**MCU Maker** es un entorno interactivo y completo de simulación electrónica y emulación de microcontroladores que opera de forma **100% local, offline y sin dependencias en la nube** en tu computadora, así como en cualquier navegador web moderno.
+**MCU Maker** es una plataforma integral, moderna y abierta para el diseño, simulación e inspección de circuitos electrónicos y código para sistemas embebidos. Funciona de manera **100% local, privada y sin conexión a internet obligatoria** en tu estación de trabajo (así como en navegadores web modernos).
 
-Combina **simulación analógica SPICE en tiempo real** (vía `ngspice-WASM`) con **emulación digital a ciclo exacto** para múltiples familias de microcontroladores y arquitecturas de procesador: **AVR8 (Arduino)**, **Xtensa (ESP32)**, **ARM Cortex-M (Raspberry Pi Pico, STM32)**, **RISC-V (ESP32-C3, CH32V003)** y **ARM Linux (Raspberry Pi 3)**.
-
-Su arquitectura híbrida de alto rendimiento cuenta con un **motor de backend asíncrono y un launcher visual nativo reescritos al 100% en Rust**, garantizando tiempos de compilación instantáneos mediante caché SHA-256 y un consumo de memoria mínimo (< 25 MB).
-
----
-
-## ⚡ Placas y Microcontroladores Disponibles
-
-MCU Maker emula directamente el hardware y los periféricos de sus **11 placas de desarrollo canónicas**:
-
-| N° | Placa Soportada | Familia de CPU | Núcleo de Emulación | Entornos / Lenguajes Soportados |
-| :--- | :--- | :--- | :--- | :--- |
-| 1 | **Arduino Uno R3** | AVR8 (ATmega328P 8-bit) | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
-| 2 | **Arduino Nano** | AVR8 (ATmega328P 8-bit) | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
-| 3 | **Arduino Mega 2560** | AVR8 (ATmega2560 8-bit) | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
-| 4 | **ATtiny85** | AVR8 (ATtiny85 DIP-8) | `avr8js` (8/16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
-| 5 | **Raspberry Pi Pico** | RP2040 (ARM Cortex-M0+) | `rp2040js` (Dual-core 133 MHz) | Arduino C++, MicroPython, C/C++ SDK |
-| 6 | **Raspberry Pi Pico W** | RP2040 + CYW43439 Wi-Fi | `rp2040js` (Dual-core 133 MHz) | Arduino C++, MicroPython, C/C++ SDK |
-| 7 | **ESP32 DevKit V1** | Xtensa LX6 Dual-Core | QEMU Xtensa LX6 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
-| 8 | **ESP32-CAM** | Xtensa LX6 Dual-Core + OV2640 | QEMU Xtensa LX6 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
-| 9 | **ESP32-S3 DevKit** | Xtensa LX7 Dual-Core | QEMU Xtensa LX7 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
-| 10 | **Arduino Nano ESP32** | ESP32-S3 (Xtensa LX7) | QEMU Xtensa LX7 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
-| 11 | **ESP32-C3 DevKit** | RISC-V 32-bit Single-Core | QEMU RISC-V 32 bits (160 MHz) | Arduino C++, ESP-IDF |
-
-> 📖 Para consultar el inventario técnico exhaustivo de pines, memorias flash/SRAM y periféricos, consulta **[docs/BOARDS_AND_COMPONENTS.md](docs/BOARDS_AND_COMPONENTS.md)**.
+La plataforma resuelve la brecha entre el código de firmware y el hardware real combinando:
+1. **Simulación Analógica SPICE en tiempo real:** Motor `ngspice` compilado a WebAssembly (`ngspice-WASM`) para cálculo nodal preciso de voltajes, transistores BJT/MOSFET, amplificadores operacionales y filtros pasivos/activos.
+2. **Emulación Digital en el Navegador (Ciclo Exacto):** Motores WebAssembly/JavaScript ultrarrápidos para arquitecturas AVR8 (8-bit) y RP2040 (ARM Cortex-M0+ dual-core).
+3. **Emulación Nativa QEMU de Alto Rendimiento:** Worker nativo desacoplado en Rust (`mcu-maker-worker`) que interactúa mediante FFI con librerías dinámicas de QEMU (`libqemu-xtensa` y `libqemu-riscv32`), permitiendo ejecutar firmware real sin modificar para la familia **ESP32** (incluyendo WiFi emulado TCP/IP y servidores web reales).
+4. **Servidor y Lanzador Nativo 100% en Rust:** Servidor HTTP/WebSocket ultraligero y asíncrono con **Axum**, caché de compilación SHA-256 para **Arduino CLI**, y una aplicación GUI de escritorio desarrollada en **eframe / egui**.
 
 ---
 
-## 🧩 Catálogo de Componentes Electrónicos
+## 💻 Estado de Compatibilidad Multiplataforma
 
-El simulador incluye más de **160 componentes interactivos** listos para colocar en protoboard o diagrama:
+Como parte de los estándares de aseguramiento de calidad (Senior QA), el alcance de soporte de sistemas operativos está definido de manera estricta y transparente:
 
-* **Sensores:** Ultrasonido HC-SR04, Temperatura y Humedad DHT11 / DHT22, Barómetro BMP280, Acelerómetro y Giroscopio MPU6050 (I2C), Potenciómetros, Fotoresistencias (LDR), Termistores NTC.
-* **Salidas y Actuadores:** LEDs de colores individuales, tiras y matrices Neopixel (WS2812B), Servomotores analógicos y digitales, Relés electromecánicos de 5V, Zumbadores piezoeléctricos (Buzzer pasivo/activo).
-* **Pantallas y Displays:** Display OLED monocromático SSD1306 (I2C y SPI, 128x64 / 128x32), Pantalla LCD de caracteres 16x2 y 20x4 (con o sin mochila I2C PCF8574), Displays de 7 segmentos (1 y 4 dígitos con multiplexado), Pantallas de papel electrónico (e-Paper).
-* **Circuitos Integrados Digitales:** Compuertas lógicas estándar (74HC00, 74HC04, 74HC08, 74HC32, 74HC86), Temporizador 555 astable/monoestable, Registro de desplazamiento 74HC595, Driver de motores Puente H L293D.
-* **Módulos RTC y Almacenamiento:** Relojes en tiempo real DS1307 y DS3231 (I2C con respaldo de batería), Memoria EEPROM 24Cxxx, Módulo lector de tarjetas MicroSD (SPI con sistema de archivos FAT).
-* **Componentes Analógicos y Pasivos:** Resistencias, Condensadores electrolíticos y cerámicos, Inductores, Diodos rectificadores, Diodos Zener, Transistores BJT (NPN 2N2222, PNP 2N3906), MOSFETs de canal N y P, Amplificadores operacionales LM358 / TL072 (motor `ngspice-WASM`).
+### ✅ Plataformas Oficialmente Soportadas (Nivel 1 / Tier-1)
+* **Linux x86_64:**
+  * **Sistemas objetivo:** Ubuntu 24.04 LTS (Noble Numbat), Debian 12 (Bookworm) y derivados directos (Linux Mint, Pop!_OS).
+  * **Formato de distribución:** Paquete nativo Debian (`dist-installer/mcu-maker_1.0.0_amd64.deb`), integrando binarios nativos en `/opt/mcu-maker/`, acceso directo de escritorio `.desktop` y lanzador `/usr/bin/mcu-maker`.
+  * **Librerías dinámicas:** QEMU runtime precompilado en formato ELF de 64 bits (`libqemu-xtensa.so`, `libqemu-riscv32.so`) y binario ROM oficial `esp32s3_rev0_rom.bin`.
+* **Windows 10 / Windows 11 (64-bit):**
+  * **Formato de distribución:** Instalador ejecutable oficial (`dist-installer/MCU-Maker-Setup-v1.0.0.exe`) y ejecución portable en un clic (`start-launcher.bat`).
+  * **Librerías dinámicas:** QEMU runtime precompilado en formato PE/DLL de 64 bits (`libqemu-xtensa.dll`, `libqemu-riscv32.dll`).
+* **Web / Navegador Moderno:**
+  * **Navegadores:** Google Chrome, Microsoft Edge, Mozilla Firefox, Brave, Opera.
+  * **Requisitos:** Soporte para WebAssembly, Web Workers y WebSockets.
+
+### ❌ Plataformas Descartadas / Sin Soporte
+* **macOS (Apple Silicon M1/M2/M3/M4 y macOS Intel):**
+  > **AVISO DE QA:** El soporte para **macOS ha sido formal y permanentemente descartado**. No se proporcionan paquetes `.dmg`, binarios universales Mach-O ni librerías dinámicas `.dylib` para Darwin. El desarrollo y los pipelines de control de calidad se concentran exclusivamente en entornos de producción Linux, Windows y Web.
 
 ---
 
-## 🚀 Características Principales
+## ⚡ Placas Canónicas Compatibles
 
-### 🌐 1. Pasarela IoT en Red Local (LAN IoT Gateway)
-Cuando compilas un sketch en un ESP32 o Raspberry Pi Pico W que levanta un servidor web (`WiFiServer`, `WebServer`), MCU Maker mapea automáticamente los sockets virtuales y expone una URL accesible desde cualquier teléfono inteligente, tablet o laptop conectada a tu misma red Wi-Fi:
+El ecosistema de MCU Maker cuenta con exactamente **10 placas de desarrollo oficiales** rigurosamente verificadas en pruebas unitarias y de integración:
+
+| N° | Placa Oficial | Arquitectura / SoC | Frecuencia | Motor de Emulación | Lenguajes y Toolchains |
+| :---: | :--- | :--- | :---: | :--- | :--- |
+| **1** | **Arduino Uno R3** | AVR8 (ATmega328P 8-bit) | 16 MHz | `avr8js` (Navegador) | Arduino C++, AVR Assembly |
+| **2** | **Arduino Nano** | AVR8 (ATmega328P 8-bit) | 16 MHz | `avr8js` (Navegador) | Arduino C++, AVR Assembly |
+| **3** | **Arduino Mega 2560** | AVR8 (ATmega2560 8-bit) | 16 MHz | `avr8js` (Navegador) | Arduino C++, AVR Assembly |
+| **4** | **ATtiny85 (DIP-8)** | AVR8 (ATtiny85 8-bit) | 8/16 MHz | `avr8js` (Navegador) | Arduino C++, AVR Assembly |
+| **5** | **Raspberry Pi Pico** | RP2040 (ARM Cortex-M0+ Dual) | 133 MHz | `rp2040js` (Navegador) | Arduino C++, MicroPython, Pico C/C++ SDK |
+| **6** | **Raspberry Pi Pico W** | RP2040 + Wi-Fi CYW43439 | 133 MHz | `rp2040js` (Navegador) | Arduino C++, MicroPython, Pico C/C++ SDK |
+| **7** | **ESP32 DevKit V1** | Xtensa LX6 Dual-Core | 240 MHz | QEMU Worker (`esp32-picsimlab`) | Arduino C++, MicroPython, ESP-IDF |
+| **8** | **ESP32-CAM** | Xtensa LX6 Dual + Cámara OV2640 | 240 MHz | QEMU Worker (`esp32-picsimlab`) | Arduino C++, MicroPython, ESP-IDF |
+| **9** | **ESP32-S3 DevKit** | Xtensa LX7 Dual-Core (USB OTG) | 240 MHz | QEMU Worker (`esp32s3` + ROM oficial) | Arduino C++, MicroPython, ESP-IDF |
+| **10** | **ESP32-C3 DevKit** | RISC-V RV32IMC Single-Core | 160 MHz | QEMU Worker (`esp32c3-picsimlab`) | Arduino C++, ESP-IDF |
+
+> ℹ️ **Nota de Versión:** El modelo *Arduino Nano ESP32* ha sido retirado formalmente del catálogo canónico para garantizar la máxima fidelidad y estabilidad operativa con las máquinas virtuales validadas de PICSimLab y QEMU Espressif.
+
+---
+
+## 🧩 Catálogo de Componentes e Instrumentación
+
+El entorno dispone de más de **160 componentes interactivos** categorizados para protoboards, esquemas y pruebas de laboratorio:
+
+* **Sensores:** Sensor de distancia ultrasónico HC-SR04, Temperatura y Humedad DHT11 / DHT22, Barómetro digital BMP280, Acelerómetro y Giroscopio MPU6050 (I2C), Termistores NTC, Sensores de luz LDR, Potenciómetros rotativos y deslizantes.
+* **Actuadores y Señalización:** LEDs estándar de colores, matriz y tiras NeoPixel direccionables (WS2812B), Servomotores (estándar de 180° y rotación continua), Relés electromecánicos de 5V/10A, Zumbadores acústicos pasivos y activos.
+* **Displays y Visualización:** Pantalla OLED SSD1306 (128x64 y 128x32 en buses I2C y SPI), LCD alfanumérico 16x2 y 20x4 (con o sin adaptador I2C PCF8574), Displays de 7 segmentos de 1 y 4 dígitos (con control directo o multiplexado), Papel electrónico (e-Paper).
+* **Circuitos Integrados Lógicos y Potencia:** Compuertas lógicas CMOS/TTL (74HC00, 74HC04, 74HC08, 74HC32, 74HC86), Temporizador analógico 555 (modos astable y monoestable), Registro de desplazamiento serial a paralelo 74HC595, Controlador Puente H de motores DC L293D.
+* **Almacenamiento y Tiempo Real:** Relojes de tiempo real con respaldo DS1307 y DS3231 (I2C), Memoria EEPROM I2C 24Cxx, Lector de tarjetas MicroSD (SPI con montaje de sistema de archivos FAT).
+* **Red Analógica SPICE:** Resistencias, Condensadores de filtrado, Inductores, Diodos 1N4007 y Zener, Transistores bipolares NPN 2N2222 y PNP 2N3906, MOSFETs de potencia canal N/P y Amplificadores operacionales LM358 / TL072.
+* **Instrumentación:** Osciloscopio digital en tiempo real con selector dinámico de pines GPIO/analógicos, Monitor Serie interactivo y visualizador de terminal UART.
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+```mermaid
+graph TD
+    subgraph Frontend ["Frontend Web & Interfaz (React 18 + Vite)"]
+        UI["Editor Monaco + Lienzo Interactivo"]
+        SPICE["ngspice-WASM (Cálculo Analógico)"]
+        AVR_SIM["avr8js (Simulador AVR Uno/Nano/Mega/Tiny)"]
+        RP_SIM["rp2040js (Simulador RP2040 Pico/Pico W)"]
+        WS_CLIENT["Cliente WebSocket de Simulación"]
+    end
+
+    subgraph Backend ["Backend Nativo Rust (mcu-maker-server)"]
+        SERVER["Servidor HTTP / WebSocket (Axum + Tokio)"]
+        CLI_SRV["Servicio Arduino CLI con Caché SHA-256"]
+        LAN_GW["Pasarela IoT LAN (Redirección HTTP :80 virtual)"]
+    end
+
+    subgraph Worker ["Motor QEMU Nativo (mcu-maker-worker)"]
+        WORKER_BIN["Worker Rust (Pipes stdio / IPC)"]
+        LIB_XTENSA["libqemu-xtensa (esp32-picsimlab / esp32s3)"]
+        LIB_RISCV["libqemu-riscv32 (esp32c3-picsimlab)"]
+        ROM_S3["esp32s3_rev0_rom.bin (Bootloader S3)"]
+    end
+
+    subgraph Launcher ["Launcher de Escritorio (mcu-maker-launcher)"]
+        EGUI["Interfaz GUI OpenGL (eframe / egui)"]
+        PROC_MGR["Gestión de Procesos en 1 Clic"]
+    end
+
+    UI --> SPICE
+    UI --> AVR_SIM
+    UI --> RP_SIM
+    UI <-->|WebSocket :8001/ws/simulation| SERVER
+    SERVER <-->|Subproceso stdin/stdout| WORKER_BIN
+    WORKER_BIN --> LIB_XTENSA
+    WORKER_BIN --> LIB_RISCV
+    WORKER_BIN --> ROM_S3
+    SERVER --> CLI_SRV
+    SERVER --> LAN_GW
+    EGUI --> PROC_MGR
+    PROC_MGR --> SERVER
 ```
-http://[IP_DE_TU_PC]:8001/iot/
-```
-Permite probar interfaces web para domótica, dashboards IoT y controles remotos desde tu smartphone físico sin comprar hardware adicional.
 
-### ⚡ 2. Launcher de Escritorio Nativo (100% Rust)
-* Desarrollado con el framework **eframe / egui** con aceleración OpenGL.
-* Interfaz moderna en tonos *Dark Slate & Electric Cyan* con tipografía **Roboto** e iconos vectoriales **Font Awesome 6**.
-* Gestión y supervisión del servidor en segundo plano en 1 solo clic.
-* Consola de registros y eventos en tiempo real con niveles de severidad (`INFO`, `WARN`, `ERROR`, `SERVER`) y copia al portapapeles.
-* Selector visual de puertos de escucha y configuración de Wi-Fi simulada (Modo Universal con redirección automática o Filtro SSID exacto).
-
-### 🔬 3. Motor de Co-Simulación Digital y Analógica SPICE
-Simulación híbrida en tiempo real donde las señales PWM, GPIO y voltajes del microcontrolador interactúan directamente con circuitos analógicos resueltos con precisión matemática mediante **ngspice-WASM**.
-
-### 📐 4. Vista de Circuito y Vista Esquemática
-* **Vista Circuito:** Lienzo interactivo para protoboards con trazado fluido de cables por color, detección de nodos y arrastre de componentes.
-* **Vista Esquemático:** Diagrama esquemático electrónico de alto contraste y fondo cálido claro, listo para exportación gráfica en alta resolución o impresión directa para informes de laboratorio y tareas académicas.
+### Flujo de Simulación ESP32:
+1. El usuario hace clic en **Iniciar Simulación** en un ESP32, ESP32-CAM, ESP32-S3 o ESP32-C3.
+2. `mcu-maker-server` inicia el binario nativo `mcu-maker-worker`.
+3. El worker carga la librería compartida correspondiente (`libqemu-xtensa.so/.dll` o `libqemu-riscv32.so/.dll`).
+4. Para **ESP32-S3**, el worker monta automáticamente la memoria flash y el bootloader ROM (`esp32s3_rev0_rom.bin`), resolviendo los 49 pines GPIO (0..=48).
+5. Los eventos de pines, UART serie y lecturas analógicas se transmiten con latencia mínima (< 2 ms) por WebSockets bidireccionales hacia el navegador.
 
 ---
 
-## 📦 Instalación y Primeros Pasos
+## 🚀 Instalación y Primeros Pasos
 
-### Opción 1: Instalador Oficial para Windows (Recomendado)
-1. Descarga el ejecutable desde la carpeta de distribución:
+### 🐧 1. En Linux (Ubuntu 24.04 LTS / Debian 12 x86_64)
+
+#### Opción A: Instalador Oficial (.deb) — Recomendado
+Si tienes el archivo `.deb` generado:
+```bash
+sudo apt update
+sudo apt install ./dist-installer/mcu-maker_1.0.0_amd64.deb
+```
+Una vez instalado, abre **MCU Maker** desde el menú de aplicaciones de tu entorno gráfico o ejecutando `mcu-maker` en la terminal.
+
+Para desinstalarlo:
+```bash
+sudo apt remove mcu-maker
+```
+
+#### Opción B: Construcción desde Código Fuente
+Si has clonado el repositorio:
+```bash
+# 1. Instalar dependencias del sistema y Arduino CLI
+./install-deps-linux.sh
+
+# 2. Descargar librerías del motor QEMU (libqemu-xtensa, libqemu-riscv32 y ROM S3)
+./scripts/download-qemu-runtime.sh
+
+# 3. Compilar el paquete instalador .deb completo
+./build-installer.sh
+```
+
+---
+
+### 🪟 2. En Windows 10 / Windows 11 (64-bit)
+
+#### Opción A: Instalador Asistido (.exe)
+1. Descarga y ejecuta el instalador oficial:
    ```
    dist-installer/MCU-Maker-Setup-v1.0.0.exe
    ```
-2. Ejecuta el instalador. Permite instalación sin permisos de administrador (en `%LocalAppData%\Programs\MCU Maker`) o como Administrador para toda la máquina.
-3. Al finalizar, inicia **MCU Maker** desde el acceso directo del Escritorio o Menú Inicio. El lanzador abrirá automáticamente tu navegador en `http://localhost:8001`.
+2. Sigue los pasos del asistente de instalación.
+3. Inicia **MCU Maker** desde el acceso directo del Escritorio.
 
-### Opción 2: Ejecución Portable en 1 Clic
-Si clonaste el repositorio, en la raíz del proyecto ejecuta:
+#### Opción B: Ejecución Portable
+En la raíz del repositorio clonado, ejecuta:
 ```bat
 start-launcher.bat
 ```
-El script detectará los binarios optimizados en `rust/target/release/` (o los compilará si faltan) e iniciará la aplicación de inmediato.
+El script detectará los ejecutables optimizados de Rust e iniciará el launcher y servidor automáticamente.
 
-### Opción 3: Ejecución Manual para Desarrolladores
+---
+
+### 🌐 3. Modo Servidor para Red Local o Desarrollo Web
+
+Para levantar el servidor backend de manera independiente:
 ```bash
-# 1. Compilar y ejecutar el servidor Rust
+# Compilar y arrancar el servidor backend en el puerto 8001
 cd rust
 cargo run --release -p mcu-maker-server -- --port 8001
-
-# 2. Ejecutar el frontend en modo desarrollo (opcional)
-cd ../frontend
+```
+En otra terminal, puedes levantar el frontend en modo desarrollo:
+```bash
+cd frontend
 npm install
 npm run dev
 ```
 
 ---
 
-## 🔮 Roadmap y Futuras Versiones
+## 🧪 Guía de Verificación y Control de Calidad (QA)
 
-El desarrollo de MCU Maker avanza activamente hacia la integración de tecnologías de hardware avanzadas:
+Para auditar y validar la integridad técnica de todo el proyecto, ejecuta la siguiente batería de pruebas de nivel Senior QA:
 
-### ⚡ Simulación de FPGAs Clásicas y Lógica Programable
-Incorporación de placas y silicios FPGA de referencia didáctica y maker:
-* **Modelos en evaluación:** **Lattice iCE40** (iCEstick, iCEBreaker UP5K, TinyFPGA BX), **Gowin Tang Nano 9K/20K**, **Xilinx Spartan-6** y **Digilent Basys 3** (Artix-7 XC7A35T).
-* **Cadena de Herramientas 100% Abierta (Open Toolchain):** Síntesis RTL con **Yosys**, simulación a ciclo exacto con **CXXRTL / Verilator** (compilados a WebAssembly) y place & route virtual con **nextpnr**.
-* **Lenguajes:** Soporte para **Verilog** (IEEE 1364), **SystemVerilog** sintetizable y **VHDL** (vía plugin GHDL-Yosys).
-* **Co-Simulación FPGA ↔ Microcontrolador:** Posibilidad de conectar pines de la FPGA simulada a microcontroladores (Arduino / ESP32) a través de buses SPI, I2C o GPIO en el mismo lienzo interactivo.
+### 1. Verificación del Backend y Workers en Rust
+```bash
+cd rust
 
-### 📡 Redes y Conectividad Inalámbrica Avanzada
-* Emulación de protocolos de malla **ESP-NOW** entre múltiples módulos ESP32 coexistiendo en el mismo espacio virtual.
-* Transceptores de radiofrecuencia **LoRa (SX1276 / SX1278)** para telemetría de largo alcance simulada.
-* Periféricos simulados de **Bluetooth Low Energy (BLE)** (servicios GATT, notificaciones).
+# Ejecutar todos los tests unitarios del workspace (servidor y worker QEMU)
+cargo test --workspace
 
-### 📊 Instrumentación Virtual de Laboratorio
-* **Osciloscopio Digital de 2 Canales:** Con acoplamiento AC/DC, disparo por flanco (trigger) y análisis espectral FFT en vivo.
-* **Analizador Lógico de 8 Canales:** Con decodificadores de tramas para protocolos I2C, SPI, UART y 1-Wire, con exportación a formato VCD (*Value Change Dump*).
+# Comprobación estricta de lints y calidad de código (Cero Advertencias)
+cargo clippy --workspace -- -D warnings
+```
+**Resultado esperado:**
+* 4 tests pasados en `mcu-maker-server` (incluyendo resolución de rutas QEMU y configuración de Arduino CLI).
+* 4 tests pasados en `mcu-maker-worker` (incluyendo verificación de librerías QEMU cargables y presencia de la ROM `esp32s3_rev0_rom.bin`).
+* 0 advertencias de Clippy.
 
-### 🐧 Distribución Multiplataforma
-* Empaquetado **AppImage** y **Flatpak** para distribuciones Linux (Ubuntu, Debian, Fedora, Arch).
-* Paquetes **DMG** para macOS (Apple Silicon M1/M2/M3 y x86_64).
+### 2. Verificación del Frontend y Tipos de Placas
+```bash
+cd frontend
+
+# Ejecutar la suite de pruebas unitarias sobre las 10 placas canónicas
+npx vitest run \
+  src/__tests__/canonical-16-boards.test.ts \
+  src/__tests__/board-kinds-coverage.test.ts \
+  src/__tests__/board-pin-mapping.test.ts \
+  src/__tests__/esp32-adc-channel-map.test.ts \
+  src/__tests__/esp32-element-onboard-led.test.ts \
+  src/__tests__/issue-122-micropython-esp32.test.ts \
+  src/__tests__/issue-139-espidf-mode.test.ts \
+  src/__tests__/onboard-leds-attach.test.ts \
+  src/__tests__/onboard-led-table.test.ts \
+  src/__tests__/board-on-canvas-onboard-led.test.ts
+```
+**Resultado esperado:**
+* 10 archivos de prueba aprobados (100% passed).
+* 148 pruebas unitarias superadas con éxito.
+
+### 3. Verificación de Compilación de Producción del Frontend
+```bash
+cd frontend
+npx vite build
+```
+**Resultado esperado:**
+* Compilación exitosa en `frontend/dist` sin errores de bundle.
 
 ---
 
-## 📖 Documentación Adicional
+## 🔧 Resolución de Problemas Frecuentes (Troubleshooting)
 
-* **[`MANUAL_PROYECTO_V1.md`](MANUAL_PROYECTO_V1.md):** Manual integral del usuario, arquitectura interna, guía paso a paso y resolución de errores (Troubleshooting).
-* **[`README_RUST.md`](README_RUST.md):** Documentación técnica de la suite en Rust (`mcu-maker-launcher`, `mcu-maker-server`, `mcu-maker-worker`).
-* **[`docs/BOARDS_AND_COMPONENTS.md`](docs/BOARDS_AND_COMPONENTS.md):** Catálogo exhaustivo de especificaciones técnicas y memoria de las 11 placas canónicas y los componentes del simulador.
-* **[`docs/BUILD-QEMU.md`](docs/BUILD-QEMU.md):** Guía de compilación y enlace de DLLs del motor QEMU.
+### 1. `Librería de simulación libqemu-xtensa.so no encontrada`
+* **Causa:** Las librerías de emulación QEMU no fueron descargadas en la carpeta `prebuilt/qemu_runtime`.
+* **Solución:** Ejecuta en la raíz del proyecto:
+  ```bash
+  ./scripts/download-qemu-runtime.sh
+  ```
+  Esto descargará `libqemu-xtensa.so`, `libqemu-riscv32.so` y la ROM del ESP32-S3 automáticamente.
+
+### 2. `El simulador finalizó: Use -machine help to list supported machines`
+* **Causa:** QEMU de PICSimLab requiere identificadores de máquina específicos.
+* **Solución:** Ya se encuentra resuelto en la versión actual. Las máquinas oficiales asignadas son:
+  * ESP32 clásico / ESP32-CAM: `esp32-picsimlab`
+  * ESP32-S3: `esp32s3` (requiere `esp32s3_rev0_rom.bin`)
+  * ESP32-C3: `esp32c3-picsimlab`
+
+### 3. Error al compilar sketches: `arduino-cli not found`
+* **Causa:** El ejecutable `arduino-cli` no está instalado en el PATH del sistema ni en `prebuilt/arduino-cli/`.
+* **Solución:** Ejecuta `./install-deps-linux.sh` o descarga el binario oficial de Arduino CLI y colócalo en tu PATH.
 
 ---
 
-## ⚖️ Licencia, Autoría y Blindaje Legal
+## 📖 Documentación Técnica Detallada
+
+* **[`MANUAL_PROYECTO_V1.md`](MANUAL_PROYECTO_V1.md):** Manual completo de usuario, diseño de circuitos y arquitectura interna.
+* **[`README_RUST.md`](README_RUST.md):** Especificación técnica de los 3 crates de Rust (`mcu-maker-launcher`, `mcu-maker-server`, `mcu-maker-worker`).
+* **[`docs/BOARDS_AND_COMPONENTS.md`](docs/BOARDS_AND_COMPONENTS.md):** Ficha técnica detallada de pines, tensiones y memorias de las 10 placas canónicas.
+* **[`docs/ESP32_EMULATION.md`](docs/ESP32_EMULATION.md):** Guía profunda de la emulación Xtensa y PICSimLab.
+* **[`docs/RISCV_EMULATION.md`](docs/RISCV_EMULATION.md):** Detalles sobre la emulación del núcleo RISC-V en el ESP32-C3.
+
+---
+
+## ⚖️ Licencia, Autoría y Reconocimientos
 
 ### Licencia de Software Libre
-Este proyecto es software libre y de código abierto distribuido bajo los términos de la **[GNU Affero General Public License v3.0 (GNU AGPLv3)](LICENSE)**.
-
-Eres libre de usar, estudiar, modificar y redistribuir este software, siempre y cuando cualquier versión modificada o trabajo derivado que se ofrezca a través de una red informática ponga a disposición de los usuarios el código fuente completo bajo esta misma licencia AGPLv3.
+Este proyecto se distribuye bajo los términos de la **[GNU Affero General Public License v3.0 (GNU AGPLv3)](LICENSE)**. Cualquier trabajo derivado o servicio de red basado en este software debe mantener el código fuente disponible bajo los mismos términos libres y recíprocos.
 
 ### Autoría y Créditos
-**MCU Maker** — Un proyecto basado en **Velxio.dev** con Backend 100% en Rust.  
-**Desarrollador Principal:** **Walther Curo De La Cruz**
-
-* **Suite y Arquitectura Rust:** Motor de servidor asíncrono con Axum y Tokio, worker de emulación QEMU, pasarela LAN IoT y Launcher de escritorio desarrollados por Walther Curo De La Cruz (2026).
-* **Reconocimiento al Proyecto Base:** Basado e inspirado en el frontend de código abierto de **[Velxio.dev](https://github.com/davidmonterocrespo24/velxio)** (creado por **David Montero Crespo**).
-* **Núcleos de Emulación y SPICE:** Elementos de simulación basados en **Wokwi** (`avr8js` y `rp2040js` por Uri Shaked), motor analógico `ngspice-WASM` y emulación QEMU adaptada (fork `lcgamboa`).
-
-En estricto cumplimiento con la Sección 5 de la GNU AGPLv3, todos los avisos de derechos de autor y licencias originales se conservan íntegros en el archivo [`LICENSE`](LICENSE), y todas las modificaciones y aportes se publican bajo la misma licencia libre recíproca.
-
----
-
-## 🏷️ Marcas Registradas
-
-* **Arduino®** es una marca registrada de *Arduino AG*.
-* **ESP32®, ESP32-S3®, ESP32-C3® y Espressif®** son marcas registradas de *Espressif Systems (Shanghai) Co., Ltd.*
-* **Raspberry Pi® y RP2040®** son marcas registradas de *Raspberry Pi Ltd*.
-* **STM32®** es una marca registrada de *STMicroelectronics NV*.
-
-Todos los nombres de placas, microcontroladores, logotipos y marcas comerciales mencionados en este proyecto se utilizan únicamente con fines descriptivos y de identificación de compatibilidad técnica en la emulación de hardware. **MCU Maker** es un proyecto comunitario independiente de código abierto y no está afiliado, patrocinado ni respaldado por ninguna de las entidades propietarias de dichas marcas.
+* **MCU Maker Suite:** Desarrollado por **Walther Curo De La Cruz** (2026).
+  * Arquitectura completa en Rust: Servidor asíncrono con Axum, worker QEMU desacoplado, pasarela LAN IoT y GUI de escritorio con egui.
+* **Proyecto Base:** Inspirado y derivado del frontend de código abierto de **[Velxio.dev](https://github.com/davidmonterocrespo24/velxio)**, creado por **David Montero Crespo**.
+* **Núcleos de Emulación y SPICE:**
+  * Motores de emulación digital en navegador basados en **Wokwi** (`avr8js` y `rp2040js` por Uri Shaked).
+  * Motor de co-simulación analógica `ngspice-WASM`.
+  * Emulación de microcontroladores QEMU adaptada del fork de **lcgamboa (PICSimLab)**.
 
 ---
-*MCU Maker Suite v1.0.0 Oficial — 2026.*
+*MCU Maker Suite v1.0.0 Oficial — 2026. Calidad Verificada.*

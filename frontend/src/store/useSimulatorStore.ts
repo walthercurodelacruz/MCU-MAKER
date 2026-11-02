@@ -659,8 +659,7 @@ export class Esp32BridgeShim {
    *
    * Chip coverage of the fallback, all QEMU-backed:
    *   - Classic ESP32: ADC1 on GPIO 36-39 (CH0-3) and 32-35 (CH4-7).
-   *   - ESP32-S3 family, including xiao-esp32-s3 and the S3-based
-   *     arduino-nano-esp32: ADC1 = GPIO 1-10 (CH0-9), ADC2 = GPIO 11-20 at
+   *   - ESP32-S3 family, including xiao-esp32-s3: ADC1 = GPIO 1-10 (CH0-9), ADC2 = GPIO 11-20 at
    *     channel index 10-19, which is what the machine's SENS stub uses.
    *     Without this branch analogRead always saw 0 there (2026-07
    *     emulation-gaps audit, F1).
@@ -681,7 +680,7 @@ export class Esp32BridgeShim {
     const b = this.bridge as unknown as { adcChannelForGpio?: (gpio: number) => number };
     if (typeof b.adcChannelForGpio === 'function') return b.adcChannelForGpio(pin);
     const kind = this.bridge.boardKind as string;
-    if (kind === 'esp32-s3' || kind === 'arduino-nano-esp32') {
+    if (kind === 'esp32-s3') {
       if (pin >= 1 && pin <= 10) return pin - 1;
       if (pin >= 11 && pin <= 20) return 10 + (pin - 11);
       return -1;
@@ -1473,7 +1472,6 @@ const ESP32_KINDS = new Set<BoardKind>([
   'esp32',
   'esp32-cam',
   'esp32-s3',
-  'arduino-nano-esp32',
 ]);
 
 // RISC-V ESP32 boards — also use QEMU bridge (qemu-system-riscv32 -M esp32c3)
@@ -3608,6 +3606,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => {
 
       if (isEsp32Kind(board.boardKind)) {
         // Reset ESP32: disconnect then reconnect the QEMU bridge
+        getBoardPinManager(boardId)?.hardResetPinStates();
         const esp32Bridge = getEsp32Bridge(boardId);
         if (esp32Bridge?.connected) {
           esp32Bridge.disconnect();

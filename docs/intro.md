@@ -21,7 +21,7 @@ Más de 24 placas de desarrollo, 5 arquitecturas de procesador, **más de 160 co
 |--------|--------|--------|
 | **AVR8** (browser) | Arduino Uno, Nano, Mega 2560, ATtiny85 | avr8js |
 | **RP2040** (browser) | Raspberry Pi Pico, Pico W | rp2040js |
-| **Xtensa LX6/LX7** (QEMU backend) | ESP32 DevKit V1, ESP32 DevKit C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3 DevKit, XIAO ESP32-S3, Arduino Nano ESP32 | QEMU lcgamboa fork |
+| **Xtensa LX6/LX7** (QEMU backend) | ESP32 DevKit V1, ESP32 DevKit C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3 DevKit, XIAO ESP32-S3 | QEMU lcgamboa fork |
 | **RISC-V RV32IMC** (QEMU backend) | ESP32-C3 DevKit, XIAO ESP32-C3, ESP32-C3 SuperMini | QEMU lcgamboa fork |
 | **ARM Cortex-A** (QEMU backend) | Raspberry Pi Zero, Pi 1B+, Pi 2B, Pi 3B, Pi 4B, Pi 5 | QEMU `virt` / `raspi3b` |
 

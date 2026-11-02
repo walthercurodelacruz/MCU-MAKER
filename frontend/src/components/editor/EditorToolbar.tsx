@@ -93,8 +93,7 @@ function isQemuBoardKind(kind: BoardKind | undefined): boolean {
     kind === 'esp32' ||
     kind === 'esp32-s3' ||
     kind === 'esp32-cam' ||
-    kind === 'esp32-c3' ||
-    kind === 'arduino-nano-esp32'
+    kind === 'esp32-c3'
   );
 }
 
@@ -129,7 +128,6 @@ const BOARD_PILL_ICON: Record<BoardKind, string> = {
   esp32: '⬡',
   'esp32-cam': '📷',
   'esp32-s3': '⬢',
-  'arduino-nano-esp32': '⬢',
   'esp32-c3': '⬡',
 };
 
@@ -143,7 +141,6 @@ const BOARD_PILL_COLOR: Record<BoardKind, string> = {
   esp32: 'var(--color-feedback-success)',
   'esp32-cam': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
-  'arduino-nano-esp32': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
 };
 

@@ -50,7 +50,7 @@ cargo build --manifest-path rust/Cargo.toml --release
 # ── 2. Frontend ───────────────────────────────────────────────────────
 echo "[2/5] Compilando interfaz web (frontend/dist)..."
 if [ ! -f frontend/dist/index.html ]; then
-  (cd frontend && npm ci && npm run build:docker)
+  (cd frontend && npm install --legacy-peer-deps && npm run build:docker)
 fi
 
 # ── 3. Arduino CLI (Linux) ────────────────────────────────────────────
@@ -61,6 +61,12 @@ if [ ! -x "$CLI_DIR/arduino-cli" ]; then
   mkdir -p "$CLI_DIR"
   curl -fsSL "https://github.com/arduino/arduino-cli/releases/download/v${ARDUINO_CLI_VERSION}/arduino-cli_${ARDUINO_CLI_VERSION}_Linux_64bit.tar.gz" \
     | tar -xz -C "$CLI_DIR" arduino-cli
+fi
+
+# ── 3b. QEMU Runtime para Linux (ESP32 / ESP32-S3 / ESP32-C3) ─────────
+echo "[3b/5] Preparando QEMU Runtime para Linux..."
+if [ ! -f "$ROOT/prebuilt/qemu_runtime_linux/libqemu-xtensa.so" ] && [ ! -f "$ROOT/prebuilt/qemu_runtime/libqemu-xtensa.so" ]; then
+  "$ROOT/scripts/download-qemu-runtime.sh" || echo "[AVISO] No se pudieron descargar librerias QEMU automáticamente."
 fi
 
 # ── 4. Ensamblado del arbol del paquete ───────────────────────────────
@@ -81,11 +87,17 @@ cp -r frontend/dist "$APPDIR/frontend-dist-tmp" && mkdir -p "$APPDIR/frontend" &
 for rom in prebuilt/qemu_runtime/*.bin; do
   [ -f "$rom" ] && install -m 0644 "$rom" "$APPDIR/prebuilt/qemu_runtime/"
 done
-# Librerias QEMU nativas de Linux (opcionales)
+if [ -d "prebuilt/qemu_runtime/fw" ]; then
+  cp -r prebuilt/qemu_runtime/fw "$APPDIR/prebuilt/qemu_runtime/"
+fi
+
+# Librerias QEMU nativas de Linux
 if compgen -G "prebuilt/qemu_runtime_linux/*.so*" >/dev/null; then
   cp -a prebuilt/qemu_runtime_linux/*.so* "$APPDIR/prebuilt/qemu_runtime/"
+elif compgen -G "prebuilt/qemu_runtime/*.so*" >/dev/null; then
+  cp -a prebuilt/qemu_runtime/*.so* "$APPDIR/prebuilt/qemu_runtime/"
 else
-  echo "[AVISO] prebuilt/qemu_runtime_linux/ no contiene libqemu-*.so: las placas ESP32 quedaran sin simulacion."
+  echo "[AVISO] No se encontraron libqemu-*.so: las placas ESP32 quedaran sin simulacion."
 fi
 
 install -m 0644 frontend/public/android-chrome-512.png "$STAGE/usr/share/pixmaps/mcu-maker.png"
@@ -98,10 +110,39 @@ cat > "$STAGE/usr/bin/mcu-maker" <<'EOF'
 #!/bin/sh
 APP=/opt/mcu-maker
 DATA="${XDG_DATA_HOME:-$HOME/.local/share}/mcu-maker"
+
+# Asegurar directorios de datos y enlaces simbólicos limpios
 mkdir -p "$DATA/artifacts"
 ln -sfn "$APP/frontend" "$DATA/frontend"
+[ -d "$APP/prebuilt" ] && ln -sfn "$APP/prebuilt" "$DATA/prebuilt"
+
 cd "$DATA" || exit 1
-exec "$APP/mcu-maker-launcher" "$@"
+
+# Determinar si ejecutar servidor directo (modo headless o flags de servidor)
+USE_SERVER=0
+for arg in "$@"; do
+    case "$arg" in
+        --server|--headless|--port*|-p*)
+            USE_SERVER=1
+            ;;
+    esac
+done
+
+if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
+    USE_SERVER=1
+fi
+
+if [ "$USE_SERVER" -eq 1 ]; then
+    ARGS=""
+    for a in "$@"; do
+        if [ "$a" != "--server" ] && [ "$a" != "--headless" ]; then
+            ARGS="$ARGS \"$a\""
+        fi
+    done
+    eval exec "\"$APP/mcu-maker-server\"" --dist "\"$APP/frontend/dist\"" $ARGS
+else
+    exec "$APP/mcu-maker-launcher" "$@"
+fi
 EOF
 chmod 0755 "$STAGE/usr/bin/mcu-maker"
 

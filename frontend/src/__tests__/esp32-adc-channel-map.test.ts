@@ -70,7 +70,7 @@ describe('Esp32BridgeShim ADC channel map', () => {
 
   it('maps the ESP32-S3 family, ADC2 included', () => {
     // Every one of these returned -1 while the map was dead code.
-    for (const kind of ['esp32-s3', 'arduino-nano-esp32']) {
+    for (const kind of ['esp32-s3']) {
       expect(channelFor(kind, 1)).toBe(0);
       expect(channelFor(kind, 10)).toBe(9);
       // ADC2 = GPIO11-20 at channel index 10-19, matching the machine's

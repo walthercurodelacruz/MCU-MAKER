@@ -51,10 +51,30 @@ pub struct AppState {
     pub simulation_ws: Arc<SimulationWsManager>,
 }
 
+struct SafeStderr;
+
+impl std::io::Write for SafeStderr {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        match std::io::stderr().write(buf) {
+            Ok(n) => Ok(n),
+            Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => Ok(buf.len()),
+            Err(e) => Err(e),
+        }
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        match std::io::stderr().flush() {
+            Ok(()) => Ok(()),
+            Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::INFO)
+        .with_writer(|| SafeStderr)
         .finish();
     tracing::subscriber::set_global_default(subscriber).ok();
 
@@ -172,7 +192,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("  -> API Endpoints:     \x1b[34mhttp://localhost:{}/api/compile\x1b[0m", config.port);
     println!("\x1b[36m=====================================================\x1b[0m\n");
 
-    let listener = tokio::net::TcpListener::bind(bind_addr).await?;
+    let listener = match tokio::net::TcpListener::bind(bind_addr).await {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("\x1b[31m[ERROR] No se pudo vincular al puerto {}: {}\x1b[0m", config.port, e);
+            eprintln!("Asegúrese de que no haya otra instancia de MCU Maker ejecutándose en este puerto.");
+            std::process::exit(1);
+        }
+    };
     axum::serve(listener, app).await?;
 
     Ok(())

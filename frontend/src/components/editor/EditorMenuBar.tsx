@@ -36,6 +36,7 @@ import {
   type EditorCommandId,
 } from '../../lib/editorCommands';
 import './EditorMenuBar.css';
+import { GITHUB_URL } from '../../config/project';
 
 type Item =
   | {
@@ -59,7 +60,6 @@ type Item =
 // web editor mirrors that structure so both feel like one product. They
 // replace the marketing nav this header no longer shows, opening in a new
 // tab so the editor (and any unsaved work) stays put.
-const GITHUB_URL = 'https://github.com/davidmonterocrespo24/mcu_maker';
 const DISCORD_URL = 'https://discord.gg/3mARjJrh4E';
 // In the OSS build the marketing pages live on mcumaker.dev, not in this app
 // (the overlay registers them only in pro builds) — link absolute, exactly

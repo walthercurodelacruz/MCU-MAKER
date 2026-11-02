@@ -267,7 +267,6 @@ export const BOARD_COMPONENT_IDS = [
   'esp32',
   'esp32-cam',
   'esp32-s3',
-  'arduino-nano-esp32',
   'esp32-c3',
 ];
 
@@ -441,42 +440,6 @@ export function boardPinToNumber(boardId: string, pinName: string): number | nul
     if (!isNaN(num) && num >= 0 && num <= maxGpio) return num;
     if (pinName === 'TX' || pinName === 'RX') return esp32Uart0Pad(boardId, pinName);
     return ESP32_PIN_MAP[pinName] ?? null;
-  }
-
-  if (boardId === 'arduino-nano-esp32') {
-    if (POWER_PAD_RE.test(pinName)) return -1;
-    const NANO_ESP32_MAP: Record<string, number> = {
-      D0: 44,
-      D1: 43,
-      D2: 5,
-      D3: 6,
-      D4: 7,
-      D5: 8,
-      D6: 9,
-      D7: 10,
-      D8: 17,
-      D9: 18,
-      D10: 21,
-      D11: 38,
-      D12: 47,
-      D13: 48,
-      A0: 1,
-      A1: 2,
-      A2: 3,
-      A3: 4,
-      A4: 11,
-      A5: 12,
-      A6: 13,
-      A7: 14,
-      RX0: 44,
-      TX1: 43,
-      B0: 46,
-      B1: 0,
-    };
-    if (pinName in NANO_ESP32_MAP) return NANO_ESP32_MAP[pinName];
-    const num = parseInt(pinName, 10);
-    if (!isNaN(num)) return num;
-    return null;
   }
 
   // ATtiny85 — PORTB only: PB0-PB5 → pins 0-5

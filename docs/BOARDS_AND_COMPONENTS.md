@@ -46,7 +46,6 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 | **ESP32 DevKit V1** | Xtensa LX6 dual-core | 240 MHz, 4 MB Flash | WiFi 802.11 b/g/n, BLE, 30/38 pines, 2 DAC, 18 ADC, touch pins. |
 | **ESP32-CAM** | Xtensa LX6 dual-core | 240 MHz, 4 MB PSRAM | Interfaz de cámara OV2640 de 2 MP, slot para tarjeta microSD. |
 | **ESP32-S3 DevKit** | Xtensa LX7 dual-core | 240 MHz, 8 MB Flash | Instrucciones vectoriales AI, USB OTG nativo, RGB WS2812. |
-| **Arduino Nano ESP32** | ESP32-S3 @ 240 MHz | 16 MB Flash / 512 KB SRAM | Factor de forma Arduino Nano oficial con LED RGB integrado. |
 
 ---
 

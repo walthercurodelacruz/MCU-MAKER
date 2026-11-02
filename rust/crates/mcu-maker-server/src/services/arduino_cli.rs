@@ -106,9 +106,11 @@ impl ArduinoCLIService {
         for dir in &check_dirs {
             let mut curr = Some(dir.as_path());
             while let Some(p) = curr {
-                let candidate = p.join("prebuilt").join("arduino-cli").join(&exe_name);
-                if candidate.is_file() {
-                    return candidate;
+                for sub in &["arduino-cli", "arduino-cli-linux", "arduino-cli-windows"] {
+                    let candidate = p.join("prebuilt").join(sub).join(&exe_name);
+                    if candidate.is_file() {
+                        return candidate;
+                    }
                 }
                 let cand_direct = p.join(&exe_name);
                 if cand_direct.is_file() {
@@ -213,6 +215,8 @@ impl ArduinoCLIService {
             .map_err(|e| format!("Failed to create build dir: {e}"))?;
 
         let is_esp32 = board_fqbn.starts_with("esp32:") || board_fqbn.contains("esp32");
+        let is_esp32_s3_or_c3 = board_fqbn.contains("esp32s3") || board_fqbn.contains("esp32c3");
+        let needs_builtin_led_def = is_esp32 && !is_esp32_s3_or_c3;
         let is_rp2040 = board_fqbn.starts_with("rp2040:") || board_fqbn.contains("rp2040") || board_fqbn.contains("pico");
         let is_stm32 = board_fqbn.starts_with("STMicroelectronics:") || board_fqbn.contains("stm32");
 
@@ -225,6 +229,8 @@ impl ArduinoCLIService {
             r#"WiFi.begin("{}", "")"#,
             wifi_cfg.virtual_ap_name
         );
+        let re_idf_ssid = regex::Regex::new(r#"(\.ssid\s*=\s*)"[^"]*""#).ok();
+        let re_idf_pass = regex::Regex::new(r#"(\.password\s*=\s*)"[^"]*""#).ok();
 
         let mut has_wifi_code = false;
         for f in files {
@@ -246,25 +252,25 @@ impl ArduinoCLIService {
                 if should_rewrite {
                     content = re_wifi.replace_all(&content, target_wifi_call.as_str()).to_string();
                     // Also support ESP-IDF wifi_config_t initializers if present
-                    if let Ok(re_idf_ssid) = regex::Regex::new(r#"(\.ssid\s*=\s*)"[^"]*""#) {
+                    if let Some(ref re_ssid) = re_idf_ssid {
                         let rep = format!(r#"${{1}}"{virtual_ap}""#, virtual_ap = wifi_cfg.virtual_ap_name);
-                        content = re_idf_ssid.replace_all(&content, rep.as_str()).to_string();
+                        content = re_ssid.replace_all(&content, rep.as_str()).to_string();
                     }
-                    if let Ok(re_idf_pass) = regex::Regex::new(r#"(\.password\s*=\s*)"[^"]*""#) {
-                        content = re_idf_pass.replace_all(&content, r#"${1}""""#).to_string();
+                    if let Some(ref re_pass) = re_idf_pass {
+                        content = re_pass.replace_all(&content, r#"${1}""""#).to_string();
                     }
                 }
 
-                if !content.contains("#define LED_BUILTIN") {
+                if needs_builtin_led_def && !content.contains("#define LED_BUILTIN") {
                     content = format!("#ifndef LED_BUILTIN\n#define LED_BUILTIN 2\n#endif\n{}", content);
                 }
             }
 
             // RP2040: redirect Serial -> Serial1 in main sketch
-            if is_rp2040 && (f.name == "sketch.ino" || f.name == main_ino_name) {
-                if !content.contains("#define Serial Serial1") {
-                    content = format!("#define Serial Serial1\n{}", content);
-                }
+            if is_rp2040 && (f.name == "sketch.ino" || f.name == main_ino_name)
+                && !content.contains("#define Serial Serial1")
+            {
+                content = format!("#define Serial Serial1\n{}", content);
             }
 
             tokio::fs::write(&target_path, &content)
@@ -279,31 +285,175 @@ impl ArduinoCLIService {
         // If no .ino file was provided, write the first file as main_ino_name
         let primary_ino = sketch_dir.join(&main_ino_name);
         if !primary_ino.exists() && !files.is_empty() {
-            let mut content = files[0].content.clone();
-            if is_esp32 {
-                let should_rewrite = if wifi_cfg.universal_redirect {
-                    true
-                } else {
-                    content.contains(&wifi_cfg.ssid) || content.contains(&wifi_cfg.virtual_ap_name)
-                };
-                if should_rewrite {
-                    content = re_wifi.replace_all(&content, target_wifi_call.as_str()).to_string();
+            let has_ino = files.iter().any(|f| f.name.ends_with(".ino"));
+            if !has_ino {
+                // For pure C / C++ / ESP-IDF sketches (e.g. main.c), create an empty placeholder .ino
+                // so arduino-cli accepts the directory without duplicating symbols from main.c.
+                tokio::fs::write(&primary_ino, "// Auto-generated entry point for arduino-cli\n")
+                    .await
+                    .map_err(|e| format!("Failed to write placeholder {}: {e}", main_ino_name))?;
+            } else {
+                let mut content = files[0].content.clone();
+                if is_esp32 {
+                    let should_rewrite = if wifi_cfg.universal_redirect {
+                        true
+                    } else {
+                        content.contains(&wifi_cfg.ssid) || content.contains(&wifi_cfg.virtual_ap_name)
+                    };
+                    if should_rewrite {
+                        content = re_wifi.replace_all(&content, target_wifi_call.as_str()).to_string();
+                    }
+                    if needs_builtin_led_def && !content.contains("#define LED_BUILTIN") {
+                        content = format!("#ifndef LED_BUILTIN\n#define LED_BUILTIN 2\n#endif\n{}", content);
+                    }
                 }
-                if !content.contains("#define LED_BUILTIN") {
-                    content = format!("#ifndef LED_BUILTIN\n#define LED_BUILTIN 2\n#endif\n{}", content);
+                if is_rp2040 && !content.contains("#define Serial Serial1") {
+                    content = format!("#define Serial Serial1\n{}", content);
                 }
+                tokio::fs::write(&primary_ino, &content)
+                    .await
+                    .map_err(|e| format!("Failed to write primary ino: {e}"))?;
             }
-            if is_rp2040 && !content.contains("#define Serial Serial1") {
-                content = format!("#define Serial Serial1\n{}", content);
-            }
-            tokio::fs::write(&primary_ino, &content)
+        }
+
+        if is_esp32_s3_or_c3 {
+            let shim_content = r#"
+#include <stdint.h>
+#include <stdbool.h>
+#include "esp32-hal-gpio.h"
+#include "esp32-hal-rgb-led.h"
+#include "soc/soc_caps.h"
+
+extern void __pinMode(uint8_t pin, uint8_t mode);
+extern void __digitalWrite(uint8_t pin, uint8_t val);
+extern int __digitalRead(uint8_t pin);
+
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
+#define S3_GPIO_OUT_W1TS_REG    (*(volatile uint32_t *)0x60004008)
+#define S3_GPIO_OUT_W1TC_REG    (*(volatile uint32_t *)0x6000400C)
+#define S3_GPIO_ENABLE_W1TS_REG (*(volatile uint32_t *)0x60004024)
+#define S3_GPIO_ENABLE_W1TC_REG (*(volatile uint32_t *)0x60004028)
+#define S3_INTERNAL_LED_BIT     (1UL << 31)
+
+void pinMode(uint8_t pin, uint8_t mode) {
+    if (pin == 48 || pin == 97) {
+        if (mode == 0x01 /* OUTPUT */) {
+            S3_GPIO_ENABLE_W1TS_REG = S3_INTERNAL_LED_BIT;
+        } else {
+            S3_GPIO_ENABLE_W1TC_REG = S3_INTERNAL_LED_BIT;
+        }
+        return;
+    }
+    __pinMode(pin, mode);
+}
+
+void digitalWrite(uint8_t pin, uint8_t val) {
+    if (pin == 48 || pin == 97) {
+        S3_GPIO_ENABLE_W1TS_REG = S3_INTERNAL_LED_BIT;
+        if (val) {
+            S3_GPIO_OUT_W1TS_REG = S3_INTERNAL_LED_BIT;
+        } else {
+            S3_GPIO_OUT_W1TC_REG = S3_INTERNAL_LED_BIT;
+        }
+        return;
+    }
+    __digitalWrite(pin, val);
+}
+
+int digitalRead(uint8_t pin) {
+    if (pin == 48 || pin == 97) {
+        return (*(volatile uint32_t *)0x60004004 & S3_INTERNAL_LED_BIT) ? 1 : 0;
+    }
+    return __digitalRead(pin);
+}
+
+void rgbLedWriteOrdered(uint8_t pin, rgb_led_color_order_t order, uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
+    (void)order;
+    (void)pin;
+    S3_GPIO_ENABLE_W1TS_REG = S3_INTERNAL_LED_BIT;
+    if (red_val > 0 || green_val > 0 || blue_val > 0) {
+        S3_GPIO_OUT_W1TS_REG = S3_INTERNAL_LED_BIT;
+    } else {
+        S3_GPIO_OUT_W1TC_REG = S3_INTERNAL_LED_BIT;
+    }
+}
+#elif defined(CONFIG_IDF_TARGET_ESP32C3)
+#define C3_GPIO_OUT_W1TS_REG    (*(volatile uint32_t *)0x60004008)
+#define C3_GPIO_OUT_W1TC_REG    (*(volatile uint32_t *)0x6000400C)
+#define C3_GPIO_ENABLE_W1TS_REG (*(volatile uint32_t *)0x60004024)
+#define C3_GPIO_ENABLE_W1TC_REG (*(volatile uint32_t *)0x60004028)
+#define C3_LED_BIT              (1UL << 8)
+
+void pinMode(uint8_t pin, uint8_t mode) {
+    if (pin == 8 || pin == (SOC_GPIO_PIN_COUNT + 8)) {
+        if (mode == 0x01 /* OUTPUT */) {
+            C3_GPIO_ENABLE_W1TS_REG = C3_LED_BIT;
+        } else {
+            C3_GPIO_ENABLE_W1TC_REG = C3_LED_BIT;
+        }
+        return;
+    }
+    __pinMode(pin, mode);
+}
+
+void digitalWrite(uint8_t pin, uint8_t val) {
+    if (pin == 8 || pin == (SOC_GPIO_PIN_COUNT + 8)) {
+        C3_GPIO_ENABLE_W1TS_REG = C3_LED_BIT;
+        if (val) {
+            C3_GPIO_OUT_W1TS_REG = C3_LED_BIT;
+        } else {
+            C3_GPIO_OUT_W1TC_REG = C3_LED_BIT;
+        }
+        return;
+    }
+    __digitalWrite(pin, val);
+}
+
+int digitalRead(uint8_t pin) {
+    if (pin == 8 || pin == (SOC_GPIO_PIN_COUNT + 8)) {
+        return (*(volatile uint32_t *)0x60004004 & C3_LED_BIT) ? 1 : 0;
+    }
+    return __digitalRead(pin);
+}
+
+void rgbLedWriteOrdered(uint8_t pin, rgb_led_color_order_t order, uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
+    (void)order;
+    (void)pin;
+    C3_GPIO_ENABLE_W1TS_REG = C3_LED_BIT;
+    if (red_val > 0 || green_val > 0 || blue_val > 0) {
+        C3_GPIO_OUT_W1TS_REG = C3_LED_BIT;
+    } else {
+        C3_GPIO_OUT_W1TC_REG = C3_LED_BIT;
+    }
+}
+#else
+void rgbLedWriteOrdered(uint8_t pin, rgb_led_color_order_t order, uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
+    (void)order;
+    uint8_t actual_pin = pin;
+    if (actual_pin >= SOC_GPIO_PIN_COUNT) {
+        actual_pin -= SOC_GPIO_PIN_COUNT;
+    }
+    __pinMode(actual_pin, OUTPUT);
+    __digitalWrite(actual_pin, (red_val > 0 || green_val > 0 || blue_val > 0) ? 1 : 0);
+}
+#endif
+
+void rgbLedWrite(uint8_t pin, uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
+    rgbLedWriteOrdered(pin, LED_COLOR_ORDER_GRB, red_val, green_val, blue_val);
+}
+
+void neopixelWrite(uint8_t pin, uint8_t red_val, uint8_t green_val, uint8_t blue_val) {
+    rgbLedWriteOrdered(pin, LED_COLOR_ORDER_GRB, red_val, green_val, blue_val);
+}
+"#;
+            let shim_path = sketch_dir.join("mcu_maker_rgb_shim.c");
+            tokio::fs::write(&shim_path, shim_content)
                 .await
-                .map_err(|e| format!("Failed to write primary ino: {e}"))?;
+                .map_err(|e| format!("Failed to write mcu_maker_rgb_shim.c: {e}"))?;
         }
 
         let mut effective_fqbn = board_fqbn.to_string();
-        let no_flashmode = board_fqbn.contains("nano_nora")
-            || board_fqbn.contains("lolin32-lite");
+        let no_flashmode = board_fqbn.contains("lolin32-lite");
         if is_esp32 && !no_flashmode && !effective_fqbn.contains("FlashMode") {
             effective_fqbn = format!("{}:FlashMode=dio", effective_fqbn);
         }
@@ -324,10 +474,13 @@ impl ArduinoCLIService {
         }
 
         if is_esp32 {
-            if !board_fqbn.contains("nano_nora") {
-                cmd.arg("--build-property")
-                    .arg("build.extra_flags=-DARDUINO_ESP32_LCGAMBOA=1");
-            }
+            let extra_flags = if needs_builtin_led_def {
+                "build.extra_flags=-DARDUINO_ESP32_LCGAMBOA=1 -DLED_BUILTIN=2"
+            } else {
+                "build.extra_flags=-DARDUINO_ESP32_LCGAMBOA=1"
+            };
+            cmd.arg("--build-property")
+                .arg(extra_flags);
             cmd.arg("--build-property")
                 .arg("compiler.cpp.extra_flags=-DBitOrder=uint8_t");
             cmd.arg("--build-property")
@@ -699,13 +852,12 @@ mod tests {
         ("esp32", "esp32:esp32:esp32"),
         ("esp32-cam", "esp32:esp32:esp32cam"),
         ("esp32-s3", "esp32:esp32:esp32s3"),
-        ("arduino-nano-esp32", "esp32:esp32:nano_nora"),
         ("esp32-c3", "esp32:esp32:esp32c3"),
     ];
 
     #[test]
     fn test_canonical_boards_count() {
-        assert_eq!(CANONICAL_FQBNS.len(), 11);
+        assert_eq!(CANONICAL_FQBNS.len(), 10);
     }
 
     #[test]
@@ -728,7 +880,51 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_compile_all_11_canonical_boards() {
+    async fn test_compile_esp32s3_arduino_and_espidf() {
+        let service = ArduinoCLIService::new(None);
+        let arduino_files = vec![SketchFile {
+            name: "sketch.ino".to_string(),
+            content: "void setup() { pinMode(LED_BUILTIN, OUTPUT); } void loop() { digitalWrite(LED_BUILTIN, HIGH); delay(500); }".to_string(),
+        }];
+
+        // Test classic ESP32 with LED_BUILTIN
+        let res_esp32 = service.compile(&arduino_files, "esp32:esp32:esp32").await;
+        let compile_res_esp32 = res_esp32.expect("compile esp32 classic call failed");
+        assert!(
+            compile_res_esp32.success,
+            "Compilation failed for esp32 classic: error={:?}, stderr={}",
+            compile_res_esp32.error,
+            compile_res_esp32.stderr
+        );
+
+        // Test ESP32-S3 with LED_BUILTIN
+        let res = service.compile(&arduino_files, "esp32:esp32:esp32s3").await;
+        let compile_res = res.expect("compile call failed");
+        assert!(
+            compile_res.success,
+            "Compilation failed for esp32s3: error={:?}, stderr={}",
+            compile_res.error,
+            compile_res.stderr
+        );
+
+        let idf_files = vec![SketchFile {
+            name: "main.c".to_string(),
+            content: "#include <stdio.h>\nvoid app_main(void) { printf(\"hello\\n\"); }".to_string(),
+        }];
+
+        let res_idf = service.compile(&idf_files, "esp32:esp32:esp32s3").await;
+        let compile_res_idf = res_idf.expect("compile idf call failed");
+        assert!(
+            compile_res_idf.success,
+            "Compilation failed for esp32s3 ESP-IDF: error={:?}, stderr={}",
+            compile_res_idf.error,
+            compile_res_idf.stderr
+        );
+    }
+
+    #[tokio::test]
+    #[ignore = "requires pre-installed toolchains and network access for all 10 canonical cores"]
+    async fn test_compile_all_10_canonical_boards() {
         let service = ArduinoCLIService::new(None);
         let files = vec![SketchFile {
             name: "sketch.ino".to_string(),

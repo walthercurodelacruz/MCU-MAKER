@@ -10,7 +10,7 @@
 ## Key facts
 
 - Free at https://mcumaker.dev (anonymous use; 100 daily compiles).
-- Open source under AGPLv3 — https://github.com/davidmonterocrespo24/mcu_maker.
+- Open source under AGPLv3 — https://github.com/walthercurodelacruz/MCU-MAKER.
 - Pro tiers: Maker $7/mo, Pro $19/mo (or $70 / $190 annual). Free is permanent.
 - 19 supported boards across 5 CPU architectures (AVR, ARM Cortex-M, Xtensa, RISC-V, ARM Cortex-A for Pi 3/4/5).
 - Real-time SPICE analog co-simulation via WebAssembly ngspice — measures voltages, current, power and shorts.
@@ -49,7 +49,7 @@
 - [Examples gallery](https://mcumaker.dev/examples)
 - [Pricing](https://mcumaker.dev/pricing)
 - [Blog](https://mcumaker.dev/blog/)
-- [GitHub repo (OSS)](https://github.com/davidmonterocrespo24/mcu_maker)
+- [GitHub repo (OSS)](https://github.com/walthercurodelacruz/MCU-MAKER)
 - [Discord community](https://discord.gg/3mARjJrh4E)
 
 ## Key use cases

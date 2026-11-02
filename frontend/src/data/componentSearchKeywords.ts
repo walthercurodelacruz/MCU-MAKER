@@ -168,7 +168,6 @@ const BOARD_KEYWORDS: Record<string, string> = {
   esp32: 'esp32 espressif wifi bluetooth xtensa wroom devkit',
   'esp32-cam': 'esp32 espressif camera wifi ov2640',
   'esp32-s3': 'esp32 s3 espressif wifi bluetooth xtensa usb',
-  'arduino-nano-esp32': 'arduino nano esp32 s3 espressif wifi bluetooth',
   'esp32-c3': 'esp32 c3 espressif wifi bluetooth riscv risc-v',
   attiny85: 'attiny avr tiny digispark small',
 };

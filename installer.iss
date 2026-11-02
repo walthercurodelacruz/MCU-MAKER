@@ -36,7 +36,7 @@ PrivilegesRequiredOverridesAllowed=dialog
 
 OutputDir=dist-installer
 OutputBaseFilename=MCU-Maker-Setup-v{#MyAppVersion}
-SetupIconFile=prebuilt\picsimlab\picsimlab_win64\share\picsimlabw.ico
+SetupIconFile=frontend\public\favicon.ico
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
@@ -59,13 +59,13 @@ Source: "rust\target\release\mcu-maker-server.exe"; DestDir: "{app}"; Flags: ign
 Source: "rust\target\release\mcu-maker-worker.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 ; Icono oficial de la aplicacion
-Source: "prebuilt\picsimlab\picsimlab_win64\share\picsimlabw.ico"; DestDir: "{app}"; DestName: "mcu-maker.ico"; Flags: ignoreversion
+Source: "frontend\public\favicon.ico"; DestDir: "{app}"; DestName: "mcu-maker.ico"; Flags: ignoreversion
 
 ; Motor de ejecucion QEMU Xtensa/STM32/RISC-V (DLLs, ROMs y dependencias MinGW)
-Source: "prebuilt\qemu_runtime\*"; DestDir: "{app}\prebuilt\qemu_runtime"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "prebuilt\qemu_runtime\*"; DestDir: "{app}\prebuilt\qemu_runtime"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 ; Herramienta de compilacion Arduino CLI integrada
-Source: "prebuilt\arduino-cli\*"; DestDir: "{app}\prebuilt\arduino-cli"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "prebuilt\arduino-cli\*"; DestDir: "{app}\prebuilt\arduino-cli"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 ; Interfaz Web y simulador SPA precompilado
 Source: "frontend\dist\*"; DestDir: "{app}\frontend\dist"; Flags: ignoreversion recursesubdirs createallsubdirs

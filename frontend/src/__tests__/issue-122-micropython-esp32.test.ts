@@ -1,6 +1,6 @@
 /**
  * Regression test for GitHub issue #122
- * https://github.com/davidmonterocrespo24/mcu_maker/issues/122
+ * https://github.com/walthercurodelacruz/MCU-MAKER/issues/122
  *
  * The user (chenxyzj) reported three sub-problems running MicroPython on ESP32:
  *
@@ -53,7 +53,6 @@ describe('issue #122 — ESP32-C3 flash size mismatch', () => {
     'esp32',
     'esp32-cam',
     'esp32-s3',
-    'arduino-nano-esp32',
     'esp32-c3',
   ];
 

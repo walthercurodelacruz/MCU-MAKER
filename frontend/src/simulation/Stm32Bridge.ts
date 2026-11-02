@@ -47,7 +47,11 @@ const API_BASE = (): string => {
   const fromEnv = import.meta.env.VITE_API_BASE as string | undefined;
   if (fromEnv) return fromEnv;
   if (typeof window !== 'undefined' && window.location?.hostname) {
-    return `${window.location.protocol}//${window.location.hostname}:8001/api`;
+    const port = window.location.port;
+    if (port === '5173' || port === '3000') {
+      return `${window.location.protocol}//${window.location.hostname}:8001/api`;
+    }
+    return `${window.location.origin}/api`;
   }
   return 'http://localhost:8001/api';
 };

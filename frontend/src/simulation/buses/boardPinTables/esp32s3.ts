@@ -96,14 +96,3 @@ export const XIAO_ESP32S3_TABLE: BoardPinFunctions = matrixTable({
   boardPins: [1, 2, 3, 4, 5, 6, 7, 8, 9, 43, 44],
   source: `${SOURCE}, variants/XIAO_ESP32S3/pins_arduino.h (FQBN esp32:esp32:XIAO_ESP32S3, CDC on).`,
 });
-
-/**
- * Arduino Nano ESP32, in GPIO numbers (the core's pin remap turns D13 into
- * GPIO48 and so on): D0/RX = 44, D1/TX = 43, D10-D13 = 21/38/47/48, A4/A5 = 11/12.
- */
-export const NANO_ESP32_TABLE: BoardPinFunctions = matrixTable({
-  controllers: esp32s3Controllers({ sda: 11, scl: 12, sck: 48, miso: 47, mosi: 38, ss: 21 }, true),
-  ioMux: ESP32S3_IO_MUX,
-  boardPins: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 17, 18, 21, 38, 43, 44, 46, 47, 48],
-  source: `${SOURCE}, variants/arduino_nano_nora/pins_arduino.h (FQBN esp32:esp32:nano_nora, CDC on).`,
-});

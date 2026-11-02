@@ -34,7 +34,7 @@ impl Default for ServerConfig {
                 }
                 curr = p.parent();
             }
-            if project_root != PathBuf::from(".") {
+            if project_root != std::path::Path::new(".") {
                 break;
             }
         }

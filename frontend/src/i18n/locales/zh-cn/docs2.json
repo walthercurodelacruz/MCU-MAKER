@@ -239,7 +239,7 @@
       "ltTutorials": "嵌入式教程系统，编辑器内逐步指导项目",
       "ltSdk": "自定义组件 SDK，使用 JSON/TypeScript API 定义新组件",
       "ltMobile": "移动/平板支持，响应式布局适配触摸设备",
-      "contributeCallout": "<strong>想要贡献？</strong> 欢迎在 <a>github.com/davidmonterocrespo24/mcu_maker</a> 提交功能请求、错误报告和拉取请求。"
+      "contributeCallout": "<strong>想要贡献？</strong> 欢迎在 <a>github.com/walthercurodelacruz/MCU-MAKER</a> 提交功能请求、错误报告和拉取请求。"
     },
     "emulator": {
       "label": "// 内部机制",

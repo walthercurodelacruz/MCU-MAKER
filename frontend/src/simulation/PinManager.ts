@@ -31,7 +31,7 @@ export type PinState = boolean;
  */
 export type LevelSource = 'mcu' | 'external' | 'pull';
 export type LevelResolver = (proposed: boolean, source: LevelSource) => boolean | undefined;
-export type PinChangeCallback = (pin: number, state: PinState) => void;
+export type PinChangeCallback = (pin: number, state: PinState, source?: LevelSource) => void;
 export type AnalogCallback = (pin: number, voltage: number) => void;
 // timeMs (optional) is the precise simulated time of the duty-cycle change
 // (cpu.cycles / 16000). Parts that schedule audio/output use it for
@@ -302,7 +302,7 @@ export class PinManager {
     if (source === 'mcu') this.outputPins.add(pin);
     const callbacks = this.listeners.get(pin);
     if (callbacks) {
-      callbacks.forEach((cb) => cb(pin, state));
+      callbacks.forEach((cb) => cb(pin, state, source));
     }
     // WS-backed boards (ESP32 / STM32 / Raspberry Pi) reach the electrical sim
     // ONLY through here; the first write per pin triggers the rebuild that

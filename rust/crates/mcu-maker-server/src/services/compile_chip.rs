@@ -76,12 +76,7 @@ impl ChipCompileService {
             PathBuf::from("../sdk"),
             PathBuf::from("../../sdk"),
         ];
-        for cand in candidates {
-            if cand.join("mcu_maker_chip.h").is_file() || cand.join("velxio_chip.h").is_file() {
-                return Some(cand);
-            }
-        }
-        None
+        candidates.into_iter().find(|cand| cand.join("mcu_maker_chip.h").is_file() || cand.join("velxio_chip.h").is_file())
     }
 
     pub fn status(&self) -> serde_json::Value {

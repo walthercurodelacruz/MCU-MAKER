@@ -92,19 +92,13 @@ export const BOARD_PIN_GROUPS: Record<AllBoardKinds, BoardPinGroup> = {
   },
   'esp32-s3': {
     vcc: 3.3,
-    gnd: ['GND', 'GND.1', 'GND.2'],
+    gnd: ['GND', 'GND.1', 'GND.2', 'GND.3', 'GND.4'],
     vcc_pins: ['3V3', '3V3.1', '3V3.2'],
     aux: { volts: 5, pins: ['VIN', '5V'] },
   },
-  'arduino-nano-esp32': {
-    vcc: 3.3,
-    gnd: ['GND'],
-    vcc_pins: ['3V3'],
-    aux: { volts: 5, pins: ['5V', 'VUSB'] },
-  },
   'esp32-c3': {
     vcc: 3.3,
-    gnd: ['GND', 'GND.1', 'GND.2'],
+    gnd: ['GND', 'GND.1', 'GND.2', 'GND.3', 'GND.4', 'GND.5', 'GND.6', 'GND.7', 'GND.8', 'GND.9', 'GND.10'],
     vcc_pins: ['3V3', '3V3.1', '3V3.2'],
     aux: { volts: 5, pins: ['VIN', '5V', '5V.1', '5V.2'] },
   },

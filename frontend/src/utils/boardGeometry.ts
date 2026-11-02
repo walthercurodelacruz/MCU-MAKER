@@ -30,7 +30,6 @@ export const BOARD_SIZE: Record<string, { w: number; h: number }> = {
   'esp32-s3': { w: 128, h: 350 }, // esp32-s3-devkitc-1: 25.5 × 70 mm
   'esp32-c3': { w: 127, h: 215 }, // esp32-c3-devkitm-1: 25.4 × 42.9 mm
   'esp32-cam': { w: 136, h: 202 },
-  'arduino-nano-esp32': { w: 217, h: 90 },
   attiny85: { w: 160, h: 132 },
 };
 

@@ -99,7 +99,6 @@ const sorted = (xs: Iterable<number>) => Array.from(new Set(xs)).sort((a, b) => 
 const DEFAULTS_OFF_HEADER: Partial<Record<BoardKind, number[]>> = {
   // Camera module: SPI (18/19/23/5), Wire (21/22), Serial1 (26/27), Serial2 TX (25) are internal.
   'esp32-cam': [5, 18, 19, 21, 22, 23, 25, 26, 27],
-  'arduino-nano-esp32': [15, 16, 19, 20],
   // SS = PB12: mcu_maker draws only part of the Discovery headers.
   'stm32-f4-discovery': [stm32PinNumber('PB12')],
 };
@@ -264,7 +263,6 @@ const KNOWN: Expect[] = [
   ['esp32-s3', 16, 'uart', 0, 'cts'],
   ['esp32-s3', 16, 'uart', 1, 'tx'],
   ['esp32-s3', 8, 'i2c', 0, 'sda'],
-  ['arduino-nano-esp32', 48, 'spi', 2, 'sck'],
   ['esp32-c3', 7, 'spi', 2, 'mosi'],
   ['esp32-c3', 6, 'spi', 2, 'sck'],
   ['esp32-c3', 6, 'spi', 2, 'mosi'],

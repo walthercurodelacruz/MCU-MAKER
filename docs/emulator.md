@@ -8,7 +8,7 @@ There are **five distinct CPU backends**:
 |---------|-----------|--------|---------------|
 | **avr8js** | AVR8 (ATmega328P, ATmega2560, ATtiny85) | Uno, Nano, Mega 2560, ATtiny85 | Browser (TypeScript) |
 | **rp2040js** | ARM Cortex-M0+ | Pi Pico, Pi Pico W | Browser (TypeScript) |
-| **QEMU lcgamboa (Xtensa)** | Xtensa LX6 / LX7 | ESP32 DevKit V1, DevKit C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3, XIAO ESP32-S3, Arduino Nano ESP32 | Backend (`libqemu-xtensa.so/dll`) |
+| **QEMU lcgamboa (Xtensa)** | Xtensa LX6 / LX7 | ESP32 DevKit V1, DevKit C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3, XIAO ESP32-S3 | Backend (`libqemu-xtensa.so/dll`) |
 | **QEMU lcgamboa (RISC-V)** | RISC-V RV32IMC | ESP32-C3 DevKit, XIAO ESP32-C3, ESP32-C3 SuperMini | Backend (`libqemu-riscv32.so/dll`) |
 | **QEMU upstream (ARM)** | ARM Cortex-A7/A53/A72/A76 | Raspberry Pi Zero / 1 / 2 / 3B / 4B / 5 | Backend (`qemu-system-arm` / `qemu-system-aarch64`) |
 

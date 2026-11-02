@@ -110,11 +110,6 @@ const ESP32_FAMILY_PADS: Record<string, string[]> = {
     '5V.1', 'GND.1', '12', '13', '15', '14', '2', '4', '3V3', '16', '0', 'GND.2', 'VCC',
     'RX', 'TX', 'GND.3',
   ],
-  'arduino-nano-esp32': [
-    'D12', 'D11', 'D10', 'D9', 'D8', 'D7', 'D6', 'D5', 'D4', 'D3', 'D2', 'GND.1', 'RST',
-    'RX0', 'TX1', 'D13', '3V3', 'B0', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
-    'VBUS', 'B1', 'GND.2', 'VIN',
-  ],
 };
 
 const UNRESOLVED_BY_DESIGN: Record<string, string[]> = {};
@@ -157,18 +152,8 @@ describe('boardPinToNumber — the pads that were dead', () => {
     expect(boardPinToNumber('esp32', '40')).toBeNull();
   });
 
-  it('the Nano ESP32 reaches GPIO44/43 through the pads it actually draws', () => {
-    expect(boardPinToNumber('arduino-nano-esp32', 'RX0')).toBe(44);
-    expect(boardPinToNumber('arduino-nano-esp32', 'TX1')).toBe(43);
-  });
-
-  it('supply pads are -1, not the digit their name starts with', () => {
-    expect(boardPinToNumber('arduino-nano-esp32', '3V3')).toBe(-1);
-    expect(boardPinToNumber('arduino-nano-esp32', 'VIN')).toBe(-1);
-  });
-
   it('reset pads are -1, not null', () => {
-    for (const kind of ['esp32-s3', 'esp32-c3', 'arduino-nano-esp32'])
+    for (const kind of ['esp32-s3', 'esp32-c3'])
       expect(boardPinToNumber(kind, 'RST')).toBe(-1);
   });
 });

@@ -25,7 +25,6 @@ const BOARD_SHORT_LABEL: Partial<Record<string, string>> = {
   esp32: 'ESP32',
   'esp32-cam': 'ESP32-CAM',
   'esp32-s3': 'ESP32-S3',
-  'arduino-nano-esp32': 'Nano ESP32',
   'esp32-c3': 'ESP32-C3',
   attiny85: 'ATtiny85',
 };
@@ -42,7 +41,6 @@ const BOARD_ICON: Partial<Record<string, string>> = {
   esp32: '⬡',
   'esp32-cam': '⬡',
   'esp32-s3': '⬡',
-  'arduino-nano-esp32': '⬡',
   'esp32-c3': '⬡',
   attiny85: '▪',
 };
@@ -59,7 +57,6 @@ const BOARD_COLOR: Partial<Record<string, string>> = {
   esp32: 'var(--color-feedback-success)',
   'esp32-cam': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
-  'arduino-nano-esp32': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
   attiny85: 'var(--color-feedback-warning)',
 };
@@ -317,7 +314,9 @@ export const SerialMonitor: React.FC = () => {
                   const backendBase =
                     (import.meta.env.VITE_API_BASE as string | undefined) ??
                     (typeof window !== 'undefined' && window.location?.hostname
-                      ? `${window.location.protocol}//${window.location.hostname}:8001/api`
+                      ? (window.location.port === '5173' || window.location.port === '3000'
+                          ? `${window.location.protocol}//${window.location.hostname}:8001/api`
+                          : `${window.location.origin}/api`)
                       : 'http://localhost:8001/api');
 
                   matches.forEach((m, i) => {

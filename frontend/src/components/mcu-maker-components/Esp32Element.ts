@@ -20,7 +20,6 @@ const esp32SvgUrl = '/boards/esp32-devkit-v1.svg';
 const esp32S3SvgUrl = '/boards/esp32-s3.svg';
 const esp32C3SvgUrl = '/boards/esp32-c3.svg';
 const esp32CamSvgUrl = '/boards/esp32-cam.svg';
-const arduinoNanoEsp32SvgUrl = '/boards/arduino-nano-esp32.svg';
 
 // ─── Pin positions (mm × 5 px/mm, from board.json) ───────────────────────────
 
@@ -264,41 +263,6 @@ const PINS_XIAO_ESP32_S3 = [
   { name: '5V', x: 83, y: 25 },
 ];
 
-// Arduino Nano ESP32: 43.3 mm × 18.05 mm → 217 × 90 px  (horizontal layout)
-// Top row: y = 1.5 mm → 8 px  |  Bottom row: y = 16.74 mm → 84 px
-const PINS_ARDUINO_NANO_ESP32 = [
-  { name: 'D12', x: 24, y: 8 },
-  { name: 'D11', x: 37, y: 8 },
-  { name: 'D10', x: 49, y: 8 },
-  { name: 'D9', x: 62, y: 8 },
-  { name: 'D8', x: 75, y: 8 },
-  { name: 'D7', x: 88, y: 8 },
-  { name: 'D6', x: 100, y: 8 },
-  { name: 'D5', x: 113, y: 8 },
-  { name: 'D4', x: 126, y: 8 },
-  { name: 'D3', x: 138, y: 8 },
-  { name: 'D2', x: 151, y: 8 },
-  { name: 'GND.1', x: 164, y: 8 },
-  { name: 'RST', x: 176, y: 8 },
-  { name: 'RX0', x: 189, y: 8 },
-  { name: 'TX1', x: 202, y: 8 },
-  { name: 'D13', x: 24, y: 84 },
-  { name: '3V3', x: 37, y: 84 },
-  { name: 'B0', x: 49, y: 84 },
-  { name: 'A0', x: 62, y: 84 },
-  { name: 'A1', x: 75, y: 84 },
-  { name: 'A2', x: 88, y: 84 },
-  { name: 'A3', x: 100, y: 84 },
-  { name: 'A4', x: 113, y: 84 },
-  { name: 'A5', x: 126, y: 84 },
-  { name: 'A6', x: 138, y: 84 },
-  { name: 'A7', x: 151, y: 84 },
-  { name: 'VBUS', x: 164, y: 84 },
-  { name: 'B1', x: 176, y: 84 },
-  { name: 'GND.2', x: 189, y: 84 },
-  { name: 'VIN', x: 202, y: 84 },
-];
-
 // Seeed XIAO ESP32-C3: 18.1 mm × 23.4 mm → 91 × 117 px (same form as XIAO ESP32-S3)
 const PINS_XIAO_ESP32_C3 = PINS_XIAO_ESP32_S3;
 
@@ -422,13 +386,6 @@ const ONBOARD_LED_FOOTPRINTS: Record<string, Record<string, LedFootprint>> = {
   },
   // The 5050 body under the "RGB" silk.
   'esp32-s3': { rgb: { x: 37.9, y: 200.1, size: 12 } },
-  // The 0603 at the corner by the D13 pad (Arduino's top view puts
-  // LED_BUILTIN at that corner of the USB-C), the 5050 dome right of the
-  // connector for the RGB.
-  'arduino-nano-esp32': {
-    led: { x: 12.3, y: 68, size: 6, color: '#ffc400' },
-    rgb: { x: 58.5, y: 40.8, size: 10 },
-  },
   // The 5050 body under the "GPIO8" silk.
   'esp32-c3': { rgb: { x: 96.5, y: 106.6, size: 12 } },
 };
@@ -455,12 +412,6 @@ const BOARD_CONFIGS: Record<string, BoardConfig> = {
   'esp32-s3': { svgUrl: esp32S3SvgUrl, w: 128, h: 350, pins: PINS_ESP32_S3 },
   'esp32-c3': { svgUrl: esp32C3SvgUrl, w: 127, h: 215, pins: PINS_ESP32_C3 },
   'esp32-cam': { svgUrl: esp32CamSvgUrl, w: 136, h: 202, pins: PINS_ESP32_CAM },
-  'arduino-nano-esp32': {
-    svgUrl: arduinoNanoEsp32SvgUrl,
-    w: 217,
-    h: 90,
-    pins: PINS_ARDUINO_NANO_ESP32,
-  },
 };
 
 // ─── Custom element ───────────────────────────────────────────────────────────

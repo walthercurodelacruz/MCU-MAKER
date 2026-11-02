@@ -12,7 +12,7 @@ import {
   ESP32_CAM_TABLE,
   ESP32_DEVKIT_V1_TABLE,
 } from './esp32';
-import { ESP32S3_DEVKITC_TABLE, NANO_ESP32_TABLE } from './esp32s3';
+import { ESP32S3_DEVKITC_TABLE } from './esp32s3';
 import { ESP32C3_DEVKITM_TABLE } from './esp32c3';
 
 /** Board kind -> table. Typed over the OSS union so a new kind without a table fails to compile. */
@@ -26,7 +26,6 @@ export const OSS_BOARD_PIN_TABLES: Record<BoardKind, BoardPinFunctions> = {
   esp32: ESP32_DEVKIT_V1_TABLE,
   'esp32-cam': ESP32_CAM_TABLE,
   'esp32-s3': ESP32S3_DEVKITC_TABLE,
-  'arduino-nano-esp32': NANO_ESP32_TABLE,
   'esp32-c3': ESP32C3_DEVKITM_TABLE,
 };
 

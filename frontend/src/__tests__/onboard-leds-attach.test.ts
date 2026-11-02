@@ -77,20 +77,11 @@ describe('attachOnboardLeds: single-colour LEDs follow their own pin with the bo
     expect(r.seen.filter(([id]) => id === 'flash')).toEqual([['flash', true]]);
   });
 
-  it('arduino-nano-esp32: the D13 LED is GPIO48 active HIGH', () => {
-    const r = rig('arduino-nano-esp32');
-    r.mcu(48, true);
-    expect(r.last()).toEqual(['led', true]);
-    r.mcu(48, false);
-    expect(r.last()).toEqual(['led', false]);
-  });
-
   it('pin 13 means nothing to any ESP32 kind (the old default)', () => {
     for (const kind of [
       'esp32',
       'esp32-cam',
       'esp32-s3',
-      'arduino-nano-esp32',
       'esp32-c3',
     ]) {
       const r = rig(kind);
@@ -164,28 +155,6 @@ describe('attachOnboardLeds: the boot case, a pad that becomes an output without
     const r = rig('esp32-cam');
     r.pm.setPinPull(33, 1); // INPUT_PULLUP: the LED hangs off a pad at 3V3, off
     expect(r.seen).toEqual([['led', false]]);
-  });
-
-  it('arduino-nano-esp32: pinMode(LED_RED, OUTPUT) alone is a red LED', () => {
-    const r = rig('arduino-nano-esp32');
-    r.dir(46, 1);
-    expect(r.last()).toEqual(['rgb', { r: 255, g: 0, b: 0 }]);
-    r.dir(45, 1);
-    expect(r.last()).toEqual(['rgb', { r: 255, g: 0, b: 255 }]);
-  });
-});
-
-describe('attachOnboardLeds: the plain RGB LED of the Nano ESP32', () => {
-  it('each colour is its own active-LOW pad, and a pad the sketch never drove stays off', () => {
-    const r = rig('arduino-nano-esp32');
-    r.mcu(46, false); // LED_RED on
-    expect(r.last()).toEqual(['rgb', { r: 255, g: 0, b: 0 }]);
-    r.mcu(45, false); // LED_BLUE on; LED_GREEN (GPIO0) untouched
-    expect(r.last()).toEqual(['rgb', { r: 255, g: 0, b: 255 }]);
-    r.mcu(46, true); // LED_RED off
-    expect(r.last()).toEqual(['rgb', { r: 0, g: 0, b: 255 }]);
-    r.mcu(0, false); // LED_GREEN on
-    expect(r.last()).toEqual(['rgb', { r: 0, g: 255, b: 255 }]);
   });
 });
 

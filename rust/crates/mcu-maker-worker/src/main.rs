@@ -156,12 +156,12 @@ mod sys {
             let orig_stdout = dup(1);
 
             // Redirect fd 0 and fd 1 to /dev/null to protect QEMU stdio mux from corrupting our JSON pipe
-            let nul_r = open(b"/dev/null\0".as_ptr() as *const c_char, O_RDONLY);
+            let nul_r = open(c"/dev/null".as_ptr(), O_RDONLY);
             if nul_r >= 0 {
                 dup2(nul_r, 0);
                 close(nul_r);
             }
-            let nul_w = open(b"/dev/null\0".as_ptr() as *const c_char, O_WRONLY);
+            let nul_w = open(c"/dev/null".as_ptr(), O_WRONLY);
             if nul_w >= 0 {
                 dup2(nul_w, 1);
                 close(nul_w);
@@ -236,13 +236,13 @@ fn format_worker_event(buf: &mut Vec<u8>, ev: WorkerEvent) {
     use std::io::Write;
     match ev {
         WorkerEvent::UartTx { uart, byte } => {
-            let _ = write!(buf, "{{\"type\":\"uart_tx\",\"uart\":{},\"byte\":{}}}\n", uart, byte);
+            let _ = writeln!(buf, "{{\"type\":\"uart_tx\",\"uart\":{},\"byte\":{}}}", uart, byte);
         }
         WorkerEvent::GpioChange { pin, state } => {
-            let _ = write!(buf, "{{\"type\":\"gpio_change\",\"pin\":{},\"state\":{}}}\n", pin, state & 1);
+            let _ = writeln!(buf, "{{\"type\":\"gpio_change\",\"pin\":{},\"state\":{}}}", pin, state & 1);
         }
         WorkerEvent::GpioDir { pin, dir } => {
-            let _ = write!(buf, "{{\"type\":\"gpio_dir\",\"pin\":{},\"dir\":{}}}\n", pin, dir);
+            let _ = writeln!(buf, "{{\"type\":\"gpio_dir\",\"pin\":{},\"dir\":{}}}", pin, dir);
         }
         WorkerEvent::Json(bytes) => {
             buf.extend_from_slice(&bytes);
@@ -288,7 +288,7 @@ struct WorkerConfig {
     #[serde(default = "default_machine")]
     machine: String,
     #[serde(default)]
-    sensors: Vec<serde_json::Value>,
+    sensors: serde_json::Value,
     #[serde(default)]
     wifi_enabled: bool,
     #[serde(default)]
@@ -301,9 +301,9 @@ fn default_machine() -> String {
     "esp32-picsimlab".to_string()
 }
 
-fn pad_to_flash_size(mut fw: Vec<u8>) -> Vec<u8> {
+fn pad_to_flash_size(mut fw: Vec<u8>, is_s3: bool) -> Vec<u8> {
     let valid_sizes = [2 * 1024 * 1024, 4 * 1024 * 1024, 8 * 1024 * 1024, 16 * 1024 * 1024];
-    let min_flash = 4 * 1024 * 1024;
+    let min_flash = if is_s3 { 8 * 1024 * 1024 } else { 4 * 1024 * 1024 };
     let target = valid_sizes
         .into_iter()
         .find(|&s| s >= fw.len().max(min_flash))
@@ -337,15 +337,53 @@ static PINMAP_C3: [i16; 23] = [
     20, 21,
 ];
 
+static PINMAP_S3: [i16; 50] = [
+    49,
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+    40, 41, 42, 43, 44, 45, 46, 47, 48,
+];
+
 unsafe extern "C" fn on_write_pin(slot: i32, value: i32) {
-    if !(1..=40).contains(&slot) {
+    if !(1..=49).contains(&slot) {
         return;
     }
-    emit_gpio_change(slot - 1, value);
+    let pin = slot - 1;
+    emit_gpio_change(pin, value);
+    // If pin 8 (ESP32-C3 onboard WS2812 RGB LED), synthesize ws2812_update
+    if pin == 8 {
+        let (r, g, b) = if (value & 1) != 0 { (255, 200, 50) } else { (0, 0, 0) };
+        emit_event(&serde_json::json!({
+            "type": "ws2812_update",
+            "channel": 0,
+            "pin": 8,
+            "pixels": [{ "r": r, "g": g, "b": b }]
+        }));
+    }
+}
+
+unsafe extern "C" fn on_s3_pin_irq(_opaque: *mut std::ffi::c_void, n: i32, level: i32) {
+    // S3 maps the onboard RGB LED (GPIO 48) to internal pin 31 in QEMU
+    let pin = if n == 31 { 48 } else { n };
+    emit_gpio_change(pin, level);
+    if pin == 48 {
+        let (r, g, b) = if (level & 1) != 0 { (255, 200, 50) } else { (0, 0, 0) };
+        emit_event(&serde_json::json!({
+            "type": "ws2812_update",
+            "channel": 0,
+            "pin": 48,
+            "pixels": [{ "r": r, "g": g, "b": b }]
+        }));
+    }
+}
+
+unsafe extern "C" fn on_s3_dir_irq(_opaque: *mut std::ffi::c_void, n: i32, level: i32) {
+    let pin = if n == 31 { 48 } else { n };
+    emit_gpio_dir(pin, level);
 }
 
 unsafe extern "C" fn on_dir_pin(slot: i32, dir: i32) {
-    if !(1..=40).contains(&slot) {
+    if !(1..=49).contains(&slot) {
         return;
     }
     emit_gpio_dir(slot - 1, dir);
@@ -389,6 +427,9 @@ pub struct QemuBindings {
     pub bql_lock: Option<unsafe extern "C" fn(*const i8, i32)>,
     pub bql_unlock: Option<unsafe extern "C" fn()>,
     pub bql_locked: Option<unsafe extern "C" fn() -> bool>,
+    pub is_s3: bool,
+    pub s3_in_irqs: [usize; 32],
+    pub qemu_set_irq: Option<unsafe extern "C" fn(*mut std::ffi::c_void, i32)>,
 }
 
 impl QemuBindings {
@@ -403,7 +444,7 @@ impl QemuBindings {
         if should_lock {
             if let Some(lock_fn) = self.bql_lock {
                 unsafe {
-                    lock_fn(b"mcu-maker-worker\0".as_ptr() as *const i8, 0);
+                    lock_fn(c"mcu-maker-worker".as_ptr(), 0);
                 }
             }
         }
@@ -446,7 +487,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 3. Decode & pad firmware
     let fw_raw = base64::engine::general_purpose::STANDARD.decode(&cfg.firmware_b64)
         .map_err(|e| format!("Base64 firmware decode error: {e}"))?;
-    let fw_padded = pad_to_flash_size(fw_raw);
+    let is_s3 = cfg.machine.contains("s3");
+    let fw_padded = pad_to_flash_size(fw_raw, is_s3);
 
     let temp_dir = std::env::temp_dir();
     let temp_fw_path = temp_dir.join(format!("mcu_maker_fw_{}.bin", std::process::id()));
@@ -487,6 +529,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bql_locked: Option<libloading::Symbol<unsafe extern "C" fn() -> bool>> =
         unsafe { lib.get(b"bql_locked\0").or_else(|_| lib.get(b"qemu_mutex_iothread_locked\0")).ok() };
 
+    let object_resolve_path: Option<libloading::Symbol<unsafe extern "C" fn(*const i8, *mut bool) -> *mut std::ffi::c_void>> =
+        unsafe { lib.get(b"object_resolve_path\0").ok() };
+    let qdev_connect_gpio_out_named: Option<libloading::Symbol<unsafe extern "C" fn(*mut std::ffi::c_void, *const i8, i32, *mut std::ffi::c_void)>> =
+        unsafe { lib.get(b"qdev_connect_gpio_out_named\0").ok() };
+    let qdev_get_gpio_in_named: Option<libloading::Symbol<unsafe extern "C" fn(*mut std::ffi::c_void, *const i8, i32) -> *mut std::ffi::c_void>> =
+        unsafe { lib.get(b"qdev_get_gpio_in_named\0").ok() };
+    let qemu_allocate_irqs: Option<libloading::Symbol<unsafe extern "C" fn(unsafe extern "C" fn(*mut std::ffi::c_void, i32, i32), *mut std::ffi::c_void, i32) -> *mut *mut std::ffi::c_void>> =
+        unsafe { lib.get(b"qemu_allocate_irqs\0").ok() };
+    let qemu_set_irq: Option<libloading::Symbol<unsafe extern "C" fn(*mut std::ffi::c_void, i32)>> =
+        unsafe { lib.get(b"qemu_set_irq\0").ok() };
+
     // Register Callbacks permanently in static memory
     let callbacks = Box::leak(Box::new(PicsimlabCallbacks {
         picsimlab_write_pin: Some(on_write_pin),
@@ -496,6 +549,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         picsimlab_uart_tx_event: Some(on_uart_tx),
         pinmap: if cfg.machine == "esp32c3-picsimlab" {
             PINMAP_C3.as_ptr()
+        } else if cfg.machine.contains("s3") {
+            PINMAP_S3.as_ptr()
         } else {
             PINMAP.as_ptr()
         },
@@ -547,24 +602,57 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let argc = c_strings.len() as i32;
 
     // 6. Spawn QEMU main loop thread
+    let is_s3 = cfg.machine.contains("s3");
     let (init_tx, init_rx) = std::sync::mpsc::channel();
     let init_fn = *qemu_init;
     let main_loop_fn = *qemu_main_loop;
+    let qemu_set_irq_raw = qemu_set_irq.as_ref().map(|s| **s);
+    let object_resolve_path_raw = object_resolve_path.as_ref().map(|s| **s);
+    let qdev_connect_gpio_out_named_raw = qdev_connect_gpio_out_named.as_ref().map(|s| **s);
+    let qdev_get_gpio_in_named_raw = qdev_get_gpio_in_named.as_ref().map(|s| **s);
+    let qemu_allocate_irqs_raw = qemu_allocate_irqs.as_ref().map(|s| **s);
+
     std::thread::Builder::new()
         .name("qemu-core".to_string())
         .spawn(move || unsafe {
             let mut c_ptrs: Vec<*const i8> = c_strings.iter().map(|cs| cs.as_ptr()).collect();
             c_ptrs.push(std::ptr::null());
             init_fn(argc, c_ptrs.as_ptr(), std::ptr::null());
-            let _ = init_tx.send(());
+
+            let mut thread_s3_in_irqs = [0usize; 32];
+            if is_s3 {
+                if let (Some(resolve), Some(connect), Some(alloc), Some(get_in)) = (
+                    object_resolve_path_raw,
+                    qdev_connect_gpio_out_named_raw,
+                    qemu_allocate_irqs_raw,
+                    qdev_get_gpio_in_named_raw,
+                ) {
+                    let gpio = resolve(c"/machine/soc/gpio".as_ptr(), std::ptr::null_mut());
+                    if !gpio.is_null() {
+                        let irqs = alloc(on_s3_pin_irq, std::ptr::null_mut(), 32);
+                        let dir_irqs = alloc(on_s3_dir_irq, std::ptr::null_mut(), 32);
+                        for i in 0..32 {
+                            connect(gpio, c"esp32_gpios".as_ptr(), i, *irqs.add(i as usize));
+                            connect(gpio, c"esp32_gpios_dir".as_ptr(), i, *dir_irqs.add(i as usize));
+                            let in_irq = get_in(gpio, c"esp32_gpios_in".as_ptr(), i);
+                            thread_s3_in_irqs[i as usize] = in_irq as usize;
+                        }
+                    }
+                }
+            }
+
+            let _ = init_tx.send(thread_s3_in_irqs);
             main_loop_fn();
         })?;
 
     // Wait until QEMU has fully initialized before announcing booted or accepting stdin commands
-    if let Err(e) = init_rx.recv() {
-        eprintln!("[mcu-maker-worker] qemu-core thread terminated before initialization completed: {:?}", e);
-        std::process::exit(1);
-    }
+    let s3_in_irqs = match init_rx.recv() {
+        Ok(irqs) => irqs,
+        Err(e) => {
+            eprintln!("[mcu-maker-worker] qemu-core thread terminated before initialization completed: {:?}", e);
+            std::process::exit(1);
+        }
+    };
 
     // Announce simulator booted
     emit_event(&serde_json::json!({
@@ -582,12 +670,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         bql_lock: bql_lock.map(|s| *s),
         bql_unlock: bql_unlock.map(|s| *s),
         bql_locked: bql_locked.map(|s| *s),
+        is_s3,
+        s3_in_irqs,
+        qemu_set_irq: qemu_set_irq_raw,
     });
 
     // 7. Command loop reading from original stdin
     let reader = BufReader::new(stdin_reader);
 
-    for line in reader.lines().flatten() {
+    for line in reader.lines().map_while(Result::ok) {
         let trimmed = line.trim();
         if trimmed.is_empty() {
             continue;
@@ -601,8 +692,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         cmd.get("pin").and_then(|p| p.as_i64()),
                         cmd.get("value").and_then(|v| v.as_i64()),
                     ) {
-                        unsafe {
-                            (bindings.set_pin)(pin as i32 + 1, val as i32);
+                        if bindings.is_s3 {
+                            let target_pin = if pin == 48 { 31 } else { pin as i32 };
+                            if (0..32).contains(&target_pin) {
+                                let irq_ptr = bindings.s3_in_irqs[target_pin as usize];
+                                if irq_ptr != 0 {
+                                    let bindings_clone = bindings.clone();
+                                    bindings_clone.with_bql(|| unsafe {
+                                        if let Some(set_irq_fn) = bindings_clone.qemu_set_irq {
+                                            set_irq_fn(irq_ptr as *mut std::ffi::c_void, val as i32);
+                                        }
+                                    });
+                                }
+                            }
+                        } else {
+                            unsafe {
+                                (bindings.set_pin)(pin as i32 + 1, val as i32);
+                            }
                         }
                     }
                 }
@@ -623,9 +729,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         cmd.get("channel").and_then(|c| c.as_i64()),
                     ) {
                         let raw_v = (mv * 4095 / 3300).clamp(0, 4095) as i32;
-                        if let Some(set_apin) = bindings.set_apin {
-                            unsafe {
-                                set_apin(ch as i32, raw_v);
+                        if !bindings.is_s3 {
+                            if let Some(set_apin) = bindings.set_apin {
+                                unsafe {
+                                    set_apin(ch as i32, raw_v);
+                                }
                             }
                         }
                     }
@@ -635,9 +743,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         cmd.get("raw").and_then(|r| r.as_i64()),
                         cmd.get("channel").and_then(|c| c.as_i64()),
                     ) {
-                        if let Some(set_apin) = bindings.set_apin {
-                            unsafe {
-                                set_apin(ch as i32, raw.clamp(0, 4095) as i32);
+                        if !bindings.is_s3 {
+                            if let Some(set_apin) = bindings.set_apin {
+                                unsafe {
+                                    set_apin(ch as i32, raw.clamp(0, 4095) as i32);
+                                }
                             }
                         }
                     }
@@ -656,7 +766,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    Ok(())
+    let _ = std::fs::remove_file(&temp_fw_path);
+    if let Some(shutdown) = bindings.shutdown_request {
+        unsafe {
+            shutdown(3);
+        }
+    }
+    std::process::exit(0);
 }
 
 #[cfg(test)]
@@ -685,6 +801,7 @@ mod tests {
     fn test_pinmaps() {
         assert!(PINMAP.len() >= 40);
         assert!(PINMAP_C3.len() >= 22);
+        assert!(PINMAP_S3.len() >= 49);
     }
 
     #[test]
@@ -693,6 +810,8 @@ mod tests {
         let riscv_name = if cfg!(windows) { "libqemu-riscv32.dll" } else { "libqemu-riscv32.so" };
 
         let candidate_dirs = [
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../prebuilt/qemu_runtime"),
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../prebuilt/qemu_runtime_linux"),
             PathBuf::from("/opt/mcu-maker/prebuilt/qemu_runtime"),
             PathBuf::from("../../prebuilt/qemu_runtime"),
             PathBuf::from("../../prebuilt/qemu_runtime_linux"),
@@ -730,5 +849,25 @@ mod tests {
                 std::mem::forget(lib);
             }
         }
+    }
+
+    #[test]
+    fn test_esp32s3_rom_exists() {
+        let candidate_dirs = [
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../prebuilt/qemu_runtime"),
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../prebuilt/qemu_runtime_linux"),
+            PathBuf::from("/opt/mcu-maker/prebuilt/qemu_runtime"),
+            PathBuf::from("../../prebuilt/qemu_runtime"),
+            PathBuf::from("../../prebuilt/qemu_runtime_linux"),
+            PathBuf::from("prebuilt/qemu_runtime"),
+        ];
+        let mut found = false;
+        for dir in &candidate_dirs {
+            if dir.join("esp32s3_rev0_rom.bin").is_file() {
+                found = true;
+                break;
+            }
+        }
+        assert!(found, "esp32s3_rev0_rom.bin must exist for ESP32-S3 QEMU simulation");
     }
 }

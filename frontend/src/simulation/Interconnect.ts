@@ -191,7 +191,6 @@ function isEsp32Bridge(boardKind: string): boolean {
     boardKind === 'esp32' ||
     boardKind === 'esp32-s3' ||
     boardKind === 'esp32-cam' ||
-    boardKind === 'arduino-nano-esp32' ||
     boardKind === 'esp32-c3'
   );
 }

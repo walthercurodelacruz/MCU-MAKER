@@ -20,7 +20,6 @@ const ESP32_KINDS: BoardKind[] = [
   'esp32',
   'esp32-cam',
   'esp32-s3',
-  'arduino-nano-esp32',
   'esp32-c3',
 ];
 

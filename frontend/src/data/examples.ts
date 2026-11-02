@@ -3181,6 +3181,65 @@ void loop() {
   },
 
   {
+    id: 'picow-blink-led',
+    title: 'Pico W: Blink LED',
+    description: 'Blink an external green LED on GP15 and built-in LED on Raspberry Pi Pico W',
+    category: 'basics',
+    difficulty: 'beginner',
+    boardType: 'pi-pico-w',
+    boardFilter: 'pi-pico-w',
+    code: `// Raspberry Pi Pico W — Blink LED
+// Blinks external LED connected to GP15 and built-in LED
+
+const int LED_PIN = 15;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.println("Raspberry Pi Pico W — Blink iniciado");
+}
+
+void loop() {
+  digitalWrite(LED_PIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
+  Serial.println("LED: ENCENDIDO");
+  delay(500);
+
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
+  Serial.println("LED: APAGADO");
+  delay(500);
+}
+`,
+    components: [
+      { type: 'wokwi-led', id: 'led-blink', x: 400, y: 120, properties: { color: 'green' } },
+      { type: 'wokwi-resistor', id: 'r1', x: 400, y: 200, properties: { value: '220' } },
+    ],
+    wires: [
+      {
+        id: 'w1',
+        start: { componentId: 'arduino-uno', pinName: 'GP15' },
+        end: { componentId: 'led-blink', pinName: 'A' },
+        color: '#00cc00',
+      },
+      {
+        id: 'w2',
+        start: { componentId: 'led-blink', pinName: 'C' },
+        end: { componentId: 'r1', pinName: '1' },
+        color: '#999999',
+      },
+      {
+        id: 'w3',
+        start: { componentId: 'r1', pinName: '2' },
+        end: { componentId: 'arduino-uno', pinName: 'GND.4' },
+        color: '#000000',
+      },
+    ],
+    tags: ['rp2040', 'picow', 'pico', 'blink', 'led', 'basics'],
+  },
+
+  {
     id: 'pico-serial-echo',
     title: '[Pico] Serial Echo',
     description: 'Echo serial input back with a timestamp — tests UART on RP2040',

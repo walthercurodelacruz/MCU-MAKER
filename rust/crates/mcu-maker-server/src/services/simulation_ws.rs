@@ -25,6 +25,7 @@ struct RunningWorker {
 }
 
 #[derive(Clone)]
+#[allow(clippy::type_complexity)]
 pub struct SimulationWsManager {
     clients: Arc<RwLock<HashMap<String, (u64, mpsc::UnboundedSender<String>)>>>,
     workers: Arc<RwLock<HashMap<String, RunningWorker>>>,
@@ -130,7 +131,7 @@ fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
             }
             curr = p.parent();
         }
-        if repo_root != PathBuf::from(".") {
+        if repo_root != std::path::Path::new(".") {
             break;
         }
     }
@@ -176,12 +177,7 @@ fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
         candidates.push(repo_root.join("rust").join("target").join("release").join(filename));
         candidates.push(repo_root.join(filename));
 
-        for c in candidates {
-            if c.is_file() {
-                return Some(c);
-            }
-        }
-        None
+        candidates.into_iter().find(|c| c.is_file())
     };
 
     let xtensa_dll = find_dll(QEMU_XTENSA_LIB);
@@ -197,6 +193,7 @@ fn find_free_port() -> u16 {
         .unwrap_or(8080)
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn spawn_worker_instance(
     conn_id: u64,
     cid: &str,
@@ -231,7 +228,7 @@ async fn spawn_worker_instance(
     let lib_opt = if is_riscv { riscv_dll } else { xtensa_dll };
     let machine = if is_riscv {
         "esp32c3-picsimlab"
-    } else if board.contains("s3") || board.contains("nano-esp32") || board.contains("nano_nora") {
+    } else if board.contains("s3") {
         "esp32s3"
     } else {
         "esp32-picsimlab"
@@ -536,6 +533,9 @@ async fn handle_socket(socket: WebSocket, client_id: String, mgr: Arc<Simulation
                         }
                     }
                     "load_firmware" => {
+                        if let Some(b) = data.get("board").and_then(|b| b.as_str()) {
+                            session_board = b.to_string();
+                        }
                         let firmware_b64 = data.get("firmware_b64").and_then(|f| f.as_str()).unwrap_or("");
                         if !firmware_b64.is_empty() {
                             let already_running = {
@@ -683,4 +683,20 @@ async fn handle_socket(socket: WebSocket, client_id: String, mgr: Arc<Simulation
         }
     }
     info!("Simulation WebSocket disconnected for client: {} (conn_id: {})", client_id, conn_id);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_resolve_paths_finds_qemu_libraries() {
+        let (_worker, xtensa, riscv) = resolve_paths();
+        assert!(xtensa.is_some(), "libqemu-xtensa should be found in prebuilt/qemu_runtime");
+        assert!(riscv.is_some(), "libqemu-riscv32 should be found in prebuilt/qemu_runtime");
+        let xtensa_path = xtensa.unwrap();
+        let riscv_path = riscv.unwrap();
+        assert!(xtensa_path.is_file(), "xtensa path {:?} does not exist", xtensa_path);
+        assert!(riscv_path.is_file(), "riscv path {:?} does not exist", riscv_path);
+    }
 }

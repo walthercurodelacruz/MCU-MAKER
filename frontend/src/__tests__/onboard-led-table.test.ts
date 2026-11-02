@@ -12,8 +12,6 @@
  *   lolin32-lite   LED_BUILTIN = 22; the LED's other leg on 3V3 (LOW)
  *   esp32s3        PIN_RGB_LED 48, LED_BUILTIN = SOC_GPIO_PIN_COUNT + 48
  *   XIAO_ESP32S3   LED_BUILTIN = 21; Seeed: on "when the pin is set to a low level"
- *   arduino_nano_nora  D13 = 48 = LED_BUILTIN (HIGH); LED_RED 46, LED_GREEN 0,
- *                  LED_BLUE 45 switched on by pulling LOW (Arduino docs)
  *   esp32c3        PIN_RGB_LED 8
  *   XIAO_ESP32C3   no LED symbol at all, and no LED on the board
  *   SuperMini      blue LED on 8 sunk from 3V3 (LOW); builds with esp32c3
@@ -40,10 +38,6 @@ const EXPECTED_ESP32: Record<string, readonly OnboardLed[]> = {
   esp32: [gpio(2, false)],
   'esp32-cam': [gpio(4, false, 'flash'), gpio(33, true)],
   'esp32-s3': [{ id: 'rgb', kind: 'ws2812', pin: 48 }],
-  'arduino-nano-esp32': [
-    gpio(48, false),
-    { id: 'rgb', kind: 'rgb-gpio', pins: { r: 46, g: 0, b: 45 }, activeLow: true },
-  ],
   'esp32-c3': [{ id: 'rgb', kind: 'ws2812', pin: 8 }],
 };
 

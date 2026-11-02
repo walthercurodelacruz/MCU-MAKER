@@ -84,7 +84,7 @@ export function connectMcuEdgesToService(service: CircuitSimulationService): () 
       return `GP${arduinoPin}`;
     }
     if (boardKind.startsWith('esp32')) {
-      return `GPIO${arduinoPin}`;
+      return String(arduinoPin);
     }
     // STM32 wires reference port-style names (PA0 / PC13); its PinManager is
     // keyed on the linear pin index. Without this reverse mapping the MCU-edge
@@ -179,7 +179,7 @@ export function connectMcuEdgesToService(service: CircuitSimulationService): () 
 
     const sim = getBoardSimulator(boardId);
     for (const { pin, pinName } of listenPins) {
-      const unsub = pm.onPinChange(pin, (_p, state) => {
+      const unsub = pm.onPinChange(pin, (_p, state, source) => {
         // Suppress digital edges when the pin has active PWM. The OCR-based
         // PWM duty is converted to a DC-averaged voltage in NetlistBuilder
         // (`state.duty * board.vcc`), giving smooth analog dimming. If we
@@ -189,6 +189,7 @@ export function connectMcuEdgesToService(service: CircuitSimulationService): () 
         // making `analogWrite(pin, 128)` look like a binary blink instead
         // of a steady 2.5 V (Fade-LED example regression).
         if (pm.getPwmValue(pin) > 0) return;
+        if (source === 'external') return;
         void service.handleMcuEdge(boardId, pinName, state, vcc, guestMsOf(sim));
       });
       pinSubs.set(pin, unsub);

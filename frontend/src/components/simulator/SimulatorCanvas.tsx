@@ -174,10 +174,7 @@ function carrySeatedBoards(
 
 /** Check if a board kind is an ESP32-family board. */
 function isEsp32Kind(kind: BoardKind): boolean {
-  return (
-    kind.startsWith('esp32') ||
-    kind === 'arduino-nano-esp32'
-  );
+  return kind.startsWith('esp32');
 }
 
 interface SimulatorCanvasProps {
@@ -3150,7 +3147,9 @@ export const SimulatorCanvas = ({ headerSlot, circuitToolsSlot }: SimulatorCanva
                     const backendBase =
                       (import.meta.env.VITE_API_BASE as string | undefined) ??
                       (typeof window !== 'undefined' && window.location?.hostname
-                        ? `${window.location.protocol}//${window.location.hostname}:8001/api`
+                        ? (window.location.port === '5173' || window.location.port === '3000'
+                            ? `${window.location.protocol}//${window.location.hostname}:8001/api`
+                            : `${window.location.origin}/api`)
                         : 'http://localhost:8001/api');
                     const gatewayUrl = `${backendBase}/gateway/${clientId}/`;
 
