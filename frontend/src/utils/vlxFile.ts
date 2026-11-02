@@ -61,7 +61,7 @@ export interface VlxPayload {
   /** EMPTY folders per group (folders holding files exist via name prefixes).
    *  Optional — absent in projects saved before folders shipped. */
   folderGroups?: Record<string, string[]>;
-  components: Component[];
+  components: any[];
   wires: Wire[];
   activeBoardId: string | null;
 }

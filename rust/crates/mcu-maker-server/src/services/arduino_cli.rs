@@ -36,8 +36,47 @@ pub struct ArduinoCLIService {
     pub binary_path: PathBuf,
 }
 
+pub const ADDITIONAL_URLS: &str = "https://espressif.github.io/arduino-esp32/package_esp32_index.json,https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json,http://drazzy.com/package_drazzy.com_index.json";
+
+/// Per-user Arduino data directory: `%LOCALAPPDATA%\Arduino15` on Windows,
+/// `~/.arduino15` on Linux.
+fn arduino_data_dir() -> Option<PathBuf> {
+    #[cfg(windows)]
+    {
+        std::env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join("Arduino15"))
+    }
+    #[cfg(not(windows))]
+    {
+        std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".arduino15"))
+    }
+}
+
+pub fn ensure_arduino_config() {
+    if let Some(dir) = arduino_data_dir() {
+        let config_file = dir.join("arduino-cli.yaml");
+        let default_yaml = r#"board_manager:
+  additional_urls:
+    - https://espressif.github.io/arduino-esp32/package_esp32_index.json
+    - https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+    - http://drazzy.com/package_drazzy.com_index.json
+"#;
+        if !config_file.exists() {
+            let _ = std::fs::create_dir_all(&dir);
+            let _ = std::fs::write(&config_file, default_yaml);
+        } else if let Ok(existing) = std::fs::read_to_string(&config_file) {
+            if !existing.contains("espressif.github.io")
+                || !existing.contains("earlephilhower")
+                || !existing.contains("drazzy.com")
+            {
+                let _ = std::fs::write(&config_file, default_yaml);
+            }
+        }
+    }
+}
+
 impl ArduinoCLIService {
     pub fn new(configured_path: Option<String>) -> Self {
+        ensure_arduino_config();
         let binary_path = if let Some(path) = configured_path {
             PathBuf::from(path)
         } else if let Ok(path) = std::env::var("ARDUINO_CLI_BIN") {
@@ -51,24 +90,40 @@ impl ArduinoCLIService {
     }
 
     pub fn find_arduino_cli() -> PathBuf {
-        // 0. Check bundled or local prebuilt arduino-cli
+        let exe_name = format!("arduino-cli{}", std::env::consts::EXE_SUFFIX);
+
+        // 0. Search ancestors of current_dir and current_exe for prebuilt/arduino-cli
+        let mut check_dirs = Vec::new();
+        if let Ok(cwd) = std::env::current_dir() {
+            check_dirs.push(cwd);
+        }
         if let Ok(cur_exe) = std::env::current_exe() {
-            if let Some(parent) = cur_exe.parent() {
-                for relative in [
-                    parent.join("arduino-cli.exe"),
-                    parent.join("prebuilt").join("arduino-cli").join("arduino-cli.exe"),
-                    parent.join("..").join("prebuilt").join("arduino-cli").join("arduino-cli.exe"),
-                    parent.join("..").join("..").join("prebuilt").join("arduino-cli").join("arduino-cli.exe"),
-                ] {
-                    if relative.is_file() {
-                        return relative;
-                    }
+            if let Some(p) = cur_exe.parent() {
+                check_dirs.push(p.to_path_buf());
+            }
+        }
+
+        for dir in &check_dirs {
+            let mut curr = Some(dir.as_path());
+            while let Some(p) = curr {
+                let candidate = p.join("prebuilt").join("arduino-cli").join(&exe_name);
+                if candidate.is_file() {
+                    return candidate;
                 }
+                let cand_direct = p.join(&exe_name);
+                if cand_direct.is_file() {
+                    return cand_direct;
+                }
+                curr = p.parent();
             }
         }
 
         // 1. Check PATH
-        if let Ok(output) = std::process::Command::new("where.exe")
+        #[cfg(windows)]
+        let path_finder = "where.exe";
+        #[cfg(not(windows))]
+        let path_finder = "which";
+        if let Ok(output) = std::process::Command::new(path_finder)
             .arg("arduino-cli")
             .output()
         {
@@ -83,15 +138,32 @@ impl ArduinoCLIService {
             }
         }
 
-        // 2. Check conventional Arduino IDE installations on Windows
-        let candidates = [
-            r"C:\Program Files\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe",
-            r"C:\Program Files (x86)\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe",
-            r"C:\arduino-cli\arduino-cli.exe",
+        // 2. Check conventional installation locations
+        #[cfg(windows)]
+        let candidates: Vec<PathBuf> = vec![
+            PathBuf::from(r"C:\Program Files\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe"),
+            PathBuf::from(r"C:\Program Files (x86)\Arduino IDE\resources\app\lib\backend\resources\arduino-cli.exe"),
+            PathBuf::from(r"C:\arduino-cli\arduino-cli.exe"),
         ];
+        #[cfg(not(windows))]
+        let candidates: Vec<PathBuf> = {
+            let mut v = vec![
+                PathBuf::from("/opt/mcu-maker/prebuilt/arduino-cli/arduino-cli"),
+                PathBuf::from("/opt/mcu-maker/arduino-cli"),
+                PathBuf::from("/usr/local/bin/arduino-cli"),
+                PathBuf::from("/usr/bin/arduino-cli"),
+                PathBuf::from("/opt/arduino-cli/arduino-cli"),
+                PathBuf::from("/snap/bin/arduino-cli"),
+            ];
+            if let Some(home) = std::env::var_os("HOME") {
+                let home = PathBuf::from(home);
+                v.push(home.join("bin").join("arduino-cli"));
+                v.push(home.join(".local").join("bin").join("arduino-cli"));
+            }
+            v
+        };
 
-        for cand in candidates {
-            let p = PathBuf::from(cand);
+        for p in candidates {
             if p.is_file() {
                 return p;
             }
@@ -163,7 +235,7 @@ impl ArduinoCLIService {
 
             let mut content = f.content.clone();
 
-            // ESP32: normalize WiFi for QEMU simulation
+            // ESP32: normalize WiFi for QEMU simulation and ensure LED_BUILTIN fallback
             if is_esp32 && (f.name.ends_with(".ino") || f.name.ends_with(".cpp")) {
                 let should_rewrite = if wifi_cfg.universal_redirect {
                     true
@@ -181,6 +253,10 @@ impl ArduinoCLIService {
                     if let Ok(re_idf_pass) = regex::Regex::new(r#"(\.password\s*=\s*)"[^"]*""#) {
                         content = re_idf_pass.replace_all(&content, r#"${1}""""#).to_string();
                     }
+                }
+
+                if !content.contains("#define LED_BUILTIN") {
+                    content = format!("#ifndef LED_BUILTIN\n#define LED_BUILTIN 2\n#endif\n{}", content);
                 }
             }
 
@@ -213,6 +289,9 @@ impl ArduinoCLIService {
                 if should_rewrite {
                     content = re_wifi.replace_all(&content, target_wifi_call.as_str()).to_string();
                 }
+                if !content.contains("#define LED_BUILTIN") {
+                    content = format!("#ifndef LED_BUILTIN\n#define LED_BUILTIN 2\n#endif\n{}", content);
+                }
             }
             if is_rp2040 && !content.contains("#define Serial Serial1") {
                 content = format!("#define Serial Serial1\n{}", content);
@@ -229,10 +308,20 @@ impl ArduinoCLIService {
             effective_fqbn = format!("{}:FlashMode=dio", effective_fqbn);
         }
 
+        let config_file = arduino_data_dir().map(|d| d.join("arduino-cli.yaml"));
+
         let mut cmd = Command::new(&self.binary_path);
         cmd.arg("compile")
             .arg("--fqbn")
-            .arg(&effective_fqbn);
+            .arg(&effective_fqbn)
+            .arg("--additional-urls")
+            .arg(ADDITIONAL_URLS);
+
+        if let Some(ref cf) = config_file {
+            if cf.is_file() {
+                cmd.arg("--config-file").arg(cf);
+            }
+        }
 
         if is_esp32 {
             if !board_fqbn.contains("nano_nora") {
@@ -241,6 +330,8 @@ impl ArduinoCLIService {
             }
             cmd.arg("--build-property")
                 .arg("compiler.cpp.extra_flags=-DBitOrder=uint8_t");
+            cmd.arg("--build-property")
+                .arg("compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition");
         }
 
         cmd.arg("--output-dir")
@@ -257,9 +348,61 @@ impl ArduinoCLIService {
             )
         })?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        let success = output.status.success();
+        let mut stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let mut success = output.status.success();
+
+        if !success && (stderr.contains("platform not installed") || stderr.contains("not found: platform")) {
+            let core_to_install = if board_fqbn.starts_with("arduino:avr") {
+                Some("arduino:avr")
+            } else if board_fqbn.starts_with("ATTinyCore:avr") {
+                Some("ATTinyCore:avr")
+            } else if board_fqbn.starts_with("esp32:esp32") {
+                Some("esp32:esp32@2.0.17")
+            } else if board_fqbn.starts_with("rp2040:rp2040") {
+                Some("rp2040:rp2040")
+            } else {
+                None
+            };
+
+            if let Some(core) = core_to_install {
+                info!("Auto-installing missing Arduino core {}...", core);
+                let mut update_cmd = Command::new(&self.binary_path);
+                update_cmd.arg("core")
+                    .arg("update-index")
+                    .arg("--additional-urls")
+                    .arg(ADDITIONAL_URLS);
+                if let Some(ref cf) = config_file {
+                    if cf.is_file() {
+                        update_cmd.arg("--config-file").arg(cf);
+                    }
+                }
+                let _ = update_cmd.output().await;
+
+                let mut install_cmd = Command::new(&self.binary_path);
+                install_cmd.arg("core")
+                    .arg("install")
+                    .arg(core)
+                    .arg("--additional-urls")
+                    .arg(ADDITIONAL_URLS);
+                if let Some(ref cf) = config_file {
+                    if cf.is_file() {
+                        install_cmd.arg("--config-file").arg(cf);
+                    }
+                }
+                let install_res = install_cmd.output().await;
+                if let Ok(res) = install_res {
+                    if res.status.success() {
+                        info!("Core {} installed successfully. Retrying compilation...", core);
+                        if let Ok(retry_out) = cmd.output().await {
+                            stdout = String::from_utf8_lossy(&retry_out.stdout).to_string();
+                            stderr = String::from_utf8_lossy(&retry_out.stderr).to_string();
+                            success = retry_out.status.success();
+                        }
+                    }
+                }
+            }
+        }
 
         if !success {
             let error_kind = Self::classify_error(&stderr);
@@ -302,8 +445,8 @@ impl ArduinoCLIService {
                 // 2. Fallback manual merge if merged.bin was not created
                 if bootloader_file.is_file() && partitions_file.is_file() {
                     let mut boot_app0_path = None;
-                    if let Ok(local_appdata) = std::env::var("LOCALAPPDATA") {
-                        let esp_pkg = PathBuf::from(local_appdata).join("Arduino15").join("packages").join("esp32");
+                    if let Some(data_dir) = arduino_data_dir() {
+                        let esp_pkg = data_dir.join("packages").join("esp32");
                         if esp_pkg.is_dir() {
                             let cand = esp_pkg.join("hardware").join("esp32");
                             if cand.is_dir() {
@@ -538,6 +681,77 @@ impl ArduinoCLIService {
             Ok(val)
         } else {
             Err(String::from_utf8_lossy(&output.stderr).to_string())
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const CANONICAL_FQBNS: &[(&str, &str)] = &[
+        ("arduino-uno", "arduino:avr:uno"),
+        ("arduino-nano", "arduino:avr:nano:cpu=atmega328"),
+        ("arduino-mega", "arduino:avr:mega"),
+        ("attiny85", "ATTinyCore:avr:attinyx5:chip=85,clock=16pll"),
+        ("raspberry-pi-pico", "rp2040:rp2040:rpipico"),
+        ("pi-pico-w", "rp2040:rp2040:rpipicow"),
+        ("esp32", "esp32:esp32:esp32"),
+        ("esp32-cam", "esp32:esp32:esp32cam"),
+        ("esp32-s3", "esp32:esp32:esp32s3"),
+        ("arduino-nano-esp32", "esp32:esp32:nano_nora"),
+        ("esp32-c3", "esp32:esp32:esp32c3"),
+    ];
+
+    #[test]
+    fn test_canonical_boards_count() {
+        assert_eq!(CANONICAL_FQBNS.len(), 11);
+    }
+
+    #[test]
+    fn test_arduino_cli_resolution() {
+        let path = ArduinoCLIService::find_arduino_cli();
+        assert!(path.is_file() || path == PathBuf::from("arduino-cli"));
+    }
+
+    #[test]
+    fn test_arduino_config_ensured() {
+        ensure_arduino_config();
+        if let Some(dir) = arduino_data_dir() {
+            let config_file = dir.join("arduino-cli.yaml");
+            assert!(config_file.exists());
+            let content = std::fs::read_to_string(&config_file).unwrap();
+            assert!(content.contains("package_esp32_index.json"));
+            assert!(content.contains("package_rp2040_index.json"));
+            assert!(content.contains("package_drazzy.com_index.json"));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_compile_all_11_canonical_boards() {
+        let service = ArduinoCLIService::new(None);
+        let files = vec![SketchFile {
+            name: "sketch.ino".to_string(),
+            content: "void setup() {} void loop() {}".to_string(),
+        }];
+
+        for (board_name, fqbn) in CANONICAL_FQBNS {
+            let res = service.compile(&files, fqbn).await;
+            assert!(
+                res.is_ok(),
+                "Failed to initiate compile for board {}: {:?}",
+                board_name,
+                res.err()
+            );
+            let compile_res = res.unwrap();
+            assert!(
+                compile_res.success,
+                "Compilation failed for board {} ({}): error={:?}, stderr={}",
+                board_name,
+                fqbn,
+                compile_res.error,
+                compile_res.stderr
+            );
         }
     }
 }

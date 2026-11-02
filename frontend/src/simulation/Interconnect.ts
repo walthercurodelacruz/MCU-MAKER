@@ -190,18 +190,9 @@ function isEsp32Bridge(boardKind: string): boolean {
   return (
     boardKind === 'esp32' ||
     boardKind === 'esp32-s3' ||
-    boardKind === 'esp32-devkit-c-v4' ||
     boardKind === 'esp32-cam' ||
-    boardKind === 'wemos-lolin32-lite' ||
-    boardKind === 'xiao-esp32-s3' ||
     boardKind === 'arduino-nano-esp32' ||
-    // RISC-V ESP32-C3 family — same Esp32Bridge plumbing, just a
-    // different QEMU binary on the backend (libqemu-riscv32).
-    boardKind === 'esp32-c3' ||
-    boardKind === 'xiao-esp32-c3' ||
-    boardKind === 'aitewinrobot-esp32c3-supermini' ||
-    boardKind === 'xiao-c3' ||
-    boardKind === 'c3-supermini'
+    boardKind === 'esp32-c3'
   );
 }
 

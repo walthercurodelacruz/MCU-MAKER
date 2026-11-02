@@ -23,15 +23,10 @@ const BOARD_SHORT_LABEL: Partial<Record<string, string>> = {
   'raspberry-pi-4': 'Pi 4B',
   'raspberry-pi-5': 'Pi 5',
   esp32: 'ESP32',
-  'esp32-devkit-c-v4': 'ESP32',
   'esp32-cam': 'ESP32-CAM',
-  'wemos-lolin32-lite': 'Lolin32',
   'esp32-s3': 'ESP32-S3',
-  'xiao-esp32-s3': 'XIAO-S3',
   'arduino-nano-esp32': 'Nano ESP32',
   'esp32-c3': 'ESP32-C3',
-  'xiao-esp32-c3': 'XIAO-C3',
-  'aitewinrobot-esp32c3-supermini': 'C3 Mini',
   attiny85: 'ATtiny85',
 };
 
@@ -45,15 +40,10 @@ const BOARD_ICON: Partial<Record<string, string>> = {
   'raspberry-pi-4': '⬛',
   'raspberry-pi-5': '⬛',
   esp32: '⬡',
-  'esp32-devkit-c-v4': '⬡',
   'esp32-cam': '⬡',
-  'wemos-lolin32-lite': '⬡',
   'esp32-s3': '⬡',
-  'xiao-esp32-s3': '⬡',
   'arduino-nano-esp32': '⬡',
   'esp32-c3': '⬡',
-  'xiao-esp32-c3': '⬡',
-  'aitewinrobot-esp32c3-supermini': '⬡',
   attiny85: '▪',
 };
 
@@ -67,15 +57,10 @@ const BOARD_COLOR: Partial<Record<string, string>> = {
   'raspberry-pi-4': 'var(--color-feedback-error)',
   'raspberry-pi-5': 'var(--color-feedback-error)',
   esp32: 'var(--color-feedback-success)',
-  'esp32-devkit-c-v4': 'var(--color-feedback-success)',
   'esp32-cam': 'var(--color-feedback-success)',
-  'wemos-lolin32-lite': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
-  'xiao-esp32-s3': 'var(--color-feedback-success)',
   'arduino-nano-esp32': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
-  'xiao-esp32-c3': 'var(--color-feedback-success)',
-  'aitewinrobot-esp32c3-supermini': 'var(--color-feedback-success)',
   attiny85: 'var(--color-feedback-warning)',
 };
 

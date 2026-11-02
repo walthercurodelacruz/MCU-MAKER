@@ -5,13 +5,11 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 ---
 
 ## 📑 Tabla de Contenidos
-1. [Placas de Desarrollo y Microcontroladores Disponibles (24 Modelos)](#1-placas-de-desarrollo-y-microcontroladores-disponibles-24-modelos)
+1. [Placas de Desarrollo y Microcontroladores Disponibles (11 Modelos Canónicos)](#1-placas-de-desarrollo-y-microcontroladores-disponibles-11-modelos-canónicos)
    - [Familia Arduino (AVR 8-bit)](#a-familia-arduino-arquitectura-avr-8-bit--motor-avr8js)
    - [Familia ESP32 (Xtensa Dual-Core)](#b-familia-esp32-arquitectura-xtensa-dual-core--motor-qemu-nativo)
    - [Familia ESP32 RISC-V](#c-familia-esp32-risc-v-arquitectura-risc-v-rv32imc--motor-qemu-nativo)
    - [Familia Raspberry Pi Pico (RP2040 ARM Cortex-M0+)](#d-familia-raspberry-pi-pico-arquitectura-arm-cortex-m0--motor-rp2040js)
-   - [Familia STM32 (ARM Cortex-M)](#e-familia-stm32-arquitectura-arm-cortex-m--motor-qemu-arm)
-   - [Familia Raspberry Pi (SBC ARM Linux)](#f-familia-raspberry-pi-sbcs-con-linux-embebido--motor-qemu-arm-linux)
 2. [Catálogo de Componentes (> 160 Dispositivos)](#2-catálogo-de-componentes--160-dispositivos)
    - [Entradas y Sensores](#-entradas-y-sensores)
    - [Salidas, Actuadores y Motores](#-salidas-actuadores-y-motores)
@@ -26,7 +24,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-# 1. Placas de Desarrollo y Microcontroladores Disponibles (24 Modelos)
+# 1. Placas de Desarrollo y Microcontroladores Disponibles (11 Modelos Canónicos)
 
 ### A. Familia Arduino (Arquitectura AVR 8-bit · Motor `avr8js`)
 *Simulación de ciclo exacto en el navegador a 16 MHz con soporte de interrupciones, temporizadores, ADC y periféricos.*
@@ -37,7 +35,6 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 | **Arduino Nano** | ATmega328P @ 16 MHz | 32 KB Flash / 2 KB SRAM | Formato compacto para protoboard, 8 pines analógicos (A0-A7). |
 | **Arduino Mega 2560** | ATmega2560 @ 16 MHz | 256 KB Flash / 8 KB SRAM | 54 pines digitales (15 PWM), 16 analógicos, 4 puertos serie UART. |
 | **ATtiny85 (DIP-8)** | ATtiny85 @ 8/16 MHz | 8 KB Flash / 512 B SRAM | Microcontrolador ultracompacto de 8 pines, 6 GPIOs, SPI/I2C USI. |
-| **Franzininho DIY** | ATtiny85 @ 16.5 MHz | 8 KB Flash / 512 B SRAM | Placa didáctica de código abierto para soldadura y robótica. |
 
 ---
 
@@ -46,12 +43,9 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 | Placa | SoC / Núcleo | Frecuencia / Memoria | Conectividad y Periféricos |
 | :--- | :--- | :--- | :--- |
-| **ESP32 DevKit V1** | Xtensa LX6 dual-core | 240 MHz, 4 MB Flash | WiFi 802.11 b/g/n, BLE, 38 pines, 2 DAC, 18 ADC, touch pins. |
-| **ESP32 DevKit-C V4** | Xtensa LX6 dual-core | 240 MHz, 4 MB Flash | Placa oficial de desarrollo de Espressif Systems. |
+| **ESP32 DevKit V1** | Xtensa LX6 dual-core | 240 MHz, 4 MB Flash | WiFi 802.11 b/g/n, BLE, 30/38 pines, 2 DAC, 18 ADC, touch pins. |
 | **ESP32-CAM** | Xtensa LX6 dual-core | 240 MHz, 4 MB PSRAM | Interfaz de cámara OV2640 de 2 MP, slot para tarjeta microSD. |
-| **Wemos Lolin32 Lite** | Xtensa LX6 dual-core | 240 MHz, 4 MB Flash | Circuito de carga para batería LiPo (conector JST), bajo consumo. |
 | **ESP32-S3 DevKit** | Xtensa LX7 dual-core | 240 MHz, 8 MB Flash | Instrucciones vectoriales AI, USB OTG nativo, RGB WS2812. |
-| **Seeed XIAO ESP32-S3** | Xtensa LX7 dual-core | 240 MHz, 8 MB Flash + PSRAM | Formato miniatura de 21x17.5 mm para dispositivos portátiles. |
 | **Arduino Nano ESP32** | ESP32-S3 @ 240 MHz | 16 MB Flash / 512 KB SRAM | Factor de forma Arduino Nano oficial con LED RGB integrado. |
 
 ---
@@ -62,8 +56,6 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 | Placa | Microcontrolador | Frecuencia / Memoria | Características |
 | :--- | :--- | :--- | :--- |
 | **ESP32-C3 DevKit** | RISC-V RV32IMC single-core | 160 MHz, 4 MB Flash | WiFi 4 + Bluetooth 5 LE, 22 GPIOs, UART, SPI, I2C, I2S. |
-| **Seeed XIAO ESP32-C3** | RISC-V RV32IMC single-core | 160 MHz, 4 MB Flash | Diseño ultra-pequeño con antena externa/cerámica. |
-| **ESP32-C3 SuperMini** | RISC-V RV32IMC single-core | 160 MHz, 4 MB Flash | Placa popular de bajo costo con pads castellated para prototipos. |
 
 ---
 
@@ -74,30 +66,6 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 | :--- | :--- | :--- | :--- |
 | **Raspberry Pi Pico** | RP2040 dual Cortex-M0+ @ 133 MHz | 2 MB Flash / 264 KB SRAM | 26 pines GPIO, 3 ADC, 2 UART, 2 SPI, 2 I2C, 8 máquinas PIO. |
 | **Raspberry Pi Pico W** | RP2040 dual Cortex-M0+ @ 133 MHz | 2 MB Flash / 264 KB SRAM | Módulo inalámbrico Infineon CYW43439 (WiFi 802.11n). |
-| **Arduino Nano RP2040 Connect** | RP2040 dual Cortex-M0+ @ 133 MHz | 16 MB Flash / 264 KB SRAM | Formato Nano con módulo u-blox NINA-W102 e IMU de 6 ejes. |
-
----
-
-### E. Familia STM32 (Arquitectura ARM Cortex-M · Motor QEMU ARM)
-*Microcontroladores ARM Cortex industriales ampliamente utilizados en sistemas embebidos profesionales.*
-
-| Placa | Microcontrolador | Frecuencia / Memoria | Características |
-| :--- | :--- | :--- | :--- |
-| **STM32 Blue Pill** | STM32F103C8T6 (Cortex-M3) | 72 MHz, 64/128 KB Flash | 37 GPIOs, timers PWM de 16-bit, USB device, bus CAN. |
-| **STM32 Black Pill** | STM32F401 / F411 (Cortex-M4F) | 84-100 MHz, 512 KB Flash | Unidad de punto flotante (FPU), USB Type-C OTG, alta velocidad. |
-
----
-
-### F. Familia Raspberry Pi (SBCs con Linux Embebido · Motor QEMU ARM Linux)
-*Monoplacas completas con sistema operativo Linux Debian/Raspberry Pi OS, terminal interactiva Bash y control de periféricos GPIO.*
-
-| Placa | Procesador / Arquitectura | Memoria RAM | Perfil de Emulación |
-| :--- | :--- | :--- | :--- |
-| **Raspberry Pi Zero** | ARM1176 / Cortex-A7 (armhf) | 512 MB | Perfil mononúcleo ligero. |
-| **Raspberry Pi 1 Model B+** | ARM1176 / Cortex-A7 (armhf) | 512 MB | Conector GPIO de 40 pines. |
-| **Raspberry Pi 2** | Cortex-A7 quad-core (armhf) | 1 GB | Sistema multiproceso de 4 hilos. |
-| **Raspberry Pi 3 Model B** | Cortex-A53 quad-core 64-bit | 1 GB | Linux completo con Python 3, GPIO y red virtual. |
-| **Raspberry Pi 4 / 5** | Cortex-A72 / Cortex-A76 | 2 a 8 GB | Perfiles de alto rendimiento para procesamiento avanzado. |
 
 ---
 

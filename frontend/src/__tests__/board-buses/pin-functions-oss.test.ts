@@ -99,14 +99,7 @@ const sorted = (xs: Iterable<number>) => Array.from(new Set(xs)).sort((a, b) => 
 const DEFAULTS_OFF_HEADER: Partial<Record<BoardKind, number[]>> = {
   // Camera module: SPI (18/19/23/5), Wire (21/22), Serial1 (26/27), Serial2 TX (25) are internal.
   'esp32-cam': [5, 18, 19, 21, 22, 23, 25, 26, 27],
-  // UART0 goes to the USB bridge only; GPIO1/3 are not on the header.
-  'wemos-lolin32-lite': [1, 3],
-  // Serial1 = 15/16 and Serial2 = 19/20 are not among the XIAO / Nano pads.
-  'xiao-esp32-s3': [15, 16, 19, 20],
   'arduino-nano-esp32': [15, 16, 19, 20],
-  // Serial1 = 18/19 (USB D-/D+) are not XIAO or SuperMini pads.
-  'xiao-esp32-c3': [18, 19],
-  'aitewinrobot-esp32c3-supermini': [18, 19],
   // SS = PB12: mcu_maker draws only part of the Discovery headers.
   'stm32-f4-discovery': [stm32PinNumber('PB12')],
 };
@@ -267,18 +260,14 @@ const KNOWN: Expect[] = [
   ['esp32', 17, 'uart', 2, 'tx'],
   ['esp32', 25, 'uart', 2, 'tx'],
   ['esp32', 22, 'i2c', 0, 'scl'],
-  ['wemos-lolin32-lite', 19, 'i2c', 0, 'sda'],
   ['esp32-s3', 11, 'spi', 2, 'mosi'],
   ['esp32-s3', 16, 'uart', 0, 'cts'],
   ['esp32-s3', 16, 'uart', 1, 'tx'],
   ['esp32-s3', 8, 'i2c', 0, 'sda'],
-  ['xiao-esp32-s3', 43, 'uart', 0, 'tx'],
   ['arduino-nano-esp32', 48, 'spi', 2, 'sck'],
   ['esp32-c3', 7, 'spi', 2, 'mosi'],
   ['esp32-c3', 6, 'spi', 2, 'sck'],
   ['esp32-c3', 6, 'spi', 2, 'mosi'],
-  ['xiao-esp32-c3', 21, 'uart', 0, 'tx'],
-  ['xiao-esp32-c3', 9, 'spi', 2, 'miso'],
   // STM32duino PeripheralPins.c (units 0-based: USART1 = 0, UART4 = 3, USART6 = 5).
   ['stm32-bluepill', S('PA9'), 'uart', 0, 'tx'],
   ['stm32-bluepill', S('PB6'), 'i2c', 0, 'scl'],
@@ -320,7 +309,6 @@ describe('pin function tables: known answers from the datasheets', () => {
     expect(functionsOfPin('arduino-uno', 2)).toEqual([]);
     expect(functionsOfPin('esp32', 34)).toEqual([]); // input-only, no IO_MUX serial function
     expect(functionsOfPin('raspberry-pi-pico', 25)).toEqual([]); // on-board LED, not on the header
-    expect(functionsOfPin('esp32-devkit-c-v4', 9)).toEqual([]); // SPI flash
   });
 
   it('keeps slave-only and header-less controllers out', () => {
@@ -334,7 +322,6 @@ describe('pin function tables: known answers from the datasheets', () => {
     expect(controllerOf('esp32', 'spi', 3)?.arduino).toEqual(['SPI']); // VSPI
     expect(controllerOf('esp32-s3', 'spi', 2)?.arduino).toEqual(['SPI']); // FSPI
     expect(controllerOf('esp32', 'uart', 2)?.defaultPins).toEqual({ tx: 25, rx: 4 }); // 3.x, not 16/17
-    expect(controllerOf('xiao-esp32-s3', 'uart', 0)?.arduino).toEqual(['Serial0']); // CDC on boot
     expect(controllerOf('esp32-c3', 'uart', 0)?.arduino).toEqual(['Serial', 'Serial0']);
     expect(controllerOf('raspberry-pi-pico', 'spi', 1)?.arduino).toEqual(['SPI1']);
     expect(controllerOf('raspberry-pi-pico', 'i2c', 1)?.defaultPins).toEqual({ sda: 26, scl: 27 });

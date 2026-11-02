@@ -21,8 +21,8 @@ import type { BoardInstance } from '../types/board';
 
 const board = (over: Partial<BoardInstance> = {}): BoardInstance =>
   ({
-    id: 'xiao-esp32s3-sense',
-    boardKind: 'xiao-esp32-s3',
+    id: 'esp32-cam-card',
+    boardKind: 'esp32-cam',
     x: 50,
     y: 50,
     running: false,
@@ -30,7 +30,7 @@ const board = (over: Partial<BoardInstance> = {}): BoardInstance =>
     serialOutput: '',
     serialBaudRate: 0,
     serialMonitorOpen: false,
-    activeFileGroupId: 'group-xiao-esp32s3-sense',
+    activeFileGroupId: 'group-esp32-cam-card',
     languageMode: 'arduino',
     ...over,
   }) as BoardInstance;
@@ -53,7 +53,7 @@ describe('a board card survives the trip through the project', () => {
       boards_json: payload.boards_json,
       components_json: '[]',
       wires_json: '[]',
-      board_type: 'xiao-esp32-s3',
+      board_type: 'esp32-cam',
     } as never);
     expect(loaded.boards[0].sdFiles).toEqual(CARD);
   });

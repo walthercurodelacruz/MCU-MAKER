@@ -70,7 +70,7 @@ describe('Esp32BridgeShim ADC channel map', () => {
 
   it('maps the ESP32-S3 family, ADC2 included', () => {
     // Every one of these returned -1 while the map was dead code.
-    for (const kind of ['esp32-s3', 'xiao-esp32-s3', 'arduino-nano-esp32']) {
+    for (const kind of ['esp32-s3', 'arduino-nano-esp32']) {
       expect(channelFor(kind, 1)).toBe(0);
       expect(channelFor(kind, 10)).toBe(9);
       // ADC2 = GPIO11-20 at channel index 10-19, matching the machine's
@@ -86,7 +86,7 @@ describe('Esp32BridgeShim ADC channel map', () => {
   });
 
   it('maps the ESP32-C3 family, including ADC2_CH0 on GPIO5', () => {
-    for (const kind of ['esp32-c3', 'xiao-esp32-c3', 'aitewinrobot-esp32c3-supermini']) {
+    for (const kind of ['esp32-c3']) {
       expect(channelFor(kind, 0)).toBe(0);
       expect(channelFor(kind, 4)).toBe(4);
       expect(channelFor(kind, 5)).toBe(5);

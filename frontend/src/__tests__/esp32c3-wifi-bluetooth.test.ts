@@ -164,28 +164,6 @@ describe('Esp32Bridge — C3 board variant mapping', () => {
     expect(msg.data.board).toBe('esp32-c3');
     bridge.disconnect();
   });
-
-  it('maps xiao-esp32-c3 to esp32-c3 QEMU type', () => {
-    const bridge = new Esp32Bridge('b2', 'xiao-esp32-c3');
-    bridge.wifiEnabled = true;
-    bridge.connect();
-    const ws = (bridge as any).socket as MockWebSocket;
-    ws.open();
-    const msg = JSON.parse(ws.sent[0]);
-    expect(msg.data.board).toBe('esp32-c3');
-    bridge.disconnect();
-  });
-
-  it('maps aitewinrobot-esp32c3-supermini to esp32-c3 QEMU type', () => {
-    const bridge = new Esp32Bridge('b3', 'aitewinrobot-esp32c3-supermini');
-    bridge.wifiEnabled = true;
-    bridge.connect();
-    const ws = (bridge as any).socket as MockWebSocket;
-    ws.open();
-    const msg = JSON.parse(ws.sent[0]);
-    expect(msg.data.board).toBe('esp32-c3');
-    bridge.disconnect();
-  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

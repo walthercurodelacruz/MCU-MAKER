@@ -43,17 +43,21 @@ Su arquitectura híbrida de alto rendimiento cuenta con un **motor de backend as
 
 ## ⚡ Placas y Microcontroladores Disponibles
 
-MCU Maker emula directamente el hardware y los periféricos de **más de 24 placas de desarrollo** y procesadores:
+MCU Maker emula directamente el hardware y los periféricos de sus **11 placas de desarrollo canónicas**:
 
-| Familia de CPU | Placas Soportadas | Núcleo de Emulación | Entornos / Lenguajes Soportados |
-| :--- | :--- | :--- | :--- |
-| **Arduino (AVR8 8-bit)** | Arduino Uno R3, Arduino Nano, Arduino Mega 2560, ATtiny85 (DIP-8), Franzininho DIY | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
-| **ESP32 (Xtensa Dual-Core)** | ESP32 DevKit V1, DevKit-C V4, ESP32-CAM (OV2640), ESP32-S3 DevKit, XIAO ESP32-S3, Arduino Nano ESP32, Wemos Lolin32 | QEMU Xtensa LX6/LX7 dual-core | Arduino C++, MicroPython, ESP-IDF |
-| **ESP32 RISC-V (32-bit)** | ESP32-C3 DevKitM-1, WCH CH32V003 (RV32EC) | QEMU RISC-V 32 bits | Arduino C++, ESP-IDF |
-| **Raspberry Pi Pico (RP2040)** | Raspberry Pi Pico, Raspberry Pi Pico W (Wi-Fi CYW43439 integrado) | `rp2040js` (Cortex-M0+ dual-core) | Arduino C++, MicroPython, C/C++ SDK |
-| **STM32 (ARM Cortex-M)** | Blue Pill (STM32F103C8T6), Black Pill (STM32F401 / STM32F411) | Emulación ARM Cortex-M | Arduino C++ (STM32duino) |
-| **SBCs Linux (ARM64)** | Raspberry Pi 3 (ARM Cortex-A53) | QEMU ARM Linux | Linux Embebido, Python 3, Bash |
-| **Procesadores Clásicos** | Zilog Z80, Intel 8080, Intel 4004 | SDK C-to-WASM Custom Chips | Ensamblador clásico, bytecode |
+| N° | Placa Soportada | Familia de CPU | Núcleo de Emulación | Entornos / Lenguajes Soportados |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | **Arduino Uno R3** | AVR8 (ATmega328P 8-bit) | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
+| 2 | **Arduino Nano** | AVR8 (ATmega328P 8-bit) | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
+| 3 | **Arduino Mega 2560** | AVR8 (ATmega2560 8-bit) | `avr8js` (16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
+| 4 | **ATtiny85** | AVR8 (ATtiny85 DIP-8) | `avr8js` (8/16 MHz ciclo exacto) | Arduino C++, Ensamblador AVR |
+| 5 | **Raspberry Pi Pico** | RP2040 (ARM Cortex-M0+) | `rp2040js` (Dual-core 133 MHz) | Arduino C++, MicroPython, C/C++ SDK |
+| 6 | **Raspberry Pi Pico W** | RP2040 + CYW43439 Wi-Fi | `rp2040js` (Dual-core 133 MHz) | Arduino C++, MicroPython, C/C++ SDK |
+| 7 | **ESP32 DevKit V1** | Xtensa LX6 Dual-Core | QEMU Xtensa LX6 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
+| 8 | **ESP32-CAM** | Xtensa LX6 Dual-Core + OV2640 | QEMU Xtensa LX6 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
+| 9 | **ESP32-S3 DevKit** | Xtensa LX7 Dual-Core | QEMU Xtensa LX7 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
+| 10 | **Arduino Nano ESP32** | ESP32-S3 (Xtensa LX7) | QEMU Xtensa LX7 (240 MHz) | Arduino C++, MicroPython, ESP-IDF |
+| 11 | **ESP32-C3 DevKit** | RISC-V 32-bit Single-Core | QEMU RISC-V 32 bits (160 MHz) | Arduino C++, ESP-IDF |
 
 > 📖 Para consultar el inventario técnico exhaustivo de pines, memorias flash/SRAM y periféricos, consulta **[docs/BOARDS_AND_COMPONENTS.md](docs/BOARDS_AND_COMPONENTS.md)**.
 
@@ -158,7 +162,7 @@ Incorporación de placas y silicios FPGA de referencia didáctica y maker:
 
 * **[`MANUAL_PROYECTO_V1.md`](MANUAL_PROYECTO_V1.md):** Manual integral del usuario, arquitectura interna, guía paso a paso y resolución de errores (Troubleshooting).
 * **[`README_RUST.md`](README_RUST.md):** Documentación técnica de la suite en Rust (`mcu-maker-launcher`, `mcu-maker-server`, `mcu-maker-worker`).
-* **[`docs/BOARDS_AND_COMPONENTS.md`](docs/BOARDS_AND_COMPONENTS.md):** Catálogo exhaustivo de especificaciones técnicas y memoria de las 24 placas y los 160 componentes.
+* **[`docs/BOARDS_AND_COMPONENTS.md`](docs/BOARDS_AND_COMPONENTS.md):** Catálogo exhaustivo de especificaciones técnicas y memoria de las 11 placas canónicas y los componentes del simulador.
 * **[`docs/BUILD-QEMU.md`](docs/BUILD-QEMU.md):** Guía de compilación y enlace de DLLs del motor QEMU.
 
 ---

@@ -120,15 +120,10 @@ export const BoardOnCanvas = ({
       case 'pi-pico-w':
         return <PiPicoW id={id} x={x} y={y} boardKind={boardKind} />;
       case 'esp32':
-      case 'esp32-devkit-c-v4':
       case 'esp32-cam':
-      case 'wemos-lolin32-lite':
       case 'esp32-s3':
-      case 'xiao-esp32-s3':
       case 'arduino-nano-esp32':
       case 'esp32-c3':
-      case 'xiao-esp32-c3':
-      case 'aitewinrobot-esp32c3-supermini':
         return <Esp32 id={id} x={x} y={y} boardKind={boardKind} onboardLeds={onboardLeds} />;
       case 'attiny85':
         return <Attiny85 id={id} x={x} y={y} led1={led13} />;

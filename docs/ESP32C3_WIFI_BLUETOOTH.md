@@ -84,10 +84,8 @@ El ESP32-C3 (RISC-V) comparte la misma infraestructura de emulación WiFi/BLE qu
 | Board | BoardKind | FQBN |
 |-------|-----------|------|
 | ESP32-C3 DevKit | `esp32-c3` | `esp32:esp32:esp32c3` |
-| XIAO ESP32-C3 | `xiao-esp32-c3` | `esp32:esp32:XIAO_ESP32C3` |
-| ESP32-C3 SuperMini | `aitewinrobot-esp32c3-supermini` | `esp32:esp32:esp32c3` |
 
-Todos los variantes se mapean a `'esp32-c3'` internamente para QEMU.
+El tipo de placa se mapea a `'esp32-c3'` internamente para QEMU.
 
 ---
 

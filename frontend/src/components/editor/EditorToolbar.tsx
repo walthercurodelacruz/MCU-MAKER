@@ -94,12 +94,7 @@ function isQemuBoardKind(kind: BoardKind | undefined): boolean {
     kind === 'esp32-s3' ||
     kind === 'esp32-cam' ||
     kind === 'esp32-c3' ||
-    kind === 'esp32-devkit-c-v4' ||
-    kind === 'wemos-lolin32-lite' ||
-    kind === 'xiao-esp32-s3' ||
-    kind === 'arduino-nano-esp32' ||
-    kind === 'xiao-esp32-c3' ||
-    kind === 'aitewinrobot-esp32c3-supermini'
+    kind === 'arduino-nano-esp32'
   );
 }
 
@@ -132,15 +127,10 @@ const BOARD_PILL_ICON: Record<BoardKind, string> = {
   'raspberry-pi-pico': '◆',
   'pi-pico-w': '◇',
   esp32: '⬡',
-  'esp32-devkit-c-v4': '⬡',
   'esp32-cam': '📷',
-  'wemos-lolin32-lite': '⬡',
   'esp32-s3': '⬢',
-  'xiao-esp32-s3': '⬢',
   'arduino-nano-esp32': '⬢',
   'esp32-c3': '⬡',
-  'xiao-esp32-c3': '⬡',
-  'aitewinrobot-esp32c3-supermini': '⬡',
 };
 
 const BOARD_PILL_COLOR: Record<BoardKind, string> = {
@@ -151,15 +141,10 @@ const BOARD_PILL_COLOR: Record<BoardKind, string> = {
   'raspberry-pi-pico': '#ce93d8',
   'pi-pico-w': '#ce93d8',
   esp32: 'var(--color-feedback-success)',
-  'esp32-devkit-c-v4': 'var(--color-feedback-success)',
   'esp32-cam': 'var(--color-feedback-success)',
-  'wemos-lolin32-lite': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
-  'xiao-esp32-s3': 'var(--color-feedback-success)',
   'arduino-nano-esp32': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
-  'xiao-esp32-c3': 'var(--color-feedback-success)',
-  'aitewinrobot-esp32c3-supermini': 'var(--color-feedback-success)',
 };
 
 export const EditorToolbar = ({

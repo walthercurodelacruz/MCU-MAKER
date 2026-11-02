@@ -21,15 +21,10 @@ import { BOARD_SIZE } from '../utils/boardGeometry';
 
 const ESP32_KINDS: BoardKind[] = [
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ];
 
 type LedElement = HTMLElement & { onboardLeds?: BoardLedVisuals };
@@ -76,10 +71,7 @@ describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot',
     ['esp32', 'led'],
     ['esp32-cam', 'led'],
     ['esp32-cam', 'flash'],
-    ['wemos-lolin32-lite', 'led'],
-    ['xiao-esp32-s3', 'led'],
     ['arduino-nano-esp32', 'led'],
-    ['aitewinrobot-esp32c3-supermini', 'led'],
   ] as const)('%s / %s', (kind, id) => {
     const el = mount(kind);
     el.onboardLeds = { [id]: true };
@@ -116,19 +108,16 @@ describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot',
     },
   );
 
-  it('an id the kind has no footprint for is ignored, and a kind without LEDs has no dot', () => {
+  it('an id the kind has no footprint for is ignored', () => {
     const el = mount('esp32');
     el.onboardLeds = { flash: true, rgb: { r: 255, g: 255, b: 255 } };
     expect(dot(el, 'led')!.style.opacity).toBe('0');
-    const bare = mount('xiao-esp32-c3');
-    bare.onboardLeds = { led: true };
-    expect(bare.shadowRoot!.querySelector('[data-onboard-led]')).toBeNull();
   });
 
   it('a re-render on a board-kind change keeps the lit state', () => {
     const el = mount('esp32');
     el.onboardLeds = { led: true };
-    el.setAttribute('board-kind', 'wemos-lolin32-lite');
+    el.setAttribute('board-kind', 'esp32-cam');
     expect(dot(el, 'led')!.style.opacity).toBe('1');
   });
 

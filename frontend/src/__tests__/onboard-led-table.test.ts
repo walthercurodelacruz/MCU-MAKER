@@ -38,18 +38,13 @@ const gpio = (pin: number, activeLow: boolean, id = 'led'): OnboardLed => ({
 
 const EXPECTED_ESP32: Record<string, readonly OnboardLed[]> = {
   esp32: [gpio(2, false)],
-  'esp32-devkit-c-v4': [],
   'esp32-cam': [gpio(4, false, 'flash'), gpio(33, true)],
-  'wemos-lolin32-lite': [gpio(22, true)],
   'esp32-s3': [{ id: 'rgb', kind: 'ws2812', pin: 48 }],
-  'xiao-esp32-s3': [gpio(21, true)],
   'arduino-nano-esp32': [
     gpio(48, false),
     { id: 'rgb', kind: 'rgb-gpio', pins: { r: 46, g: 0, b: 45 }, activeLow: true },
   ],
   'esp32-c3': [{ id: 'rgb', kind: 'ws2812', pin: 8 }],
-  'xiao-esp32-c3': [],
-  'aitewinrobot-esp32c3-supermini': [gpio(8, true)],
 };
 
 describe('BOARD_ONBOARD_LEDS: every ESP32 kind declares its real LED, pin and polarity', () => {
@@ -67,12 +62,9 @@ describe('BOARD_ONBOARD_LEDS: every ESP32 kind declares its real LED, pin and po
     }
   });
 
-  it('the three active-LOW ESP32 LEDs and the CAM red LED say so', () => {
+  it('the CAM red LED is active-LOW', () => {
     const activeLow = (kind: string, id = 'led') =>
       onboardLedsFor(kind).find((l) => l.id === id && l.kind === 'gpio' && l.activeLow);
-    expect(activeLow('wemos-lolin32-lite')).toBeTruthy();
-    expect(activeLow('xiao-esp32-s3')).toBeTruthy();
-    expect(activeLow('aitewinrobot-esp32c3-supermini')).toBeTruthy();
     expect(activeLow('esp32-cam')).toBeTruthy();
   });
 });

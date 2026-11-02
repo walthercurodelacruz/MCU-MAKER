@@ -6,7 +6,6 @@ edition = "2021"
 [[bin]]
 name = "mcu-maker-server"
 path = "src/main.rs"
-test = false
 
 [dependencies]
 tokio = { version = "1.40", features = ["full"] }

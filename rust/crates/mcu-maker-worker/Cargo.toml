@@ -6,7 +6,6 @@ edition = "2021"
 [[bin]]
 name = "mcu-maker-worker"
 path = "src/main.rs"
-test = false
 
 [dependencies]
 libloading = "0.8"

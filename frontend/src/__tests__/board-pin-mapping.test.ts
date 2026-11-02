@@ -106,39 +106,18 @@ const ESP32_FAMILY_PADS: Record<string, string[]> = {
     '5V.1', '5V.2', 'GND.5', 'GND.6', '19', '18', 'GND.7', '4', '5', '6', '7', 'GND.8',
     '8', '9', 'GND.9', 'RX', 'TX', 'GND.10',
   ],
-  'esp32-devkit-c-v4': [
-    '3V3', 'EN', 'VP', 'VN', '34', '35', '32', '33', '25', '26', '27', '14', '12', 'GND.1',
-    '13', 'D2', 'D3', 'CMD', '5V', 'GND.2', '23', '22', 'TX', 'RX', '21', 'GND.3', '19',
-    '18', '5', '17', '16', '4', '0', '2', '15', 'D1', 'D0', 'CLK',
-  ],
   'esp32-cam': [
     '5V.1', 'GND.1', '12', '13', '15', '14', '2', '4', '3V3', '16', '0', 'GND.2', 'VCC',
     'RX', 'TX', 'GND.3',
   ],
-  'wemos-lolin32-lite': [
-    'VP', 'VN', 'EN', 'GPIO34', 'GPIO35', 'GPIO32', 'GPIO33', 'GPIO25', 'GPIO26', 'GPIO27',
-    'GPIO14', 'GPIO12', 'GND', 'GPIO13', 'GPIO15', 'GPIO2', 'GPIO0', 'GPIO4', 'GPIO16',
-    'GPIO17', 'GPIO5', 'GPIO18', 'GPIO23', 'GPIO19', 'GPIO22', '3V',
-  ],
-  'xiao-esp32-s3': ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', '3V3', 'GND', '5V'],
   'arduino-nano-esp32': [
     'D12', 'D11', 'D10', 'D9', 'D8', 'D7', 'D6', 'D5', 'D4', 'D3', 'D2', 'GND.1', 'RST',
     'RX0', 'TX1', 'D13', '3V3', 'B0', 'A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
     'VBUS', 'B1', 'GND.2', 'VIN',
   ],
-  'xiao-esp32-c3': ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', '3V3', 'GND', '5V'],
-  'aitewinrobot-esp32c3-supermini': ['5', '6', '7', '8', '9', '10', 'RX', 'TX', '5V', 'GND', '3V3', '4', '3', '2', '1', '0'],
 };
 
-/**
- * The DevKitC V4 breaks out the SPI-flash block (GPIO6-11). Those pads are
- * unresolved today and stay that way here deliberately: they are not usable
- * as GPIOs, and mapping them would invite wiring to the flash bus. Listed
- * rather than skipped so the gap is visible.
- */
-const UNRESOLVED_BY_DESIGN: Record<string, string[]> = {
-  'esp32-devkit-c-v4': ['D0', 'D1', 'D3', 'CMD', 'CLK'],
-};
+const UNRESOLVED_BY_DESIGN: Record<string, string[]> = {};
 
 const SUPPLY_PAD = /^(GND|VSS|3V|3V3|5V|VCC|VDD|VIN|VBUS|VBAT|BAT|EN|RST)([._]?\d+)?$/i;
 
@@ -184,12 +163,8 @@ describe('boardPinToNumber — the pads that were dead', () => {
   });
 
   it('supply pads are -1, not the digit their name starts with', () => {
-    expect(boardPinToNumber('wemos-lolin32-lite', '3V')).toBe(-1);
-    expect(boardPinToNumber('xiao-esp32-s3', '3V3')).toBe(-1);
-    expect(boardPinToNumber('xiao-esp32-s3', '5V')).toBe(-1);
-    expect(boardPinToNumber('xiao-esp32-c3', '3V3')).toBe(-1);
-    expect(boardPinToNumber('aitewinrobot-esp32c3-supermini', '5V')).toBe(-1);
     expect(boardPinToNumber('arduino-nano-esp32', '3V3')).toBe(-1);
+    expect(boardPinToNumber('arduino-nano-esp32', 'VIN')).toBe(-1);
   });
 
   it('reset pads are -1, not null', () => {

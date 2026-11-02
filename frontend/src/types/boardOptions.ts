@@ -69,21 +69,16 @@ export const DEFAULT_ESP32_OPTIONS: ESP32BoardOptions = {
 
 const ESP32_S3_KINDS: ReadonlySet<BoardKind> = new Set([
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
 ]);
 
 const ESP32_C3_KINDS: ReadonlySet<BoardKind> = new Set([
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ]);
 
 const ESP32_XTENSA_KINDS: ReadonlySet<BoardKind> = new Set([
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
 ]);
 
 // Overlay boards are not in the OSS kind sets, but they declare the chip they

@@ -21,15 +21,10 @@ const BOARD_DESCRIPTIONS: Record<BoardKind, string> = {
   'raspberry-pi-pico': 'RP2040 dual-core Cortex-M0+',
   'pi-pico-w': 'RP2040 + WiFi/BT, same emulator as Pico',
   esp32: 'Xtensa LX6 dual-core, WiFi+BT, 38 GPIO (QEMU)',
-  'esp32-devkit-c-v4': 'ESP32 DevKit C V4, official Espressif (QEMU)',
   'esp32-cam': 'ESP32 + 2MP camera, microSD (QEMU)',
-  'wemos-lolin32-lite': 'Compact ESP32, LiPo battery support (QEMU)',
   'esp32-s3': 'Xtensa LX7 dual-core, WiFi+BT, AI accel (QEMU)',
-  'xiao-esp32-s3': 'Seeed XIAO tiny form, 8MB flash+PSRAM (QEMU)',
   'arduino-nano-esp32': 'Nano form-factor, ESP32-S3, RGB LED (QEMU)',
   'esp32-c3': 'RISC-V single-core, WiFi+BLE, 22 GPIO (QEMU)',
-  'xiao-esp32-c3': 'Seeed XIAO ESP32-C3 mini board (QEMU)',
-  'aitewinrobot-esp32c3-supermini': 'ESP32-C3 SuperMini (QEMU)',
 };
 
 const BOARD_ICON: Record<BoardKind, string> = {
@@ -40,15 +35,10 @@ const BOARD_ICON: Record<BoardKind, string> = {
   'raspberry-pi-pico': '◆',
   'pi-pico-w': '◇',
   esp32: '⬡',
-  'esp32-devkit-c-v4': '⬡',
   'esp32-cam': '📷',
-  'wemos-lolin32-lite': '⬡',
   'esp32-s3': '⬢',
-  'xiao-esp32-s3': '⬢',
   'arduino-nano-esp32': '⬢',
   'esp32-c3': '⬡',
-  'xiao-esp32-c3': '⬡',
-  'aitewinrobot-esp32c3-supermini': '⬡',
 };
 
 interface BoardPickerModalProps {
@@ -64,16 +54,11 @@ const BOARDS: BoardKind[] = [
   'attiny85',
   'raspberry-pi-pico',
   'pi-pico-w',
-  'esp32',
-  'esp32-devkit-c-v4',
+  esp32,
   'esp32-cam',
-  'wemos-lolin32-lite',
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ];
 
 export const BoardPickerModal = ({ isOpen, onClose, onSelectBoard }: BoardPickerModalProps) => {

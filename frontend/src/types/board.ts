@@ -7,15 +7,10 @@ export type BoardKind =
   | 'raspberry-pi-pico' // RP2040, browser emulation
   | 'pi-pico-w' // RP2040 + WiFi, browser emulation (WiFi ignored)
   | 'esp32' // Xtensa LX6, QEMU backend
-  | 'esp32-devkit-c-v4' // ESP32 DevKit C V4, QEMU (esp32)
   | 'esp32-cam' // ESP32-CAM, QEMU (esp32)
-  | 'wemos-lolin32-lite' // Wemos Lolin32 Lite, QEMU (esp32)
   | 'esp32-s3' // Xtensa LX7, QEMU backend
-  | 'xiao-esp32-s3' // Seeed XIAO ESP32-S3, QEMU (esp32-s3)
   | 'arduino-nano-esp32' // Arduino Nano ESP32 (S3), QEMU (esp32-s3)
   | 'esp32-c3' // RISC-V RV32IMC, QEMU backend
-  | 'xiao-esp32-c3' // Seeed XIAO ESP32-C3, QEMU backend
-  | 'aitewinrobot-esp32c3-supermini' // ESP32-C3 SuperMini, QEMU backend
   | 'attiny85'; // AVR ATtiny85, browser emulation (avr8js)
 
 export type LanguageMode = 'arduino' | 'micropython' | 'espidf';
@@ -47,17 +42,12 @@ export const BOARD_SUPPORTS_MICROPYTHON = new Set<BoardKind>([
   'pi-pico-w',
   // ESP32 Xtensa (QEMU bridge)
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
   // ESP32-S3 Xtensa (QEMU bridge)
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
   // ESP32-C3 RISC-V (QEMU bridge)
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ]);
 
 /** Boards that can run pure ESP-IDF projects (app_main entry point, IDF
@@ -67,17 +57,12 @@ export const BOARD_SUPPORTS_MICROPYTHON = new Set<BoardKind>([
 export const BOARD_SUPPORTS_ESPIDF = new Set<BoardKind>([
   // ESP32 Xtensa (QEMU bridge)
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
   // ESP32-S3 Xtensa (QEMU bridge)
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
   // ESP32-C3 RISC-V (QEMU bridge)
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ]);
 
 export interface WifiStatus {
@@ -231,15 +216,10 @@ export const BOARD_KIND_LABELS: Record<BoardKind, string> = {
   'raspberry-pi-pico': 'Raspberry Pi Pico',
   'pi-pico-w': 'Raspberry Pi Pico W',
   esp32: 'ESP32 DevKit V1',
-  'esp32-devkit-c-v4': 'ESP32 DevKit C V4',
   'esp32-cam': 'ESP32-CAM',
-  'wemos-lolin32-lite': 'Wemos Lolin32 Lite',
   'esp32-s3': 'ESP32-S3 DevKit',
-  'xiao-esp32-s3': 'XIAO ESP32-S3',
   'arduino-nano-esp32': 'Arduino Nano ESP32',
   'esp32-c3': 'ESP32-C3 DevKit',
-  'xiao-esp32-c3': 'XIAO ESP32-C3',
-  'aitewinrobot-esp32c3-supermini': 'ESP32-C3 SuperMini',
   attiny85: 'ATtiny85',
 };
 
@@ -257,15 +237,10 @@ export const BOARD_KIND_FQBN: Record<BoardKind, string | null> = {
   'raspberry-pi-pico': 'rp2040:rp2040:rpipico',
   'pi-pico-w': 'rp2040:rp2040:rpipicow',
   esp32: 'esp32:esp32:esp32',
-  'esp32-devkit-c-v4': 'esp32:esp32:esp32',
   'esp32-cam': 'esp32:esp32:esp32cam',
-  'wemos-lolin32-lite': 'esp32:esp32:lolin32-lite',
   'esp32-s3': 'esp32:esp32:esp32s3',
-  'xiao-esp32-s3': 'esp32:esp32:XIAO_ESP32S3',
   'arduino-nano-esp32': 'esp32:esp32:nano_nora',
   'esp32-c3': 'esp32:esp32:esp32c3',
-  'xiao-esp32-c3': 'esp32:esp32:XIAO_ESP32C3',
-  'aitewinrobot-esp32c3-supermini': 'esp32:esp32:esp32c3',
   attiny85: 'ATTinyCore:avr:attinyx5:chip=85,clock=16pll',
 };
 
@@ -350,9 +325,6 @@ export const BOARD_ONBOARD_LEDS: Record<BoardKind, readonly OnboardLed[]> = {
   // the generic esp32 variant, which defines no LED_BUILTIN at all, so a
   // MicroPython Pin(2) or an explicit GPIO is what sketches use here.
   esp32: [{ id: 'led', kind: 'gpio', pin: 2, activeLow: false }],
-  // Espressif ESP32-DevKitC V4: a power LED and nothing else; the esp32
-  // variant it builds with defines no LED_BUILTIN. Nothing to light.
-  'esp32-devkit-c-v4': NO_ONBOARD_LED,
   // AI-Thinker ESP32-CAM: the white flash LED on GPIO4 (through a transistor,
   // HIGH lights it) and the small red LED on GPIO33 between 3V3 and the pin
   // (LOW lights it). Its FQBN builds with the plain esp32 variant, so
@@ -361,16 +333,10 @@ export const BOARD_ONBOARD_LEDS: Record<BoardKind, readonly OnboardLed[]> = {
     { id: 'flash', kind: 'gpio', pin: 4, activeLow: false },
     { id: 'led', kind: 'gpio', pin: 33, activeLow: true },
   ],
-  // WEMOS LOLIN32 Lite: LED_BUILTIN = 22 (variants/lolin32-lite); the LED's
-  // other leg is on 3V3 and GPIO22 sinks it, so LOW lights it.
-  'wemos-lolin32-lite': [{ id: 'led', kind: 'gpio', pin: 22, activeLow: true }],
   // ESP32-S3-DevKitC-1: an addressable RGB LED on GPIO48 (variants/esp32s3:
   // PIN_RGB_LED 48, LED_BUILTIN = SOC_GPIO_PIN_COUNT + 48, which is how the
   // core sends digitalWrite(LED_BUILTIN) through rgbLedWrite).
   'esp32-s3': [{ id: 'rgb', kind: 'ws2812', pin: 48 }],
-  // Seeed XIAO ESP32S3: LED_BUILTIN = 21 (variants/XIAO_ESP32S3); the Seeed
-  // wiki: "it will only turn on when the pin is set to a low level".
-  'xiao-esp32-s3': [{ id: 'led', kind: 'gpio', pin: 21, activeLow: true }],
   // Arduino Nano ESP32: the yellow D13 LED is GPIO48 (variants/
   // arduino_nano_nora: D13 = 48, LED_BUILTIN = D13; the Arduino-pin numbering
   // maps D13 to the same GPIO and the engine reports GPIOs), HIGH lights it.
@@ -384,14 +350,6 @@ export const BOARD_ONBOARD_LEDS: Record<BoardKind, readonly OnboardLed[]> = {
   // ESP32-C3-DevKitM-1: addressable RGB LED on GPIO8 (variants/esp32c3:
   // PIN_RGB_LED 8).
   'esp32-c3': [{ id: 'rgb', kind: 'ws2812', pin: 8 }],
-  // Seeed XIAO ESP32C3: no user LED on the board, and variants/XIAO_ESP32C3
-  // defines none.
-  'xiao-esp32-c3': NO_ONBOARD_LED,
-  // ESP32-C3 SuperMini: a plain blue LED on GPIO8, sunk by the pin from 3V3,
-  // so LOW lights it. The generic esp32c3 FQBN the kind builds with declares
-  // an RGB LED on that pin instead, so an Arduino LED_BUILTIN write becomes
-  // a WS2812 stream there; sketches for this board write GPIO8 directly.
-  'aitewinrobot-esp32c3-supermini': [{ id: 'led', kind: 'gpio', pin: 8, activeLow: true }],
   // PB1, the Digispark convention; the bare DIP-8 element draws no LED and
   // examples wire a real one to PB1.
   attiny85: [{ id: 'led', kind: 'gpio', pin: 1, activeLow: false }],

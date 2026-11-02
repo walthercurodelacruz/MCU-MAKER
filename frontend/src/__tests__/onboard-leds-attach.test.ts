@@ -57,9 +57,7 @@ describe('attachOnboardLeds: single-colour LEDs follow their own pin with the bo
   });
 
   it.each([
-    ['xiao-esp32-s3', 21],
-    ['wemos-lolin32-lite', 22],
-    ['aitewinrobot-esp32c3-supermini', 8],
+    ['esp32-cam', 33],
   ])('%s: GPIO%i LOW lights, HIGH darkens (active LOW)', (kind, pin) => {
     const r = rig(kind);
     r.mcu(pin, false);
@@ -91,12 +89,9 @@ describe('attachOnboardLeds: single-colour LEDs follow their own pin with the bo
     for (const kind of [
       'esp32',
       'esp32-cam',
-      'wemos-lolin32-lite',
       'esp32-s3',
-      'xiao-esp32-s3',
       'arduino-nano-esp32',
       'esp32-c3',
-      'aitewinrobot-esp32c3-supermini',
     ]) {
       const r = rig(kind);
       r.mcu(13, true);
@@ -112,9 +107,7 @@ describe('attachOnboardLeds: the boot case, a pad that becomes an output without
   // boards the real LED is lit from that instant (measured on mcumaker.dev
   // 2026-10-04: a sketch writing LOW once in setup() left the dot dark).
   it.each([
-    ['wemos-lolin32-lite', 22],
-    ['xiao-esp32-s3', 21],
-    ['aitewinrobot-esp32c3-supermini', 8],
+    ['esp32-cam', 33],
   ])('%s: pinMode(%i, OUTPUT) alone lights the active-LOW LED', (kind, pin) => {
     const r = rig(kind);
     r.dir(pin, 1);
@@ -140,17 +133,17 @@ describe('attachOnboardLeds: the boot case, a pad that becomes an output without
   });
 
   it('a HIGH written before pinMode is the level the pad shows when it becomes an output', () => {
-    const r = rig('wemos-lolin32-lite');
-    r.mcu(22, true); // digitalWrite(HIGH) first: off on an active-LOW board
-    r.dir(22, 1);
+    const r = rig('esp32-cam');
+    r.mcu(33, true); // digitalWrite(HIGH) first: off on an active-LOW board
+    r.dir(33, 1);
     expect(r.seen.some(([, v]) => v === true)).toBe(false);
   });
 
   it('pinMode(INPUT) releases the pad and the LED goes dark, whichever polarity', () => {
-    const lo = rig('wemos-lolin32-lite');
-    lo.dir(22, 1);
+    const lo = rig('esp32-cam');
+    lo.dir(33, 1);
     expect(lo.last()).toEqual(['led', true]);
-    lo.dir(22, 0);
+    lo.dir(33, 0);
     expect(lo.last()).toEqual(['led', false]);
     const hi = rig('esp32');
     hi.mcu(2, true);
@@ -161,15 +154,15 @@ describe('attachOnboardLeds: the boot case, a pad that becomes an output without
   });
 
   it('a board already running when the canvas attaches shows its driven pad at once', () => {
-    const r = rig('wemos-lolin32-lite', (pm) => pm.setPinDirection(22, 1));
+    const r = rig('esp32-cam', (pm) => pm.setPinDirection(33, 1));
     expect(r.seen).toEqual([['led', true]]);
-    const idle = rig('wemos-lolin32-lite');
+    const idle = rig('esp32-cam');
     expect(idle.seen).toEqual([]);
   });
 
   it('a pull change on a pad that is not an output says nothing at attach and darkens on config', () => {
-    const r = rig('wemos-lolin32-lite');
-    r.pm.setPinPull(22, 1); // INPUT_PULLUP: the LED hangs off a pad at 3V3, off
+    const r = rig('esp32-cam');
+    r.pm.setPinPull(33, 1); // INPUT_PULLUP: the LED hangs off a pad at 3V3, off
     expect(r.seen).toEqual([['led', false]]);
   });
 
@@ -222,7 +215,7 @@ describe('attachOnboardLeds: the addressable LED of the two Espressif DevKits', 
 });
 
 describe('attachOnboardLeds: boards with no user LED subscribe to nothing', () => {
-  it.each(['esp32-devkit-c-v4', 'xiao-esp32-c3', 'raspberry-pi-4', 'stm32-bluepill', 'no-such-kind'])(
+  it.each(['raspberry-pi-4', 'stm32-bluepill', 'no-such-kind'])(
     '%s',
     (kind) => {
       const r = rig(kind);

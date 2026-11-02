@@ -99,15 +99,10 @@ export const ADC_PIN_MAP: Partial<Record<BoardKind, Array<{ pinName: string; cha
   // so the SPICE->ADC path silently skipped every esp32-family pin
   // (2026-07 emulation-gaps audit; divider circuits read 0 forever).
   esp32: adcRange('', 32, 8),
-  'esp32-devkit-c-v4': adcRange('', 32, 8),
   'esp32-cam': adcRange('', 32, 8),
-  'wemos-lolin32-lite': adcRange('GPIO', 32, 8),
   'esp32-s3': adcRange('', 1, 10),
-  'xiao-esp32-s3': adcRange('D', 0, 9),
   'arduino-nano-esp32': adcRange('A', 0, 8),
   'esp32-c3': adcRange('', 0, 6),
-  'xiao-esp32-c3': adcRange('D', 0, 4),
-  'aitewinrobot-esp32c3-supermini': adcRange('', 0, 6),
 };
 
 function avrPinFromName(_name: string, channel: number): number {
@@ -128,15 +123,10 @@ const ADC_PIN_TO_GPIO: Partial<Record<BoardKind, (pinName: string, channel: numb
   'pi-pico-w': gpioPinFromName,
 
   esp32: gpioPinFromName,
-  'esp32-devkit-c-v4': gpioPinFromName,
   'esp32-cam': gpioPinFromName,
-  'wemos-lolin32-lite': gpioPinFromName,
   'esp32-s3': gpioPinFromName,
-  'xiao-esp32-s3': gpioPinFromName,
   'arduino-nano-esp32': avrPinFromName,
   'esp32-c3': gpioPinFromName,
-  'xiao-esp32-c3': gpioPinFromName,
-  'aitewinrobot-esp32c3-supermini': gpioPinFromName,
 };
 
 /**
@@ -153,13 +143,11 @@ function adcPinsFor(kind: BoardKind): Array<{ pinName: string; channel: number }
 
 /** Silkscreen name -> GPIO for the ADC injection. ESP32-family boards go
  * through the canonical boardPinToNumber table (nano-esp32 'A0' -> GPIO1,
- * xiao 'D1' -> GPIO2, bare '34' -> 34, ...); AVR/ATtiny/Pico keep their
+ * bare '34' -> 34, ...); AVR/ATtiny/Pico keep their
  * legacy per-kind converters (their sims expect Arduino pin numbers, not
  * GPIOs — e.g. uno 'A0' -> 14). */
 function gpioForBoardPin(kind: BoardKind, pinName: string, channel: number): number {
-  if (kind === 'esp32' || kind.startsWith('esp32') || kind.startsWith('xiao-esp32')
-      || kind === 'arduino-nano-esp32' || kind === 'wemos-lolin32-lite'
-      || kind === 'aitewinrobot-esp32c3-supermini') {
+  if (kind === 'esp32' || kind.startsWith('esp32') || kind === 'arduino-nano-esp32') {
     const n = boardPinToNumber(kind, pinName);
     if (n != null && n >= 0) return n;
   }

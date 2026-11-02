@@ -37,15 +37,12 @@ const FIRMWARE_MAP: Record<string, FirmwareConfig> = {
 export function toFirmwareVariant(boardKind: BoardKind): 'esp32' | 'esp32-s3' | 'esp32-c3' {
   if (
     boardKind === 'esp32-s3' ||
-    boardKind === 'xiao-esp32-s3' ||
     boardKind === 'arduino-nano-esp32'
   ) {
     return 'esp32-s3';
   }
   if (
-    boardKind === 'esp32-c3' ||
-    boardKind === 'xiao-esp32-c3' ||
-    boardKind === 'aitewinrobot-esp32c3-supermini'
+    boardKind === 'esp32-c3'
   ) {
     return 'esp32-c3';
   }

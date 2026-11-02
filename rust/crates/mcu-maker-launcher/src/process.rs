@@ -60,20 +60,22 @@ impl ProcessManager {
 
         // Search for mcu-maker-server binary
         let cwd = std::env::current_dir().unwrap_or_default();
+        // "mcu-maker-server.exe" on Windows, "mcu-maker-server" on Linux.
+        let server_exe = format!("mcu-maker-server{}", std::env::consts::EXE_SUFFIX);
         let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|p| p.to_path_buf()));
         let mut candidates = vec![
-            cwd.join("rust").join("target").join("release").join("mcu-maker-server.exe"),
-            cwd.join("target").join("release").join("mcu-maker-server.exe"),
-            cwd.join("rust").join("target").join("debug").join("mcu-maker-server.exe"),
-            cwd.join("target").join("debug").join("mcu-maker-server.exe"),
-            cwd.join("mcu-maker-server.exe"),
+            cwd.join("rust").join("target").join("release").join(&server_exe),
+            cwd.join("target").join("release").join(&server_exe),
+            cwd.join("rust").join("target").join("debug").join(&server_exe),
+            cwd.join("target").join("debug").join(&server_exe),
+            cwd.join(&server_exe),
         ];
 
         if let Some(ref dir) = exe_dir {
-            candidates.push(dir.join("mcu-maker-server.exe"));
-            candidates.push(dir.join("..").join("..").join("rust").join("target").join("release").join("mcu-maker-server.exe"));
-            candidates.push(dir.join("..").join("..").join("rust").join("target").join("debug").join("mcu-maker-server.exe"));
-            candidates.push(dir.join("..").join("..").join("mcu-maker-server.exe"));
+            candidates.push(dir.join(&server_exe));
+            candidates.push(dir.join("..").join("..").join("rust").join("target").join("release").join(&server_exe));
+            candidates.push(dir.join("..").join("..").join("rust").join("target").join("debug").join(&server_exe));
+            candidates.push(dir.join("..").join("..").join(&server_exe));
         }
 
         let mut binary = None;

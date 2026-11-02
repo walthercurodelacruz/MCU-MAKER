@@ -143,26 +143,6 @@ const XIAO_ESP32C6: RoleTable = {
   '18': { kind: 'spi-mosi', bus: 0 },   // D10
 };
 
-const XIAO_ESP32C3: RoleTable = {
-  '21': { kind: 'uart-tx', uart: 1 },   // D6
-  '20': { kind: 'uart-rx', uart: 1 },   // D7
-  '6': { kind: 'i2c-sda', bus: 0 },     // D4
-  '7': { kind: 'i2c-scl', bus: 0 },     // D5
-  '8': { kind: 'spi-sck', bus: 0 },     // D8
-  '9': { kind: 'spi-miso', bus: 0 },    // D9
-  '10': { kind: 'spi-mosi', bus: 0 },   // D10
-};
-
-const XIAO_ESP32S3: RoleTable = {
-  '43': { kind: 'uart-tx', uart: 1 },   // D6
-  '44': { kind: 'uart-rx', uart: 1 },   // D7
-  '5': { kind: 'i2c-sda', bus: 0 },     // D4
-  '6': { kind: 'i2c-scl', bus: 0 },     // D5
-  '7': { kind: 'spi-sck', bus: 0 },     // D8
-  '8': { kind: 'spi-miso', bus: 0 },    // D9
-  '9': { kind: 'spi-mosi', bus: 0 },    // D10
-};
-
 // Pi3B uses BCM numbers internally (after physical→BCM translation)
 const PI3_BCM: RoleTable = {
   '14': { kind: 'uart-tx', uart: 0 },
@@ -205,8 +185,6 @@ function tableFor(boardKind: BoardKind | string): RoleTable | null {
   // GPIOs than a dev board's, and without this every XIAO fell through to
   // the Arduino Nano table — so a UART or I2C pin read as plain digital.
   if (boardKind === 'xiao-esp32c6') return XIAO_ESP32C6;
-  if (boardKind === 'xiao-esp32-c3') return XIAO_ESP32C3;
-  if (boardKind === 'xiao-esp32-s3') return XIAO_ESP32S3;
   if (boardKind === 'xiao-rp2040') return RP2040_DEFAULT;
   if (boardKind === 'esp32-c3' || (boardKind as string).startsWith('esp32-c3')) return ESP32_C3_DEFAULT;
   if (boardKind === 'esp32' || (boardKind as string).startsWith('esp32')) return ESP32_DEFAULT;

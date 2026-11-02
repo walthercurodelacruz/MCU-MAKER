@@ -1,44 +1,178 @@
 use std::ffi::CString;
 use std::io::{BufRead, BufReader};
-use std::os::windows::ffi::OsStrExt;
-use std::os::windows::io::FromRawHandle;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use base64::Engine;
 use serde::Deserialize;
 
-#[link(name = "kernel32")]
-extern "system" {
-    fn SetDllDirectoryW(lpPathName: *const u16) -> i32;
-    fn GetStdHandle(nStdHandle: u32) -> isize;
-    fn SetStdHandle(nStdHandle: u32, hHandle: isize) -> i32;
-    fn GetCurrentProcess() -> isize;
-    fn DuplicateHandle(
-        hSourceProcessHandle: isize,
-        hSourceHandle: isize,
-        hTargetProcessHandle: isize,
-        lpTargetHandle: *mut isize,
-        dwDesiredAccess: u32,
-        bInheritHandle: i32,
-        dwOptions: u32,
-    ) -> i32;
-    fn WriteFile(
-        hFile: isize,
-        lpBuffer: *const u8,
-        nNumberOfBytesToWrite: u32,
-        lpNumberOfBytesWritten: *mut u32,
-        lpOverlapped: *mut (),
-    ) -> i32;
+/// Platform layer: everything that differs between Windows and Linux lives here.
+/// Both variants expose the same two functions so the rest of the worker is
+/// platform-neutral.
+///
+/// * `set_dll_directory` – make QEMU's sibling shared libraries resolvable.
+/// * `take_stdio` – keep private duplicates of the original stdin/stdout (our JSON
+///   pipe to the server) and point fd 0/1 at the null device so QEMU's own stdio
+///   multiplexer cannot corrupt that pipe.
+#[cfg(windows)]
+mod sys {
+    use std::io::{self, Read, Write};
+    use std::os::windows::ffi::OsStrExt;
+    use std::os::windows::io::FromRawHandle;
+    use std::path::Path;
+
+    #[link(name = "kernel32")]
+    extern "system" {
+        fn SetDllDirectoryW(lpPathName: *const u16) -> i32;
+        fn GetStdHandle(nStdHandle: u32) -> isize;
+        fn SetStdHandle(nStdHandle: u32, hHandle: isize) -> i32;
+        fn GetCurrentProcess() -> isize;
+        fn DuplicateHandle(
+            hSourceProcessHandle: isize,
+            hSourceHandle: isize,
+            hTargetProcessHandle: isize,
+            lpTargetHandle: *mut isize,
+            dwDesiredAccess: u32,
+            bInheritHandle: i32,
+            dwOptions: u32,
+        ) -> i32;
+        fn WriteFile(
+            hFile: isize,
+            lpBuffer: *const u8,
+            nNumberOfBytesToWrite: u32,
+            lpNumberOfBytesWritten: *mut u32,
+            lpOverlapped: *mut (),
+        ) -> i32;
+    }
+
+    #[link(name = "msvcrt")]
+    extern "C" {
+        fn _dup(fd: i32) -> i32;
+        fn _dup2(src: i32, dst: i32) -> i32;
+        fn _open(filename: *const i8, oflag: i32) -> i32;
+        fn _close(fd: i32) -> i32;
+        fn _get_osfhandle(fd: i32) -> isize;
+    }
+
+    struct HandleWriter(isize);
+    // A duplicated stdout HANDLE is a plain kernel handle: safe to use from any thread.
+    unsafe impl Send for HandleWriter {}
+
+    impl Write for HandleWriter {
+        fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+            let mut written = 0u32;
+            let ok = unsafe {
+                WriteFile(self.0, buf.as_ptr(), buf.len() as u32, &mut written, std::ptr::null_mut())
+            };
+            if ok == 0 || written == 0 {
+                // Handle closed or broken pipe
+                Err(io::Error::new(io::ErrorKind::BrokenPipe, "stdout handle closed"))
+            } else {
+                Ok(written as usize)
+            }
+        }
+        fn flush(&mut self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
+    pub fn set_dll_directory(dir: &Path) {
+        let wide: Vec<u16> = dir.as_os_str().encode_wide().chain(std::iter::once(0)).collect();
+        unsafe {
+            SetDllDirectoryW(wide.as_ptr());
+        }
+    }
+
+    pub fn take_stdio() -> (Box<dyn Read + Send>, Box<dyn Write + Send>) {
+        let orig_stdin_fd = unsafe { _dup(0) };
+        let raw_stdout = unsafe { GetStdHandle(0xFFFFFFF5) };
+        let mut dup_stdout: isize = -1;
+        unsafe {
+            let cur_proc = GetCurrentProcess();
+            DuplicateHandle(
+                cur_proc,
+                raw_stdout,
+                cur_proc,
+                &mut dup_stdout,
+                0,
+                0,
+                2, // DUPLICATE_SAME_ACCESS
+            );
+        }
+        eprintln!("[mcu-maker-worker] raw_stdout = {}, dup_stdout = {}", raw_stdout, dup_stdout);
+
+        // Redirect fd 0 and fd 1 to NUL to protect QEMU stdio mux from corrupting our JSON pipe
+        unsafe {
+            let nul_r = _open(b"NUL\0".as_ptr() as *const i8, 0);
+            if nul_r >= 0 {
+                let nul_r_os = _get_osfhandle(nul_r);
+                SetStdHandle(0xFFFFFFF6, nul_r_os);
+                _dup2(nul_r, 0);
+                _close(nul_r);
+            }
+            let nul_w = _open(b"NUL\0".as_ptr() as *const i8, 1);
+            if nul_w >= 0 {
+                let nul_w_os = _get_osfhandle(nul_w);
+                SetStdHandle(0xFFFFFFF5, nul_w_os);
+                _dup2(nul_w, 1);
+                _close(nul_w);
+            }
+        }
+
+        let reader = unsafe {
+            let os_handle = _get_osfhandle(orig_stdin_fd) as std::os::windows::raw::HANDLE;
+            std::fs::File::from_raw_handle(os_handle)
+        };
+        (Box::new(reader), Box::new(HandleWriter(dup_stdout)))
+    }
 }
 
-#[link(name = "msvcrt")]
-extern "C" {
-    fn _dup(fd: i32) -> i32;
-    fn _dup2(src: i32, dst: i32) -> i32;
-    fn _open(filename: *const i8, oflag: i32) -> i32;
-    fn _close(fd: i32) -> i32;
-    fn _get_osfhandle(fd: i32) -> isize;
+#[cfg(unix)]
+mod sys {
+    use std::fs::File;
+    use std::io::{Read, Write};
+    use std::os::raw::{c_char, c_int};
+    use std::os::unix::io::FromRawFd;
+    use std::path::Path;
+
+    // These symbols come from libc, which std already links on Linux.
+    extern "C" {
+        fn dup(fd: c_int) -> c_int;
+        fn dup2(src: c_int, dst: c_int) -> c_int;
+        fn open(path: *const c_char, flags: c_int, ...) -> c_int;
+        fn close(fd: c_int) -> c_int;
+    }
+
+    const O_RDONLY: c_int = 0;
+    const O_WRONLY: c_int = 1;
+
+    /// No-op on Linux: the dynamic loader resolves QEMU's sibling libraries through
+    /// `LD_LIBRARY_PATH`, which the server sets when it spawns this worker.
+    pub fn set_dll_directory(_dir: &Path) {}
+
+    pub fn take_stdio() -> (Box<dyn Read + Send>, Box<dyn Write + Send>) {
+        unsafe {
+            let orig_stdin = dup(0);
+            let orig_stdout = dup(1);
+
+            // Redirect fd 0 and fd 1 to /dev/null to protect QEMU stdio mux from corrupting our JSON pipe
+            let nul_r = open(b"/dev/null\0".as_ptr() as *const c_char, O_RDONLY);
+            if nul_r >= 0 {
+                dup2(nul_r, 0);
+                close(nul_r);
+            }
+            let nul_w = open(b"/dev/null\0".as_ptr() as *const c_char, O_WRONLY);
+            if nul_w >= 0 {
+                dup2(nul_w, 1);
+                close(nul_w);
+            }
+
+            (
+                Box::new(File::from_raw_fd(orig_stdin)),
+                Box::new(File::from_raw_fd(orig_stdout)),
+            )
+        }
+    }
 }
 
 enum WorkerEvent {
@@ -116,7 +250,7 @@ fn format_worker_event(buf: &mut Vec<u8>, ev: WorkerEvent) {
     }
 }
 
-fn start_emit_writer(handle: isize) -> std::sync::mpsc::SyncSender<WorkerEvent> {
+fn start_emit_writer(mut out: Box<dyn std::io::Write + Send>) -> std::sync::mpsc::SyncSender<WorkerEvent> {
     let (tx, rx) = std::sync::mpsc::sync_channel::<WorkerEvent>(50000);
     std::thread::Builder::new()
         .name("emit-writer".to_string())
@@ -134,38 +268,16 @@ fn start_emit_writer(handle: isize) -> std::sync::mpsc::SyncSender<WorkerEvent> 
                     }
                 }
 
-                // Flush the batched buffer to stdout handle
-                let mut offset = 0;
-                while offset < write_buf.len() {
-                    let to_write = (write_buf.len() - offset) as u32;
-                    let mut written = 0u32;
-                    let ok = unsafe {
-                        WriteFile(
-                            handle,
-                            write_buf[offset..].as_ptr(),
-                            to_write,
-                            &mut written,
-                            std::ptr::null_mut(),
-                        )
-                    };
-                    if ok == 0 || written == 0 {
-                        // Handle closed or broken pipe
-                        return;
-                    }
-                    offset += written as usize;
+                // Flush the batched buffer to stdout
+                if out.write_all(&write_buf).is_err() {
+                    // Handle closed or broken pipe
+                    return;
                 }
                 write_buf.clear();
             }
         })
         .expect("Failed to spawn emit-writer thread");
     tx
-}
-
-fn set_dll_directory(dir: &Path) {
-    let wide: Vec<u16> = dir.as_os_str().encode_wide().chain(std::iter::once(0)).collect();
-    unsafe {
-        SetDllDirectoryW(wide.as_ptr());
-    }
 }
 
 #[allow(dead_code)]
@@ -323,45 +435,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // 2. Preserve original stdin and stdout
-    let orig_stdin_fd = unsafe { _dup(0) };
-    let raw_stdout = unsafe { GetStdHandle(0xFFFFFFF5) };
-    let mut dup_stdout: isize = -1;
-    unsafe {
-        let cur_proc = GetCurrentProcess();
-        DuplicateHandle(
-            cur_proc,
-            raw_stdout,
-            cur_proc,
-            &mut dup_stdout,
-            0,
-            0,
-            2, // DUPLICATE_SAME_ACCESS
-        );
-    }
-    eprintln!("[mcu-maker-worker] raw_stdout = {}, dup_stdout = {}", raw_stdout, dup_stdout);
+    // 2. Preserve original stdin and stdout (platform layer), then redirect fd 0/1
+    //    to the null device so QEMU cannot corrupt our JSON pipe.
+    let (stdin_reader, stdout_writer) = sys::take_stdio();
 
     // Initialize non-blocking asynchronous writer thread
-    let emit_sender = start_emit_writer(dup_stdout);
+    let emit_sender = start_emit_writer(stdout_writer);
     let _ = EMIT_SENDER.set(emit_sender);
-
-    // Redirect fd 0 and fd 1 to NUL to protect QEMU stdio mux from corrupting our JSON pipe
-    unsafe {
-        let nul_r = _open(b"NUL\0".as_ptr() as *const i8, 0);
-        if nul_r >= 0 {
-            let nul_r_os = _get_osfhandle(nul_r);
-            SetStdHandle(0xFFFFFFF6, nul_r_os);
-            _dup2(nul_r, 0);
-            _close(nul_r);
-        }
-        let nul_w = _open(b"NUL\0".as_ptr() as *const i8, 1);
-        if nul_w >= 0 {
-            let nul_w_os = _get_osfhandle(nul_w);
-            SetStdHandle(0xFFFFFFF5, nul_w_os);
-            _dup2(nul_w, 1);
-            _close(nul_w);
-        }
-    }
 
     // 3. Decode & pad firmware
     let fw_raw = base64::engine::general_purpose::STANDARD.decode(&cfg.firmware_b64)
@@ -374,15 +454,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|e| format!("Failed to create temporary firmware file {:?}: {e}", temp_fw_path))?;
     let fw_path = temp_fw_path.to_string_lossy().to_string();
 
-    // 4. Configure DLL path & load QEMU library
+    // 4. Configure library search path & load QEMU library
     let lib_path = PathBuf::from(&cfg.lib_path);
     if let Some(parent) = lib_path.parent() {
-        set_dll_directory(parent);
+        sys::set_dll_directory(parent);
     }
 
     let lib = Arc::new(unsafe {
         libloading::Library::new(&lib_path)
-            .map_err(|e| format!("Cannot load QEMU DLL at {:?}: {e}", lib_path))?
+            .map_err(|e| format!("Cannot load QEMU library at {:?}: {e}", lib_path))?
     });
 
     let qemu_init: libloading::Symbol<unsafe extern "C" fn(i32, *const *const i8, *const *const i8) -> i32> =
@@ -505,11 +585,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     // 7. Command loop reading from original stdin
-    let reader = unsafe {
-        let os_handle = _get_osfhandle(orig_stdin_fd) as std::os::windows::raw::HANDLE;
-        let file = std::fs::File::from_raw_handle(os_handle);
-        BufReader::new(file)
-    };
+    let reader = BufReader::new(stdin_reader);
 
     for line in reader.lines().flatten() {
         let trimmed = line.trim();
@@ -581,4 +657,78 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_worker_config_deserialization() {
+        let json_str = r#"{
+            "firmware_b64": "AAAA",
+            "lib_path": "/path/to/lib",
+            "machine": "esp32-picsimlab",
+            "wifi_enabled": false,
+            "wifi_hostfwd_port": 0,
+            "sensors": [],
+            "bus_map": null
+        }"#;
+        let cfg: Result<WorkerConfig, _> = serde_json::from_str(json_str);
+        assert!(cfg.is_ok());
+        let c = cfg.unwrap();
+        assert_eq!(c.machine, "esp32-picsimlab");
+        assert_eq!(c.firmware_b64, "AAAA");
+    }
+
+    #[test]
+    fn test_pinmaps() {
+        assert!(PINMAP.len() >= 40);
+        assert!(PINMAP_C3.len() >= 22);
+    }
+
+    #[test]
+    fn test_qemu_libraries_exist_and_loadable() {
+        let xtensa_name = if cfg!(windows) { "libqemu-xtensa.dll" } else { "libqemu-xtensa.so" };
+        let riscv_name = if cfg!(windows) { "libqemu-riscv32.dll" } else { "libqemu-riscv32.so" };
+
+        let candidate_dirs = [
+            PathBuf::from("/opt/mcu-maker/prebuilt/qemu_runtime"),
+            PathBuf::from("../../prebuilt/qemu_runtime"),
+            PathBuf::from("../../prebuilt/qemu_runtime_linux"),
+            PathBuf::from("prebuilt/qemu_runtime"),
+        ];
+
+        let find_lib = |name: &str| -> Option<PathBuf> {
+            for dir in &candidate_dirs {
+                let p = dir.join(name);
+                if p.is_file() {
+                    return Some(p);
+                }
+            }
+            None
+        };
+
+        if let Some(xtensa_path) = find_lib(xtensa_name) {
+            unsafe {
+                let lib = libloading::Library::new(&xtensa_path);
+                assert!(lib.is_ok(), "Failed to load xtensa library at {:?}", xtensa_path);
+                let lib = lib.unwrap();
+                let qemu_init: Result<libloading::Symbol<unsafe extern "C" fn(i32, *const *const i8, *const *const i8) -> i32>, _> = lib.get(b"qemu_init\0");
+                assert!(qemu_init.is_ok(), "qemu_init symbol not found in xtensa lib");
+                std::mem::forget(lib);
+            }
+        }
+
+        if let Some(riscv_path) = find_lib(riscv_name) {
+            unsafe {
+                let lib = libloading::Library::new(&riscv_path);
+                assert!(lib.is_ok(), "Failed to load riscv library at {:?}", riscv_path);
+                let lib = lib.unwrap();
+                let qemu_init: Result<libloading::Symbol<unsafe extern "C" fn(i32, *const *const i8, *const *const i8) -> i32>, _> = lib.get(b"qemu_init\0");
+                assert!(qemu_init.is_ok(), "qemu_init symbol not found in riscv lib");
+                std::mem::forget(lib);
+            }
+        }
+    }
 }

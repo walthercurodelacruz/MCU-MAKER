@@ -89,15 +89,10 @@ const BOARD_DESCRIPTIONS: Record<BoardKind, string> = {
   'raspberry-pi-pico': 'RP2040 dual-core Cortex-M0+',
   'pi-pico-w': 'RP2040 + WiFi/BT, same emulator as Pico',
   esp32: 'Xtensa LX6 dual-core, WiFi+BT, 38 GPIO (QEMU)',
-  'esp32-devkit-c-v4': 'ESP32 DevKit C V4, official Espressif (QEMU)',
   'esp32-cam': 'ESP32 + 2MP camera, microSD (QEMU)',
-  'wemos-lolin32-lite': 'Compact ESP32, LiPo battery support (QEMU)',
   'esp32-s3': 'Xtensa LX7 dual-core, WiFi+BT, AI accel (QEMU)',
-  'xiao-esp32-s3': 'Seeed XIAO tiny form, 8MB flash+PSRAM (QEMU)',
   'arduino-nano-esp32': 'Nano form-factor, ESP32-S3, RGB LED (QEMU)',
   'esp32-c3': 'RISC-V single-core, WiFi+BLE, 22 GPIO (QEMU)',
-  'xiao-esp32-c3': 'Seeed XIAO ESP32-C3 mini board (QEMU)',
-  'aitewinrobot-esp32c3-supermini': 'ESP32-C3 SuperMini (QEMU)',
 };
 
 /**
@@ -210,15 +205,10 @@ const ALL_BOARDS: BoardKind[] = [
   'raspberry-pi-pico',
   'pi-pico-w',
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ];
 
 export const ComponentPickerModal: React.FC<ComponentPickerModalProps> = ({
@@ -1142,15 +1132,10 @@ const BOARD_ART: Partial<Record<BoardKind, string>> = {
   'raspberry-pi-pico': '/boards/raspberry-pi-pico.png',
   'pi-pico-w': '/boards/pi-pico-w.png',
   esp32: '/boards/esp32.png',
-  'esp32-devkit-c-v4': '/boards/esp32-devkit-c-v4.png',
   'esp32-cam': '/boards/esp32-cam.png',
-  'wemos-lolin32-lite': '/boards/wemos-lolin32-lite.png',
   'esp32-s3': '/boards/esp32-s3.png',
-  'xiao-esp32-s3': '/boards/xiao-esp32-s3.png',
   'arduino-nano-esp32': '/boards/arduino-nano-esp32.png',
   'esp32-c3': '/boards/esp32-c3.png',
-  'xiao-esp32-c3': '/boards/xiao-esp32-c3.png',
-  'aitewinrobot-esp32c3-supermini': '/boards/aitewinrobot-esp32c3-supermini.png',
 };
 
 const BOARD_TAG: Partial<Record<BoardKind, string>> = {
@@ -1161,15 +1146,10 @@ const BOARD_TAG: Partial<Record<BoardKind, string>> = {
   'raspberry-pi-pico': 'mcu-maker-pi-pico-w',
   'pi-pico-w': 'mcu-maker-pi-pico-w',
   esp32: 'mcu-maker-esp32',
-  'esp32-devkit-c-v4': 'mcu-maker-esp32',
   'esp32-cam': 'mcu-maker-esp32',
-  'wemos-lolin32-lite': 'mcu-maker-esp32',
   'esp32-s3': 'mcu-maker-esp32',
-  'xiao-esp32-s3': 'mcu-maker-esp32',
   'arduino-nano-esp32': 'mcu-maker-esp32',
   'esp32-c3': 'mcu-maker-esp32',
-  'xiao-esp32-c3': 'mcu-maker-esp32',
-  'aitewinrobot-esp32c3-supermini': 'mcu-maker-esp32',
 };
 
 interface BoardCardProps {

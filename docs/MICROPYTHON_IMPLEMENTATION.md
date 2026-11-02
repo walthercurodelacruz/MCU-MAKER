@@ -12,15 +12,15 @@ Velxio supports MicroPython across **15 board variants** using two distinct exec
 | Strategy | Boards | Execution | Serial |
 |----------|--------|-----------|--------|
 | **Browser-side** (rp2040js) | Raspberry Pi Pico, Pico W | In-browser at 125 MHz | USBCDC |
-| **QEMU backend** (WebSocket) | ESP32, ESP32-S3, ESP32-C3 (13 variants) | Remote `qemu-system-xtensa` / `qemu-system-riscv32` | UART via WebSocket |
+| **QEMU backend** (WebSocket) | ESP32, ESP32-S3, ESP32-C3 | Remote `qemu-system-xtensa` / `qemu-system-riscv32` | UART via WebSocket |
 
 ### Supported Boards
 
 ```
 RP2040 (browser):       raspberry-pi-pico, pi-pico-w
-ESP32 Xtensa (QEMU):    esp32, esp32-devkit-c-v4, esp32-cam, wemos-lolin32-lite
-ESP32-S3 Xtensa (QEMU): esp32-s3, xiao-esp32-s3, arduino-nano-esp32
-ESP32-C3 RISC-V (QEMU): esp32-c3, xiao-esp32-c3, aitewinrobot-esp32c3-supermini
+ESP32 Xtensa (QEMU):    esp32, esp32-cam
+ESP32-S3 Xtensa (QEMU): esp32-s3, arduino-nano-esp32
+ESP32-C3 RISC-V (QEMU): esp32-c3
 ```
 
 ---
@@ -158,9 +158,9 @@ FIRMWARE_MAP = {
 
 Board kind → firmware variant mapping:
 ```
-esp32, esp32-devkit-c-v4, esp32-cam, wemos-lolin32-lite      → 'esp32'
-esp32-s3, xiao-esp32-s3, arduino-nano-esp32                  → 'esp32-s3'
-esp32-c3, xiao-esp32-c3, aitewinrobot-esp32c3-supermini      → 'esp32-c3'
+esp32, esp32-cam                           → 'esp32'
+esp32-s3, arduino-nano-esp32               → 'esp32-s3'
+esp32-c3                                   → 'esp32-c3'
 ```
 
 ### Raw-Paste REPL Protocol

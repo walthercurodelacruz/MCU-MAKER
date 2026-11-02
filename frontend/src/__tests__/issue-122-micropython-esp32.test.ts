@@ -51,15 +51,10 @@ describe('issue #122 — ESP32-C3 flash size mismatch', () => {
   // (esp32, esp32-s3, esp32-c3). All three groups need ≥ 4 MB.
   const ALL_VARIANTS: BoardKind[] = [
     'esp32',
-    'esp32-devkit-c-v4',
     'esp32-cam',
-    'wemos-lolin32-lite',
     'esp32-s3',
-    'xiao-esp32-s3',
     'arduino-nano-esp32',
     'esp32-c3',
-    'xiao-esp32-c3',
-    'aitewinrobot-esp32c3-supermini',
   ];
 
   for (const kind of ALL_VARIANTS) {

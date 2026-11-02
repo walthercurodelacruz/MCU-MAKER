@@ -1,4 +1,4 @@
-# RISC-V Emulation (ESP32-C3 / XIAO-C3 / C3 SuperMini)
+# RISC-V Emulation (ESP32-C3)
 
 > Status: **Functional** · Backend QEMU (`libqemu-riscv32`) — same pattern as ESP32/ESP32-S3
 > Engine: **QEMU lcgamboa — riscv32-softmmu** compiled with `esp32c3-picsimlab` machine
@@ -40,7 +40,7 @@ Boards based on **ESP32-C3** use Espressif's **ESP32-C3** processor, implementin
 | Board | CPU | Production Engine | Unit-Test Engine |
 | ----- | --- | ----------------- | ---------------- |
 | ESP32, ESP32-S3 | Xtensa LX6/LX7 | QEMU lcgamboa `libqemu-xtensa` | — |
-| **ESP32-C3, XIAO-C3, C3 SuperMini** | **RV32IMC @ 160 MHz** | **QEMU lcgamboa `libqemu-riscv32`** | RiscVCore.ts (Vitest) |
+| **ESP32-C3** | **RV32IMC @ 160 MHz** | **QEMU lcgamboa `libqemu-riscv32`** | RiscVCore.ts (Vitest) |
 | Arduino Uno/Nano/Mega | AVR ATmega | avr8js (browser) | — |
 | Raspberry Pi Pico | RP2040 | rp2040js (browser) | — |
 
@@ -60,16 +60,12 @@ Boards based on **ESP32-C3** use Espressif's **ESP32-C3** processor, implementin
 <table>
 <tr>
   <td align="center"><img src="img/boards/esp32-c3.png" width="180" alt="ESP32-C3 DevKit"/><br/><b>ESP32-C3 DevKit</b></td>
-  <td align="center"><img src="img/boards/xiao-esp32-c3.png" width="180" alt="Seeed XIAO ESP32-C3"/><br/><b>Seeed XIAO ESP32-C3</b></td>
-  <td align="center"><img src="img/boards/aitewinrobot-esp32c3-supermini.png" width="180" alt="ESP32-C3 SuperMini"/><br/><b>ESP32-C3 SuperMini</b></td>
 </tr>
 </table>
 
 | Board | arduino-cli FQBN | Built-in LED |
 | ----- | ---------------- | ------------ |
 | ESP32-C3 DevKit | `esp32:esp32:esp32c3` | GPIO 8 |
-| Seeed XIAO ESP32-C3 | `esp32:esp32:XIAO_ESP32C3` | GPIO 10 (active-low) |
-| ESP32-C3 SuperMini | `esp32:esp32:esp32c3` | GPIO 8 |
 
 ---
 

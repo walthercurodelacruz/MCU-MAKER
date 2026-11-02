@@ -64,6 +64,13 @@ const FIRMWARE_CONFIGS: Record<string, FirmwareConfig> = {
     fsFlashStart: 0xa0000,
     fsBlockCount: 352,
   },
+  'pico-w': {
+    cacheKey: 'micropython-rp2040w-uf2-v1.20.0',
+    remoteUrl: 'https://micropython.org/resources/firmware/RPI_PICO_W-20230426-v1.20.0.uf2',
+    fallbackPath: '/firmware/micropython-rp2040w.uf2',
+    fsFlashStart: 0x150000,
+    fsBlockCount: 176,
+  },
 };
 
 /** Register an extra firmware variant at runtime (e.g. the pro overlay adds

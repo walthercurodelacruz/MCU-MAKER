@@ -118,15 +118,10 @@ const BOARD_DEFS: Record<string, CompDef> = {
   // (w/h keep each SVG's aspect at the family's ~3.75 px/mm scale); only the
   // Lolin32 Lite still borrows the DevKit V1 drawing.
   esp32: { svg: 'esp32-devkit-v1.svg', w: 107, h: 204 },
-  'esp32-devkit-c-v4': { svg: 'esp32-devkit-c-v4.svg', w: 105, h: 212 },
   'esp32-cam': { svg: 'esp32-cam.svg', w: 102, h: 152 },
-  'wemos-lolin32-lite': { svg: 'wemos-lolin32-lite.svg', w: 107, h: 204 },
   'esp32-s3': { svg: 'esp32-s3.svg', w: 72, h: 199 },
-  'xiao-esp32-s3': { svg: 'xiao-esp32-s3.svg', w: 68, h: 88 },
   'arduino-nano-esp32': { svg: 'arduino-nano-esp32.svg', w: 170, h: 72 },
   'esp32-c3': { svg: 'esp32-c3.svg', w: 95, h: 161 },
-  'xiao-esp32-c3': { svg: 'xiao-esp32-c3.svg', w: 68, h: 88 },
-  'aitewinrobot-esp32c3-supermini': { svg: 'esp32c3-supermini.svg', w: 68, h: 92 },
   // ATtiny85 — DIP-8, drawn inline (no wokwi element ships its SVG).
   attiny85: { svg: 'attiny85.svg', w: 160, h: 132 },
 };

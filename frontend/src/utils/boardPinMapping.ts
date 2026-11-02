@@ -251,29 +251,11 @@ function esp32Uart0Pad(boardId: string, pad: 'TX' | 'RX'): number | null {
     getProBoard(boardId)?.esp32Family ??
     (boardId.startsWith('esp32-s3')
       ? 'esp32-s3'
-      : boardId.startsWith('esp32-c3') || boardId === 'aitewinrobot-esp32c3-supermini'
+      : boardId.startsWith('esp32-c3')
         ? 'esp32-c3'
         : 'esp32');
   return ESP32_UART0_PADS[family]?.[pad] ?? null;
 }
-
-/**
- * The DevKitC V4 breaks out the module's SPI-flash block, silked by the flash
- * signal rather than the GPIO: CLK = GPIO6, D0 = GPIO7, D1 = GPIO8, D2 = GPIO9,
- * D3 = GPIO10, CMD = GPIO11 (Espressif ESP32-DevKitC V4 pin layout; SD_CLK,
- * SD_DATA0-3 and SD_CMD in the ESP32 IO_MUX). 'D2' fell through to
- * ESP32_PIN_MAP's DevKit V1 alias for GPIO2, so a wire to the flash pad joined
- * GPIO2's net. The pads resolve to the lines they are; the pin function table
- * lists no function on them, so nothing routes a bus there.
- */
-const DEVKIT_C_V4_FLASH_PADS: Record<string, number> = {
-  CLK: 6,
-  D0: 7,
-  D1: 8,
-  D2: 9,
-  D3: 10,
-  CMD: 11,
-};
 
 export const BOARD_COMPONENT_IDS = [
   'arduino-uno',
@@ -283,15 +265,10 @@ export const BOARD_COMPONENT_IDS = [
   'raspberry-pi-pico',
   'pi-pico-w',
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ];
 
 /**
@@ -463,38 +440,11 @@ export function boardPinToNumber(boardId: string, pinName: string): number | nul
     const num = parseInt(pinName, 10);
     if (!isNaN(num) && num >= 0 && num <= maxGpio) return num;
     if (pinName === 'TX' || pinName === 'RX') return esp32Uart0Pad(boardId, pinName);
-    if (boardId === 'esp32-devkit-c-v4' && pinName in DEVKIT_C_V4_FLASH_PADS)
-      return DEVKIT_C_V4_FLASH_PADS[pinName];
     return ESP32_PIN_MAP[pinName] ?? null;
   }
 
-  // ESP32 variants not starting with 'esp32'
-  if (boardId === 'wemos-lolin32-lite') {
-    // Supply pads first — this board silkscreens its rail "3V", not "3V3".
+  if (boardId === 'arduino-nano-esp32') {
     if (POWER_PAD_RE.test(pinName)) return -1;
-    // Pins named "GPIO34", "GPIO32" etc → strip prefix
-    if (pinName.startsWith('GPIO')) return parseInt(pinName.substring(4), 10);
-    const num = parseInt(pinName, 10);
-    if (!isNaN(num)) return num;
-    return ESP32_PIN_MAP[pinName] ?? null;
-  }
-
-  if (boardId === 'xiao-esp32-s3' || boardId === 'arduino-nano-esp32') {
-    if (POWER_PAD_RE.test(pinName)) return -1;
-    // D0-D13, A0-A7 → ESP32-S3 GPIO numbers
-    const XIAO_S3_MAP: Record<string, number> = {
-      D0: 1,
-      D1: 2,
-      D2: 3,
-      D3: 4,
-      D4: 5,
-      D5: 6,
-      D6: 43,
-      D7: 44,
-      D8: 7,
-      D9: 8,
-      D10: 9,
-    };
     const NANO_ESP32_MAP: Record<string, number> = {
       D0: 44,
       D1: 43,
@@ -518,47 +468,15 @@ export function boardPinToNumber(boardId: string, pinName: string): number | nul
       A5: 12,
       A6: 13,
       A7: 14,
-      // The D0/D1 positions are silkscreened RX0/TX1, so the D-names above
-      // were unreachable: GPIO44 and GPIO43 had no pad that resolved to them.
       RX0: 44,
       TX1: 43,
       B0: 46,
       B1: 0,
     };
-    const map = boardId === 'arduino-nano-esp32' ? NANO_ESP32_MAP : XIAO_S3_MAP;
-    if (pinName in map) return map[pinName];
+    if (pinName in NANO_ESP32_MAP) return NANO_ESP32_MAP[pinName];
     const num = parseInt(pinName, 10);
     if (!isNaN(num)) return num;
     return null;
-  }
-
-  if (boardId === 'xiao-esp32-c3') {
-    if (POWER_PAD_RE.test(pinName)) return -1;
-    const XIAO_C3_MAP: Record<string, number> = {
-      D0: 2,
-      D1: 3,
-      D2: 4,
-      D3: 5,
-      D4: 6,
-      D5: 7,
-      D6: 21,
-      D7: 20,
-      D8: 8,
-      D9: 9,
-      D10: 10,
-    };
-    if (pinName in XIAO_C3_MAP) return XIAO_C3_MAP[pinName];
-    const num = parseInt(pinName, 10);
-    if (!isNaN(num)) return num;
-    return null;
-  }
-
-  if (boardId === 'aitewinrobot-esp32c3-supermini') {
-    if (POWER_PAD_RE.test(pinName)) return -1;
-    const num = parseInt(pinName, 10);
-    if (!isNaN(num)) return num;
-    if (pinName === 'TX' || pinName === 'RX') return esp32Uart0Pad(boardId, pinName);
-    return ESP32_PIN_MAP[pinName] ?? null;
   }
 
   // ATtiny85 — PORTB only: PB0-PB5 → pins 0-5

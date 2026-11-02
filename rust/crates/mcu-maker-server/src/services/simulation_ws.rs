@@ -72,9 +72,7 @@ impl SimulationWsManager {
             worker.stopped.store(true, std::sync::atomic::Ordering::SeqCst);
             let _ = worker.stdin_tx.send("{\"cmd\":\"stop\"}\n".to_string());
             if let Some(pid) = worker.child_id {
-                let _ = std::process::Command::new("taskkill")
-                    .args(["/F", "/T", "/PID", &pid.to_string()])
-                    .output();
+                kill_process_tree(pid);
             }
         }
         self.gateway.unregister(client_id).await;
@@ -87,6 +85,28 @@ pub async fn handle_simulation_ws(
     State(mgr): State<Arc<SimulationWsManager>>,
 ) -> impl IntoResponse {
     ws.on_upgrade(move |socket| handle_socket(socket, client_id, mgr))
+}
+
+/// Native worker executable name (`.exe` only on Windows).
+const WORKER_BIN: &str = if cfg!(windows) { "mcu-maker-worker.exe" } else { "mcu-maker-worker" };
+/// QEMU runtime libraries loaded by the worker (`.dll` on Windows, `.so` on Linux).
+const QEMU_XTENSA_LIB: &str = if cfg!(windows) { "libqemu-xtensa.dll" } else { "libqemu-xtensa.so" };
+const QEMU_RISCV_LIB: &str = if cfg!(windows) { "libqemu-riscv32.dll" } else { "libqemu-riscv32.so" };
+
+/// Kills a worker process (and its children) in a platform-appropriate way.
+fn kill_process_tree(pid: u32) {
+    #[cfg(windows)]
+    {
+        let _ = std::process::Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &pid.to_string()])
+            .output();
+    }
+    #[cfg(not(windows))]
+    {
+        let _ = std::process::Command::new("kill")
+            .args(["-9", &pid.to_string()])
+            .output();
+    }
 }
 
 fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
@@ -120,18 +140,18 @@ fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
     // 1. Resolve mcu-maker-worker binary
     let mut rust_worker = None;
     if let Some(ref dir) = exe_dir {
-        let candidate = dir.join("mcu-maker-worker.exe");
+        let candidate = dir.join(WORKER_BIN);
         if candidate.is_file() {
             rust_worker = Some(candidate);
         }
     }
     if rust_worker.is_none() {
         for candidate in [
-            repo_root.join("rust").join("target").join("release").join("mcu-maker-worker.exe"),
-            repo_root.join("target").join("release").join("mcu-maker-worker.exe"),
-            repo_root.join("rust").join("target").join("debug").join("mcu-maker-worker.exe"),
-            repo_root.join("target").join("debug").join("mcu-maker-worker.exe"),
-            repo_root.join("mcu-maker-worker.exe"),
+            repo_root.join("rust").join("target").join("release").join(WORKER_BIN),
+            repo_root.join("target").join("release").join(WORKER_BIN),
+            repo_root.join("rust").join("target").join("debug").join(WORKER_BIN),
+            repo_root.join("target").join("debug").join(WORKER_BIN),
+            repo_root.join(WORKER_BIN),
         ] {
             if candidate.is_file() {
                 rust_worker = Some(candidate);
@@ -147,9 +167,12 @@ fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
             candidates.push(dir.join(filename));
             candidates.push(dir.join("qemu_runtime").join(filename));
             candidates.push(dir.join("prebuilt").join("qemu_runtime").join(filename));
+            candidates.push(dir.join("prebuilt").join("qemu_runtime_linux").join(filename));
         }
         candidates.push(repo_root.join("prebuilt").join("qemu_runtime").join(filename));
+        candidates.push(repo_root.join("prebuilt").join("qemu_runtime_linux").join(filename));
         candidates.push(repo_root.join("prebuilt").join("picsimlab").join("picsimlab_win64").join("lib").join("qemu").join(filename));
+        candidates.push(repo_root.join("prebuilt").join("picsimlab").join("picsimlab_linux64").join("lib").join("qemu").join(filename));
         candidates.push(repo_root.join("rust").join("target").join("release").join(filename));
         candidates.push(repo_root.join(filename));
 
@@ -161,8 +184,8 @@ fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
         None
     };
 
-    let xtensa_dll = find_dll("libqemu-xtensa.dll");
-    let riscv_dll = find_dll("libqemu-riscv32.dll");
+    let xtensa_dll = find_dll(QEMU_XTENSA_LIB);
+    let riscv_dll = find_dll(QEMU_RISCV_LIB);
 
     (rust_worker, xtensa_dll, riscv_dll)
 }
@@ -208,8 +231,8 @@ async fn spawn_worker_instance(
     let lib_opt = if is_riscv { riscv_dll } else { xtensa_dll };
     let machine = if is_riscv {
         "esp32c3-picsimlab"
-    } else if board.contains("s3") {
-        "esp32s3-picsimlab"
+    } else if board.contains("s3") || board.contains("nano-esp32") || board.contains("nano_nora") {
+        "esp32s3"
     } else {
         "esp32-picsimlab"
     };
@@ -217,10 +240,10 @@ async fn spawn_worker_instance(
     let worker_bin = match rust_worker {
         Some(bin) => bin,
         None => {
-            error!("Native Rust ESP32 worker binary (mcu-maker-worker.exe) not found!");
+            error!("Native Rust ESP32 worker binary (mcu-maker-worker) not found!");
             let _ = ws_tx.send(serde_json::json!({
                 "type": "error",
-                "data": { "message": "Worker nativo Rust mcu-maker-worker.exe no encontrado. Compile con: cargo build --release -p mcu-maker-worker" }
+                "data": { "message": "Worker nativo Rust mcu-maker-worker no encontrado. Compile con: cargo build --release -p mcu-maker-worker" }
             }).to_string());
             return;
         }
@@ -229,11 +252,11 @@ async fn spawn_worker_instance(
     let lib_path = match lib_opt {
         Some(p) if p.is_file() => p,
         _ => {
-            let target_name = if is_riscv { "libqemu-riscv32.dll" } else { "libqemu-xtensa.dll" };
-            error!("QEMU DLL {:?} not found in prebuilt/qemu_runtime or binary directories!", target_name);
+            let target_name = if is_riscv { QEMU_RISCV_LIB } else { QEMU_XTENSA_LIB };
+            error!("QEMU library {:?} not found in prebuilt/qemu_runtime or binary directories!", target_name);
             let _ = ws_tx.send(serde_json::json!({
                 "type": "error",
-                "data": { "message": format!("DLL de simulación {} no encontrada en prebuilt/qemu_runtime.", target_name) }
+                "data": { "message": format!("Librería de simulación {} no encontrada en prebuilt/qemu_runtime.", target_name) }
             }).to_string());
             return;
         }
@@ -241,6 +264,18 @@ async fn spawn_worker_instance(
 
     info!("Launching 100% native Rust ESP32 worker: bin={:?}, machine={}, lib={:?}", worker_bin, machine, lib_path);
     let mut cmd = Command::new(worker_bin);
+
+    #[cfg(unix)]
+    {
+        if let Some(dir) = lib_path.parent() {
+            let mut ld = dir.as_os_str().to_os_string();
+            if let Some(prev) = std::env::var_os("LD_LIBRARY_PATH") {
+                ld.push(":");
+                ld.push(prev);
+            }
+            cmd.env("LD_LIBRARY_PATH", ld);
+        }
+    }
 
     cmd.stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::piped())
@@ -632,9 +667,7 @@ async fn handle_socket(socket: WebSocket, client_id: String, mgr: Arc<Simulation
                     worker.stopped.store(true, std::sync::atomic::Ordering::SeqCst);
                     let _ = worker.stdin_tx.send("{\"cmd\":\"stop\"}\n".to_string());
                     if let Some(pid) = worker.child_id {
-                        let _ = std::process::Command::new("taskkill")
-                            .args(["/F", "/T", "/PID", &pid.to_string()])
-                            .output();
+                        kill_process_tree(pid);
                     }
                 }
                 mgr_clone.gateway.unregister(&client_id).await;

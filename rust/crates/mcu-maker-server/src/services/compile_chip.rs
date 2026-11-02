@@ -43,15 +43,23 @@ impl ChipCompileService {
 
     fn find_clang() -> Option<PathBuf> {
         if let Ok(p) = std::env::var("WASI_SDK") {
-            let pb = PathBuf::from(p).join("bin").join("clang.exe");
+            let pb = PathBuf::from(p).join("bin").join(format!("clang{}", std::env::consts::EXE_SUFFIX));
             if pb.is_file() {
                 return Some(pb);
             }
         }
-        let candidates = [
+        #[cfg(windows)]
+        let candidates: [&str; 3] = [
             r"C:\wasi-sdk\bin\clang.exe",
             r"C:\Program Files\wasi-sdk\bin\clang.exe",
             r"C:\Program Files\LLVM\bin\clang.exe",
+        ];
+        #[cfg(not(windows))]
+        let candidates: [&str; 4] = [
+            "/opt/wasi-sdk/bin/clang",
+            "/usr/local/wasi-sdk/bin/clang",
+            "/usr/lib/llvm/bin/clang",
+            "/usr/bin/clang",
         ];
         for cand in candidates {
             let p = PathBuf::from(cand);

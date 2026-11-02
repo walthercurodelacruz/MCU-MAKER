@@ -29,13 +29,8 @@ export const BOARD_SIZE: Record<string, { w: number; h: number }> = {
   esp32: { w: 141, h: 265 }, // esp32-devkit-v1: 28.2 × 53 mm
   'esp32-s3': { w: 128, h: 350 }, // esp32-s3-devkitc-1: 25.5 × 70 mm
   'esp32-c3': { w: 127, h: 215 }, // esp32-c3-devkitm-1: 25.4 × 42.9 mm
-  'esp32-devkit-c-v4': { w: 140, h: 283 },
   'esp32-cam': { w: 136, h: 202 },
-  'wemos-lolin32-lite': { w: 128, h: 250 },
-  'xiao-esp32-s3': { w: 91, h: 117 },
   'arduino-nano-esp32': { w: 217, h: 90 },
-  'xiao-esp32-c3': { w: 91, h: 117 },
-  'aitewinrobot-esp32c3-supermini': { w: 90, h: 123 },
   attiny85: { w: 160, h: 132 },
 };
 

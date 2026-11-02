@@ -19,13 +19,8 @@
 const esp32SvgUrl = '/boards/esp32-devkit-v1.svg';
 const esp32S3SvgUrl = '/boards/esp32-s3.svg';
 const esp32C3SvgUrl = '/boards/esp32-c3.svg';
-const esp32DevkitCV4SvgUrl = '/boards/esp32-devkit-c-v4.svg';
 const esp32CamSvgUrl = '/boards/esp32-cam.svg';
-const wemosLolin32SvgUrl = '/boards/wemos-lolin32-lite.svg';
-const xiaoEsp32S3SvgUrl = '/boards/xiao-esp32-s3.svg';
 const arduinoNanoEsp32SvgUrl = '/boards/arduino-nano-esp32.svg';
-const xiaoEsp32C3SvgUrl = '/boards/xiao-esp32-c3.svg';
-const aitewinC3SvgUrl = '/boards/esp32c3-supermini.svg';
 
 // ─── Pin positions (mm × 5 px/mm, from board.json) ───────────────────────────
 
@@ -425,11 +420,8 @@ const ONBOARD_LED_FOOTPRINTS: Record<string, Record<string, LedFootprint>> = {
     flash: { x: 120, y: 156.3, size: 14, color: '#fff6d5' },
     led: { x: 22.1, y: 155.2, size: 7, color: '#ff3b30' },
   },
-  // The rect in the SVG's own "led" layer, next to the 22 pad.
-  'wemos-lolin32-lite': { led: { x: 105.8, y: 43, size: 8, color: LED_BLUE } },
   // The 5050 body under the "RGB" silk.
   'esp32-s3': { rgb: { x: 37.9, y: 200.1, size: 12 } },
-  'xiao-esp32-s3': { led: { x: 82.5, y: 15, size: 6, color: '#ffb020' } },
   // The 0603 at the corner by the D13 pad (Arduino's top view puts
   // LED_BUILTIN at that corner of the USB-C), the 5050 dome right of the
   // connector for the RGB.
@@ -439,8 +431,6 @@ const ONBOARD_LED_FOOTPRINTS: Record<string, Record<string, LedFootprint>> = {
   },
   // The 5050 body under the "GPIO8" silk.
   'esp32-c3': { rgb: { x: 96.5, y: 106.6, size: 12 } },
-  // The body titled "IO8 LED" in the SVG.
-  'aitewinrobot-esp32c3-supermini': { led: { x: 68, y: 64.3, size: 6, color: LED_BLUE } },
 };
 
 /** The LED ids this element can draw for a kind (for the table test). */
@@ -464,27 +454,12 @@ const BOARD_CONFIGS: Record<string, BoardConfig> = {
   esp32: { svgUrl: esp32SvgUrl, w: 141, h: 265, pins: PINS_ESP32 },
   'esp32-s3': { svgUrl: esp32S3SvgUrl, w: 128, h: 350, pins: PINS_ESP32_S3 },
   'esp32-c3': { svgUrl: esp32C3SvgUrl, w: 127, h: 215, pins: PINS_ESP32_C3 },
-  'esp32-devkit-c-v4': {
-    svgUrl: esp32DevkitCV4SvgUrl,
-    w: 140,
-    h: 283,
-    pins: PINS_ESP32_DEVKIT_C_V4,
-  },
   'esp32-cam': { svgUrl: esp32CamSvgUrl, w: 136, h: 202, pins: PINS_ESP32_CAM },
-  'wemos-lolin32-lite': { svgUrl: wemosLolin32SvgUrl, w: 128, h: 250, pins: PINS_WEMOS_LOLIN32 },
-  'xiao-esp32-s3': { svgUrl: xiaoEsp32S3SvgUrl, w: 91, h: 117, pins: PINS_XIAO_ESP32_S3 },
   'arduino-nano-esp32': {
     svgUrl: arduinoNanoEsp32SvgUrl,
     w: 217,
     h: 90,
     pins: PINS_ARDUINO_NANO_ESP32,
-  },
-  'xiao-esp32-c3': { svgUrl: xiaoEsp32C3SvgUrl, w: 91, h: 117, pins: PINS_XIAO_ESP32_C3 },
-  'aitewinrobot-esp32c3-supermini': {
-    svgUrl: aitewinC3SvgUrl,
-    w: 90,
-    h: 123,
-    pins: PINS_AITEWIN_C3,
   },
 };
 

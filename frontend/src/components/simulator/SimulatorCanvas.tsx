@@ -176,13 +176,7 @@ function carrySeatedBoards(
 function isEsp32Kind(kind: BoardKind): boolean {
   return (
     kind.startsWith('esp32') ||
-    kind === 'xiao-esp32-s3' ||
-    kind === 'xiao-esp32-c3' ||
-    kind === 'arduino-nano-esp32' ||
-    kind === 'aitewinrobot-esp32c3-supermini' ||
-    kind === 'esp32-cam' ||
-    kind === 'wemos-lolin32-lite' ||
-    kind === 'esp32-devkit-c-v4'
+    kind === 'arduino-nano-esp32'
   );
 }
 

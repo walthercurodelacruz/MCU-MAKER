@@ -166,15 +166,10 @@ const BOARD_KEYWORDS: Record<string, string> = {
   'raspberry-pi-pico': 'raspberry pi pico rp2040 micropython arm cortex m0',
   'pi-pico-w': 'raspberry pi pico w rp2040 wifi wireless micropython',
   esp32: 'esp32 espressif wifi bluetooth xtensa wroom devkit',
-  'esp32-devkit-c-v4': 'esp32 espressif wifi bluetooth xtensa wroom devkit',
   'esp32-cam': 'esp32 espressif camera wifi ov2640',
-  'wemos-lolin32-lite': 'esp32 espressif wifi bluetooth wemos lolin',
   'esp32-s3': 'esp32 s3 espressif wifi bluetooth xtensa usb',
-  'xiao-esp32-s3': 'esp32 s3 seeed xiao espressif wifi bluetooth small',
   'arduino-nano-esp32': 'arduino nano esp32 s3 espressif wifi bluetooth',
   'esp32-c3': 'esp32 c3 espressif wifi bluetooth riscv risc-v',
-  'xiao-esp32-c3': 'esp32 c3 seeed xiao espressif wifi bluetooth riscv small',
-  'aitewinrobot-esp32c3-supermini': 'esp32 c3 supermini espressif wifi bluetooth riscv small',
   attiny85: 'attiny avr tiny digispark small',
 };
 

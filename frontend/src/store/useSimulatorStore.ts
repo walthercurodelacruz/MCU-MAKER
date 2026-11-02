@@ -681,16 +681,12 @@ export class Esp32BridgeShim {
     const b = this.bridge as unknown as { adcChannelForGpio?: (gpio: number) => number };
     if (typeof b.adcChannelForGpio === 'function') return b.adcChannelForGpio(pin);
     const kind = this.bridge.boardKind as string;
-    if (kind === 'esp32-s3' || kind === 'xiao-esp32-s3' || kind === 'arduino-nano-esp32') {
+    if (kind === 'esp32-s3' || kind === 'arduino-nano-esp32') {
       if (pin >= 1 && pin <= 10) return pin - 1;
       if (pin >= 11 && pin <= 20) return 10 + (pin - 11);
       return -1;
     }
-    if (
-      kind === 'esp32-c3' ||
-      kind === 'xiao-esp32-c3' ||
-      kind === 'aitewinrobot-esp32c3-supermini'
-    ) {
+    if (kind === 'esp32-c3') {
       return pin >= 0 && pin <= 5 ? pin : -1;
     }
     if (pin >= 36 && pin <= 39) return pin - 36; // GPIO 36→CH0 … 39→CH3
@@ -1334,6 +1330,7 @@ const simulatorMap = new BusBoundSimulatorMap<
   | Esp32BridgeShim
   | Stm32BridgeShim
   | PiBridgeShim
+  | ProBoardSimulator
 >();
 const pinManagerMap = new Map<string, PinManager>();
 // Per-board ESP32 GPIO Matrix mirror.  Populated for boards whose kind
@@ -1474,11 +1471,8 @@ export const setBoardWifiStatus = (id: string, ws: WifiStatus) =>
 // Xtensa-based ESP32 boards — use QEMU bridge (backend)
 const ESP32_KINDS = new Set<BoardKind>([
   'esp32',
-  'esp32-devkit-c-v4',
   'esp32-cam',
-  'wemos-lolin32-lite',
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
 ]);
 
@@ -1486,11 +1480,9 @@ const ESP32_KINDS = new Set<BoardKind>([
 // The browser-side Esp32C3Simulator cannot handle the 150+ ROM functions ESP-IDF needs.
 const ESP32_RISCV_KINDS = new Set<BoardKind>([
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 ]);
 
-function isEsp32Kind(kind: BoardKind): boolean {
+export function isEsp32Kind(kind: BoardKind): boolean {
   if (ESP32_KINDS.has(kind) || ESP32_RISCV_KINDS.has(kind)) return true;
   // Overlay-registered ESP32-class boards route through the same bridge path.
   return getProBoard(kind)?.esp32Family !== undefined;
@@ -1663,6 +1655,7 @@ interface SimulatorState {
     | Esp32BridgeShim
     | Stm32BridgeShim
     | PiBridgeShim
+  | ProBoardSimulator
     | null;
   /** @deprecated use getBoardPinManager(activeBoardId) */
   pinManager: PinManager;
@@ -2881,11 +2874,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => {
         // for full WiFi/BLE emulation via qemu-system-riscv32.
         const esp32Bridge = getEsp32Bridge(boardId);
         if (esp32Bridge) {
-          if (board.running) {
-            esp32Bridge.loadFirmware(program);
-          } else {
-            esp32Bridge.setPendingFirmware(program);
-          }
+          esp32Bridge.loadFirmware(program);
         }
       } else if (isStm32BoardKind(board.boardKind)) {
         // STM32: send the compiled .elf (base64) to QEMU via the bridge.
@@ -4390,7 +4379,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => {
     setWires: (wires) =>
       set((state) => ({
         // Ensure every wire has waypoints (backwards-compatible with saved projects)
-        wires: wires.map((w) => ({ waypoints: [], ...w })),
+        wires: wires.map((w) => ({ ...w, waypoints: w.waypoints ?? [] })),
         // Bulk replacement clears history for the same reason as setComponents.
         history: [],
         historyIndex: -1,
@@ -4966,7 +4955,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => {
       } else {
         let latin1 = '';
         for (const byte of bytes) latin1 += String.fromCharCode(byte);
-        getBoardSimulator(boardId)?.serialWrite(latin1);
+        (getBoardSimulator(boardId) as any)?.serialWrite?.(latin1);
       }
     },
 
@@ -5028,7 +5017,7 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => {
           esp32Bridge.sendSerialBytes(Array.from(new TextEncoder().encode(text)));
         }
       } else {
-        getBoardSimulator(boardId)?.serialWrite(text);
+        (getBoardSimulator(boardId) as any)?.serialWrite?.(text);
       }
     },
 

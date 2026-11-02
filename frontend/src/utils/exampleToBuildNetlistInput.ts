@@ -84,8 +84,8 @@ export function exampleToBuildNetlistInput(
 
   const wires = example.wires.map((w) => ({
     id: w.id,
-    start: { componentId: w.start.componentId, pinName: w.start.pinName },
-    end: { componentId: w.end.componentId, pinName: w.end.pinName },
+    start: { componentId: w.start.componentId, pinName: w.start.pinName, x: 0, y: 0 },
+    end: { componentId: w.end.componentId, pinName: w.end.pinName, x: 0, y: 0 },
     color: '#666',
     waypoints: [],
   }));

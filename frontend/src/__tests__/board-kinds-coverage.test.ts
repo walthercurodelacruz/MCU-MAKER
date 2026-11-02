@@ -53,21 +53,17 @@ const ACCEPTED_UNCOVERED: ReadonlySet<BoardKind> = new Set([
   // dedicated example per variant adds zero engine coverage; the
   // canvas just renders a different SVG.
   'esp32-cam',
-  'wemos-lolin32-lite',
 
   // ESP32-S3 Xtensa LX7 family — share the `esp32-s3` QEMU backend.
   // No primary `esp32-s3` example today either; the family is
   // emulator-ready but lacks a demo circuit.  Add one when product
   // wants S3 in the gallery.
   'esp32-s3',
-  'xiao-esp32-s3',
   'arduino-nano-esp32',
 
   // ESP32-C3 RISC-V family — share the `esp32-c3` backend.  Same as
   // above; no primary C3 example exists.
   'esp32-c3',
-  'xiao-esp32-c3',
-  'aitewinrobot-esp32c3-supermini',
 
   // ATtiny85 — fully supported via avr8js but no gallery example
   // showcases its limited (5 GPIO) form factor.  Add one when

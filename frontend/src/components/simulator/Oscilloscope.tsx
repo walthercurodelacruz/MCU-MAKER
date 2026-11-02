@@ -66,17 +66,12 @@ function fallbackPinsForBoardKind(boardKind: BoardKind): { pin: number; label: s
     case 'pi-pico-w':
       return Array.from({ length: 29 }, (_, i) => ({ pin: i, label: `GP${i}` }));
     case 'esp32':
-    case 'esp32-devkit-c-v4':
     case 'esp32-cam':
-    case 'wemos-lolin32-lite':
       return Array.from({ length: 40 }, (_, i) => ({ pin: i, label: `GPIO${i}` }));
     case 'esp32-s3':
-    case 'xiao-esp32-s3':
     case 'arduino-nano-esp32':
       return Array.from({ length: 45 }, (_, i) => ({ pin: i, label: `GPIO${i}` }));
     case 'esp32-c3':
-    case 'xiao-esp32-c3':
-    case 'aitewinrobot-esp32c3-supermini':
       return Array.from({ length: 22 }, (_, i) => ({ pin: i, label: `GPIO${i}` }));
     case 'raspberry-pi-3':
     case 'raspberry-pi-4':

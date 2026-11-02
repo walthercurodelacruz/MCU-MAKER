@@ -5,16 +5,15 @@
 > Available on: **Windows** (`.dll`) · **Linux / Docker** (`.so`, included in the official image)
 > Applies to: **ESP32, ESP32-S3** (Xtensa LX6/LX7 architecture)
 
-> **Note on ESP32-C3:** The ESP32-C3, XIAO ESP32-C3, and ESP32-C3 SuperMini boards use the **RISC-V RV32IMC** architecture and are emulated via `libqemu-riscv32` (same backend pattern as Xtensa, different library and machine). See → [RISCV_EMULATION.md](./RISCV_EMULATION.md)
+> **Note on ESP32-C3:** The ESP32-C3 board uses the **RISC-V RV32IMC** architecture and is emulated via `libqemu-riscv32` (same backend pattern as Xtensa, different library and machine). See → [RISCV_EMULATION.md](./RISCV_EMULATION.md)
 
 ## Supported Boards
 
 <table>
 <tr>
-  <td align="center"><img src="img/boards/esp32-devkit-c-v4.png" width="160" alt="ESP32 DevKit C V4"/><br/><b>ESP32 DevKit C V4</b></td>
-  <td align="center"><img src="img/boards/esp32-s3.png" width="160" alt="ESP32-S3"/><br/><b>ESP32-S3</b></td>
+  <td align="center"><img src="img/boards/esp32-devkit-v1.png" width="160" alt="ESP32 DevKit V1"/><br/><b>ESP32 DevKit V1</b></td>
   <td align="center"><img src="img/boards/esp32-cam.png" width="160" alt="ESP32-CAM"/><br/><b>ESP32-CAM</b></td>
-  <td align="center"><img src="img/boards/xiao-esp32-s3.png" width="160" alt="Seeed XIAO ESP32-S3"/><br/><b>Seeed XIAO ESP32-S3</b></td>
+  <td align="center"><img src="img/boards/esp32-s3.png" width="160" alt="ESP32-S3"/><br/><b>ESP32-S3 DevKit</b></td>
   <td align="center"><img src="img/boards/arduino-nano-esp32.png" width="160" alt="Arduino Nano ESP32"/><br/><b>Arduino Nano ESP32</b></td>
 </tr>
 </table>

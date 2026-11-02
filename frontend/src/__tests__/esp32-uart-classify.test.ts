@@ -18,7 +18,7 @@ describe('ESP32 UART pin classification (multi-board Serial)', () => {
   // board-buses-2026-09), so each variant answers for ITS silicon instead of
   // the classic ESP32's table. GPIO17/16 are UART2 on the classic chip and
   // UART1 on the S3, and an ESP32-CAM does not break them out at all.
-  for (const bk of ['esp32', 'esp32-devkit-c-v4']) {
+  for (const bk of ['esp32']) {
     it(`${bk}: TX/RX -> UART0, TX2/RX2 -> UART2`, () => {
       expect(classifyPin(bk, 'TX')).toEqual({ kind: 'uart-tx', uart: 0 });
       expect(classifyPin(bk, 'RX')).toEqual({ kind: 'uart-rx', uart: 0 });
@@ -54,9 +54,9 @@ describe('ESP32 UART pin classification (multi-board Serial)', () => {
   });
 
   it('a TX2 -> RX2 wire between two ESP32s is a UART link', () => {
-    expect(isUartWire('esp32-devkit-c-v4', 'TX2', 'esp32-devkit-c-v4', 'RX2')).toBeTruthy();
+    expect(isUartWire('esp32', 'TX2', 'esp32', 'RX2')).toBeTruthy();
     expect(isUartWire('esp32', 'TX', 'esp32', 'RX')).toBeTruthy();
     // GPIO-labelled pins resolve to the same link.
-    expect(isUartWire('esp32-devkit-c-v4', 'GPIO17', 'esp32-devkit-c-v4', 'GPIO16')).toBeTruthy();
+    expect(isUartWire('esp32', 'GPIO17', 'esp32', 'GPIO16')).toBeTruthy();
   });
 });
