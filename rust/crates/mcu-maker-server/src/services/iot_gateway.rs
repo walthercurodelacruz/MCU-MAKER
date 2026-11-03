@@ -41,12 +41,14 @@ if(of)window.fetch=function(i,o){
   }catch(e){}
   return of.call(this,i,o);
 };
-var ox=XMLHttpRequest.prototype.open;
-XMLHttpRequest.prototype.open=function(m,u){
-  var a=Array.prototype.slice.call(arguments);
-  try{a[1]=rw(u);}catch(e){}
-  return ox.apply(this,a);
-};
+if(typeof XMLHttpRequest!=='undefined'&&XMLHttpRequest.prototype){
+  var ox=XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open=function(m,u){
+    var a=Array.prototype.slice.call(arguments);
+    try{a[1]=rw(u);}catch(e){}
+    return ox.apply(this,a);
+  };
+}
 function fix(el){
   ['src','href','action'].forEach(function(at){
     if(!el.getAttribute)return;
@@ -56,11 +58,20 @@ function fix(el){
     var n=rw(v);
     if(n!==v)el.setAttribute(at,n);
   });
+  if(el.getAttribute){
+    var oc=el.getAttribute('onclick');
+    if(oc && oc.indexOf('location')!==-1){
+      var noc=oc.replace(/((?:window\.)?location(?:\.href)?\s*=\s*['"])([^'"]+)(['"])/g,function(_,p1,u,p3){
+        return p1+rw(u)+p3;
+      });
+      if(noc!==oc)el.setAttribute('onclick',noc);
+    }
+  }
 }
 function sweep(root){
   try{
     if(root.querySelectorAll)
-      Array.prototype.forEach.call(root.querySelectorAll('[src],[href],[action]'),fix);
+      Array.prototype.forEach.call(root.querySelectorAll('[src],[href],[action],[onclick]'),fix);
     if(root.nodeType===1)fix(root);
   }catch(e){}
 }
@@ -74,7 +85,42 @@ try{
       if(m.type==='attributes'&&m.target)fix(m.target);
     });
   }).observe(document.documentElement,{childList:true,subtree:true,
-    attributes:true,attributeFilter:['src','href','action']});
+    attributes:true,attributeFilter:['src','href','action','onclick']});
+}catch(e){}
+try{
+  document.addEventListener('click',function(e){
+    try{
+      var t=e.target;
+      if(t&&t.getAttribute){
+        var oc=t.getAttribute('onclick');
+        if(oc){
+          var m=oc.match(/(?:window\.)?location(?:\.href)?\s*=\s*['"]([^'"]+)['"]/);
+          if(m&&m[1]){
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            window.location.href=rw(m[1]);
+            return;
+          }
+        }
+      }
+      var a=t&&(t.closest?t.closest('a'):null);
+      if(!a&&t){
+        var p=t.parentElement;
+        while(p){if(p.tagName==='A'){a=p;break;}p=p.parentElement;}
+      }
+      if(a&&a.getAttribute){
+        var h=a.getAttribute('href');
+        if(h&&h.charAt(0)!=='#'&&h.indexOf('javascript:')!==0){
+          var nh=rw(h);
+          if(nh&&nh!==h){a.setAttribute('href',nh);h=nh;}
+          if(t.tagName==='BUTTON'||t.tagName==='INPUT'||(t.closest&&t.closest('button'))){
+            e.preventDefault();
+            window.location.href=h;
+          }
+        }
+      }
+    }catch(err){}
+  },true);
 }catch(e){}
 })();</script>"#;
 
@@ -97,6 +143,7 @@ impl IoTGatewayService {
     pub fn new() -> Self {
         Self {
             client: reqwest::Client::builder()
+                .redirect(reqwest::redirect::Policy::none())
                 .timeout(std::time::Duration::from_secs(10))
                 .build()
                 .unwrap_or_default(),
@@ -408,6 +455,27 @@ async fn handle_gateway_proxy_inner(
                 .unwrap_or("")
                 .to_string();
 
+            let location_opt = resp
+                .headers()
+                .get(header::LOCATION)
+                .and_then(|v| v.to_str().ok())
+                .map(|loc| {
+                    if loc.starts_with('/') {
+                        format!("{}{}", prefix, loc.trim_start_matches('/'))
+                    } else if loc.contains("192.168.4.") || loc.contains("10.13.37.") {
+                        if let Ok(u) = reqwest::Url::parse(loc) {
+                            let q = u.query().map(|s| format!("?{}", s)).unwrap_or_default();
+                            format!("{}{}{}", prefix, u.path().trim_start_matches('/'), q)
+                        } else {
+                            format!("{}{}", prefix, loc)
+                        }
+                    } else if !loc.starts_with("http://") && !loc.starts_with("https://") {
+                        format!("{}{}", prefix, loc)
+                    } else {
+                        loc.to_string()
+                    }
+                });
+
             if content_type.contains("text/html") {
                 let text = resp.text().await.unwrap_or_default();
                 let shim = GATEWAY_SHIM.replace("%PREFIX%", &prefix);
@@ -432,12 +500,20 @@ async fn handle_gateway_proxy_inner(
 
                 let mut res = Html(modified).into_response();
                 *res.status_mut() = status;
+                if let Some(ref new_loc) = location_opt {
+                    if let Ok(val) = new_loc.parse() {
+                        res.headers_mut().insert(header::LOCATION, val);
+                    }
+                }
                 res
             } else {
                 let bytes = resp.bytes().await.unwrap_or_default();
                 let mut res = Response::builder().status(status);
                 if !content_type.is_empty() {
                     res = res.header(header::CONTENT_TYPE, content_type);
+                }
+                if let Some(ref new_loc) = location_opt {
+                    res = res.header(header::LOCATION, new_loc);
                 }
                 res.body(Body::from(bytes)).unwrap_or_else(|_| {
                     StatusCode::INTERNAL_SERVER_ERROR.into_response()
@@ -461,4 +537,73 @@ async fn handle_gateway_proxy_inner(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_gateway_registration() {
+        let service = IoTGatewayService::new();
+        service.register(
+            "board-123".to_string(),
+            8081,
+            "192.168.4.15".to_string(),
+            "ESP32 Test".to_string(),
+        ).await;
+
+        let inst = service.get_instance("board-123").await;
+        assert!(inst.is_some());
+        let inst = inst.unwrap();
+        assert_eq!(inst.client_id, "board-123");
+        assert_eq!(inst.hostfwd_port, 8081);
+        assert_eq!(inst.ip, "192.168.4.15");
+
+        let all = service.get_active_instances().await;
+        assert_eq!(all.len(), 1);
+
+        service.unregister("board-123").await;
+        assert!(service.get_instance("board-123").await.is_none());
+    }
+
+    #[test]
+    fn test_gateway_shim_valid_js_structure() {
+        assert!(GATEWAY_SHIM.starts_with("<script>"));
+        assert!(GATEWAY_SHIM.ends_with("</script>"));
+        assert!(GATEWAY_SHIM.contains("MutationObserver"));
+        assert!(GATEWAY_SHIM.contains(".observe("));
+        assert!(GATEWAY_SHIM.contains("window.__mcuMakerGatewayRewrite"));
+        assert!(GATEWAY_SHIM.contains("addEventListener('click'"));
+
+        // Verify balanced parentheses and braces in the JS payload
+        let js = GATEWAY_SHIM
+            .trim_start_matches("<script>")
+            .trim_end_matches("</script>");
+
+        let mut parens = 0i32;
+        let mut braces = 0i32;
+        for c in js.chars() {
+            match c {
+                '(' => parens += 1,
+                ')' => parens -= 1,
+                '{' => braces += 1,
+                '}' => braces -= 1,
+                _ => {}
+            }
+            assert!(parens >= 0, "Unmatched closing parenthesis in GATEWAY_SHIM");
+            assert!(braces >= 0, "Unmatched closing brace in GATEWAY_SHIM");
+        }
+        assert_eq!(parens, 0, "Unbalanced parentheses in GATEWAY_SHIM");
+        assert_eq!(braces, 0, "Unbalanced braces in GATEWAY_SHIM");
+    }
+
+    #[test]
+    fn test_gateway_shim_prefix_replacement() {
+        let prefix = "/api/gateway/test-client/";
+        let replaced = GATEWAY_SHIM.replace("%PREFIX%", prefix);
+        assert!(replaced.contains("var P=\"/api/gateway/test-client/\";"));
+        assert!(!replaced.contains("%PREFIX%"));
+    }
+}
+
 

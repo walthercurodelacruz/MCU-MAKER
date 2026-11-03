@@ -2872,6 +2872,10 @@ export const useSimulatorStore = create<SimulatorState>((set, get) => {
         // for full WiFi/BLE emulation via qemu-system-riscv32.
         const esp32Bridge = getEsp32Bridge(boardId);
         if (esp32Bridge) {
+          const editorState = useEditorStore.getState();
+          const rawFiles = editorState.fileGroups[board.activeFileGroupId];
+          const boardFiles = rawFiles && rawFiles.length > 0 ? rawFiles : editorState.files;
+          esp32Bridge.wifiEnabled = (board.hasWifi ?? false) || sketchUsesWifi(boardFiles);
           esp32Bridge.loadFirmware(program);
         }
       } else if (isStm32BoardKind(board.boardKind)) {

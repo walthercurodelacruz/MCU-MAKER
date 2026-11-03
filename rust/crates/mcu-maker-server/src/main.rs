@@ -5,7 +5,7 @@ use axum::{
     extract::{Request, State},
     http::{header, Method, StatusCode},
     response::{Html, IntoResponse, Response},
-    routing::{delete, get, post},
+    routing::{any, delete, get, post},
     Router,
 };
 use tower_http::cors::{Any, CorsLayer};
@@ -155,9 +155,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/simulation/ws/:client_id", get(handle_simulation_ws).with_state(simulation_ws.clone()))
         .route("/simulation/ws/:client_id", get(handle_simulation_ws).with_state(simulation_ws.clone()))
         // IoT Gateway reverse proxy
-        .route("/api/gateway/:client_id", get(handle_gateway_proxy_root).post(handle_gateway_proxy_root).with_state(gateway.clone()))
-        .route("/api/gateway/:client_id/", get(handle_gateway_proxy_root).post(handle_gateway_proxy_root).with_state(gateway.clone()))
-        .route("/api/gateway/:client_id/*path", get(handle_gateway_proxy_path).post(handle_gateway_proxy_path).with_state(gateway.clone()))
+        .route("/api/gateway/:client_id", any(handle_gateway_proxy_root).with_state(gateway.clone()))
+        .route("/api/gateway/:client_id/", any(handle_gateway_proxy_root).with_state(gateway.clone()))
+        .route("/api/gateway/:client_id/*path", any(handle_gateway_proxy_path).with_state(gateway.clone()))
+        .route("/gateway/:client_id", any(handle_gateway_proxy_root).with_state(gateway.clone()))
+        .route("/gateway/:client_id/", any(handle_gateway_proxy_root).with_state(gateway.clone()))
+        .route("/gateway/:client_id/*path", any(handle_gateway_proxy_path).with_state(gateway.clone()))
         // IoT Portal
         .route("/iot", get(handle_iot_portal).with_state(gateway.clone()))
         .route("/iot/", get(handle_iot_portal).with_state(gateway.clone()))

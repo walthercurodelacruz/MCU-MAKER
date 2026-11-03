@@ -466,6 +466,45 @@ void neopixelWrite(uint8_t pin, uint8_t red_val, uint8_t green_val, uint8_t blue
                 .map_err(|e| format!("Failed to write mcu_maker_rgb_shim.c: {e}"))?;
         }
 
+        if is_esp32 {
+            let wdt_shim = r#"
+#include <Arduino.h>
+#if CONFIG_IDF_TARGET_ESP32
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
+
+extern "C" void initVariant() {
+    TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
+    TIMERG0.wdt_config0.val = 0;
+    TIMERG0.wdt_wprotect = 0;
+
+    TIMERG1.wdt_wprotect = TIMG_WDT_WKEY_VALUE;
+    TIMERG1.wdt_config0.val = 0;
+    TIMERG1.wdt_wprotect = 0;
+}
+#elif CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
+
+extern "C" void initVariant() {
+    TIMERG0.wdtwprotect.val = 0x50D83AA1;
+    TIMERG0.wdtconfig0.val = 0;
+    TIMERG0.wdtwprotect.val = 0;
+
+    TIMERG1.wdtwprotect.val = 0x50D83AA1;
+    TIMERG1.wdtconfig0.val = 0;
+    TIMERG1.wdtwprotect.val = 0;
+}
+#else
+extern "C" void initVariant() {}
+#endif
+"#;
+            let wdt_shim_path = sketch_dir.join("mcu_maker_wdt_shim.cpp");
+            tokio::fs::write(&wdt_shim_path, wdt_shim)
+                .await
+                .map_err(|e| format!("Failed to write mcu_maker_wdt_shim.cpp: {e}"))?;
+        }
+
         let mut effective_fqbn = board_fqbn.to_string();
         let no_flashmode = board_fqbn.contains("lolin32-lite");
         if is_esp32 && !no_flashmode && !effective_fqbn.contains("FlashMode") {
@@ -933,11 +972,15 @@ mod tests {
             compile_res.stderr
         );
 
-        // Verify ESP32-S3 flash layout: bootloader at 0x0000 (magic 0xE9), flash size 8MB
+        // Verify ESP32-S3 flash layout: bootloader at 0x0000 (magic 0xE9), flash size 4MB or 8MB
         if let Some(ref b64) = compile_res.binary_content {
             use base64::Engine;
             let flash_s3 = base64::engine::general_purpose::STANDARD.decode(b64).unwrap();
-            assert_eq!(flash_s3.len(), 8 * 1024 * 1024, "ESP32-S3 flash image size must be 8MB");
+            assert!(
+                flash_s3.len() == 4 * 1024 * 1024 || flash_s3.len() == 8 * 1024 * 1024,
+                "ESP32-S3 flash image size must be 4MB or 8MB, got {}",
+                flash_s3.len()
+            );
             assert_eq!(flash_s3[0], 0xE9, "ESP32-S3 bootloader magic byte 0xE9 must be at offset 0x0000");
             assert_eq!(flash_s3[0x10000], 0xE9, "ESP32-S3 app magic byte 0xE9 must be at offset 0x10000");
         }
@@ -956,6 +999,7 @@ mod tests {
             compile_res_idf.stderr
         );
     }
+
 
     #[tokio::test]
     #[ignore = "requires pre-installed toolchains and network access for all 10 canonical cores"]

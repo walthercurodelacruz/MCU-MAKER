@@ -803,6 +803,7 @@ export class Esp32Bridge {
         data: {
           firmware_b64: firmwareBase64,
           board: toQemuBoardType(this.boardKind),
+          wifi_enabled: this.wifiEnabled,
         },
       });
     }

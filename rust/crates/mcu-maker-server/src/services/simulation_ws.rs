@@ -536,6 +536,9 @@ async fn handle_socket(socket: WebSocket, client_id: String, mgr: Arc<Simulation
                         if let Some(b) = data.get("board").and_then(|b| b.as_str()) {
                             session_board = b.to_string();
                         }
+                        if let Some(w) = data.get("wifi_enabled").and_then(|w| w.as_bool()) {
+                            session_wifi = w;
+                        }
                         let firmware_b64 = data.get("firmware_b64").and_then(|f| f.as_str()).unwrap_or("");
                         if !firmware_b64.is_empty() {
                             let already_running = {
