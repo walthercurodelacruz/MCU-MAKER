@@ -18,15 +18,15 @@ This gives new users zero friction, lets basic tutorials opt into passive simula
 frontend/src/simulation/
 ├── AVRSimulator.ts                  (existing — no changes needed)
 ├── PinManager.ts                    (existing — minor hook addition)
-├── CircuitSolver.ts                 ★ NEW — MNA solver (port of hand-rolled)
-├── CircuitComponents.ts             ★ NEW — R, V, D, LED, etc.
-├── SpiceEngine.ts                   ★ NEW — wraps eecircuit-engine (lazy)
-├── SpiceEngine.lazy.ts              ★ NEW — code-split, dynamic import
-├── NetlistBuilder.ts                ★ NEW — wires[] + components[] → netlist
-├── CircuitStore.ts                  ★ NEW — voltages/currents overlay state
+├── CircuitSolver.ts                  NEW — MNA solver (port of hand-rolled)
+├── CircuitComponents.ts              NEW — R, V, D, LED, etc.
+├── SpiceEngine.ts                    NEW — wraps eecircuit-engine (lazy)
+├── SpiceEngine.lazy.ts               NEW — code-split, dynamic import
+├── NetlistBuilder.ts                 NEW — wires[] + components[] → netlist
+├── CircuitStore.ts                   NEW — voltages/currents overlay state
 └── bridges/
-    ├── AVRCircuitBridge.ts          ★ NEW — AVR ↔ hand-rolled solver
-    └── AVRSpiceBridge.ts            ★ NEW — AVR ↔ ngspice
+    ├── AVRCircuitBridge.ts           NEW — AVR ↔ hand-rolled solver
+    └── AVRSpiceBridge.ts             NEW — AVR ↔ ngspice
 ```
 
 Almost everything is additive. The only existing files touched:
@@ -261,7 +261,7 @@ A new React component `<CircuitVoltageOverlay />` consumes `electrical.nodeVolta
 
 ```tsx
 <button onClick={() => toggleElectricalOverlay()}>
-  ⚡ {mode === 'off' ? 'Show voltages' : 'Hide voltages'}
+   {mode === 'off' ? 'Show voltages' : 'Hide voltages'}
 </button>
 ```
 
@@ -269,7 +269,7 @@ Warning badges:
 
 ```tsx
 {mode !== 'off' && !converged && <Banner>Circuit did not converge — check for floating nodes</Banner>}
-{currentThroughLED > 0.025 && <LEDWarning id={led.id}>⚠ Overcurrent</LEDWarning>}
+{currentThroughLED > 0.025 && <LEDWarning id={led.id}>[WARN] Overcurrent</LEDWarning>}
 ```
 
 ### LED brightness

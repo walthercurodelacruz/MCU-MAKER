@@ -1,8 +1,14 @@
-# MCU Maker — Introducción a la Plataforma
+# MCU Maker v1.2.0 — Introducción a la Plataforma
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-1.2.0-10B981?style=for-the-badge&logo=semanticrelease&logoColor=white" alt="Version 1.2.0" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=for-the-badge&logo=github&logoColor=white" alt="Desarrollador" />
+  <img src="https://img.shields.io/badge/License-GNU%20AGPLv3-2563EB?style=for-the-badge&logo=gnu&logoColor=white" alt="GNU AGPLv3" />
+</p>
 
 <p align="center">
   <strong>MCU Maker — Un proyecto basado en Velxio.dev con Backend 100% en Rust</strong><br />
-  <strong>Desarrollador:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
+  <strong>Desarrollador Principal:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
 </p>
 
 **MCU Maker** es un entorno interactivo y completo de **simulación electrónica y emulación de microcontroladores** de código abierto, diseñado para ejecutarse de forma **100% local, offline y sin dependencias en la nube** tanto en Windows como en el navegador web.
@@ -21,7 +27,7 @@ Más de 24 placas de desarrollo, 5 arquitecturas de procesador, **más de 160 co
 |--------|--------|--------|
 | **AVR8** (browser) | Arduino Uno, Nano, Mega 2560, ATtiny85 | avr8js |
 | **RP2040** (browser) | Raspberry Pi Pico, Pico W | rp2040js |
-| **Xtensa LX6/LX7** (QEMU backend) | ESP32 DevKit V1, ESP32 DevKit C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3 DevKit, XIAO ESP32-S3 | QEMU lcgamboa fork |
+| **Xtensa LX6/LX7** (QEMU backend) | ESP32 DevKit V1, ESP32-S3 DevKit | QEMU lcgamboa / Espressif |
 | **RISC-V RV32IMC** (QEMU backend) | ESP32-C3 DevKit, XIAO ESP32-C3, ESP32-C3 SuperMini | QEMU lcgamboa fork |
 | **ARM Cortex-A** (QEMU backend) | Raspberry Pi Zero, Pi 1B+, Pi 2B, Pi 3B, Pi 4B, Pi 5 | QEMU `virt` / `raspi3b` |
 

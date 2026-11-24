@@ -19,7 +19,6 @@
 const esp32SvgUrl = '/boards/esp32-devkit-v1.svg';
 const esp32S3SvgUrl = '/boards/esp32-s3.svg';
 const esp32C3SvgUrl = '/boards/esp32-c3.svg';
-const esp32CamSvgUrl = '/boards/esp32-cam.svg';
 
 // ─── Pin positions (mm × 5 px/mm, from board.json) ───────────────────────────
 
@@ -192,27 +191,6 @@ const PINS_ESP32_DEVKIT_C_V4 = [
   { name: 'CLK', x: 133, y: 267 },
 ];
 
-// ESP32-CAM: 27.2 mm × 40.42 mm → 136 × 202 px
-// Left col: x = 1.9 mm → 10 px  |  Right col: x = 24.76 mm → 124 px
-const PINS_ESP32_CAM = [
-  { name: '5V.1', x: 10, y: 25 },
-  { name: 'GND.1', x: 10, y: 37 },
-  { name: '12', x: 10, y: 50 },
-  { name: '13', x: 10, y: 63 },
-  { name: '15', x: 10, y: 76 },
-  { name: '14', x: 10, y: 88 },
-  { name: '2', x: 10, y: 101 },
-  { name: '4', x: 10, y: 114 },
-  { name: '3V3', x: 124, y: 25 },
-  { name: '16', x: 124, y: 37 },
-  { name: '0', x: 124, y: 50 },
-  { name: 'GND.2', x: 124, y: 63 },
-  { name: 'VCC', x: 124, y: 76 },
-  { name: 'RX', x: 124, y: 88 },
-  { name: 'TX', x: 124, y: 101 },
-  { name: 'GND.3', x: 124, y: 114 },
-];
-
 // Wemos Lolin32 Lite: 25.6 mm × 50 mm → 128 × 250 px
 // Left col: x = 1.4 mm → 7 px  |  Right col: x = 24.26 mm → 121 px
 const PINS_WEMOS_LOLIN32 = [
@@ -378,12 +356,6 @@ const ONBOARD_LED_FOOTPRINTS: Record<string, Record<string, LedFootprint>> = {
   // The right of the two LED bodies below the module (wokwi's element draws
   // its led1 there and ledPower on the left one).
   esp32: { led: { x: 94.5, y: 149, size: 8, color: LED_BLUE } },
-  // The big white flash LED bottom right ("- +" marks), the small LED1 body
-  // bottom left.
-  'esp32-cam': {
-    flash: { x: 120, y: 156.3, size: 14, color: '#fff6d5' },
-    led: { x: 22.1, y: 155.2, size: 7, color: '#ff3b30' },
-  },
   // The 5050 body under the "RGB" silk.
   'esp32-s3': { rgb: { x: 37.9, y: 200.1, size: 12 } },
   // The 5050 body under the "GPIO8" silk.
@@ -411,7 +383,6 @@ const BOARD_CONFIGS: Record<string, BoardConfig> = {
   esp32: { svgUrl: esp32SvgUrl, w: 141, h: 265, pins: PINS_ESP32 },
   'esp32-s3': { svgUrl: esp32S3SvgUrl, w: 128, h: 350, pins: PINS_ESP32_S3 },
   'esp32-c3': { svgUrl: esp32C3SvgUrl, w: 127, h: 215, pins: PINS_ESP32_C3 },
-  'esp32-cam': { svgUrl: esp32CamSvgUrl, w: 136, h: 202, pins: PINS_ESP32_CAM },
 };
 
 // ─── Custom element ───────────────────────────────────────────────────────────

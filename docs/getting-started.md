@@ -1,4 +1,12 @@
-# Getting Started
+# Getting Started — MCU Maker v1.2.0
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Version-1.2.0-10B981?style=flat-square&logo=semanticrelease&logoColor=white" alt="Version 1.2.0" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=flat-square&logo=github&logoColor=white" alt="Desarrollador" />
+</p>
+
+> Para instalación nativa en Windows 10/11 y Linux Ubuntu/Debian sin Docker ni suscripciones, consulta la guía principal en [`README.md`](../README.md) y [`MANUAL_PROYECTO_V1.md`](../MANUAL_PROYECTO_V1.md).
+
 
 Velxio is an open-source multi-board emulator and electronics simulator. There are four ways to use it:
 

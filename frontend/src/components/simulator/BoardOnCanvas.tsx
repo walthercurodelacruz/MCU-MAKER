@@ -120,7 +120,6 @@ export const BoardOnCanvas = ({
       case 'pi-pico-w':
         return <PiPicoW id={id} x={x} y={y} boardKind={boardKind} />;
       case 'esp32':
-      case 'esp32-cam':
       case 'esp32-s3':
       case 'esp32-c3':
         return <Esp32 id={id} x={x} y={y} boardKind={boardKind} onboardLeds={onboardLeds} />;

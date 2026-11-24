@@ -49,7 +49,6 @@ const BOARD_BLURBS: Record<string, string> = {
   'arduino-nano': '8-bit AVR, 32KB flash, breadboard-size Uno',
   attiny85: '8-bit AVR, 8KB flash, 6 GPIO (browser)',
   esp32: 'Xtensa LX6 dual-core, WiFi+BT, 38 GPIO (QEMU)',
-  'esp32-cam': 'ESP32 + OV2640 camera, streams to LCD (QEMU)',
   'esp32-s3': 'Xtensa LX7 dual-core, WiFi+BT, AI accel (QEMU)',
   'esp32-c3': 'RISC-V single-core, WiFi+BLE, 22 GPIO (QEMU)',
   'raspberry-pi-pico': 'RP2040 dual-core Cortex-M0+',
@@ -110,9 +109,6 @@ const PREFERRED_BLINK_EXAMPLE: Record<string, string> = {
   'arduino-nano': 'nano-blink',
   attiny85: 'attiny85-blink',
   'pi-pico-w': 'picow-blink-led',
-  // Camera board: the webcam demo IS its "blink" — the board exists to
-  // show the sensor, a bare LED sketch would be a misleading first run.
-  'esp32-cam': 'esp32cam-webcam-demo',
   esp32: 'esp32-blink-led',
   'esp32-s3': 'esp32s3-blink-led',
   'esp32-c3': 'c3-blink',
@@ -200,7 +196,6 @@ export function buildStarterSections(_defs: ProBoardDef[]): StarterSection[] {
       title: 'ESP32',
       entries: [
         oss('esp32'),
-        oss('esp32-cam'),
         oss('esp32-s3'),
         oss('esp32-c3'),
       ],

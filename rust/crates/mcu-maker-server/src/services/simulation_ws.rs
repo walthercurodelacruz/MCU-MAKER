@@ -186,6 +186,23 @@ fn resolve_paths() -> (Option<PathBuf>, Option<PathBuf>, Option<PathBuf>) {
     (rust_worker, xtensa_dll, riscv_dll)
 }
 
+fn detect_wifi_ip(line: &str) -> Option<String> {
+    for prefix in ["192.168.4.", "10.13.37."] {
+        if let Some(idx) = line.find(prefix) {
+            let tail = &line[idx..];
+            let end = tail
+                .find(|c: char| !c.is_ascii_digit() && c != '.')
+                .unwrap_or(tail.len());
+            let candidate = tail[..end].trim_end_matches('.');
+            let parts: Vec<&str> = candidate.split('.').collect();
+            if parts.len() == 4 && parts.iter().all(|p| p.parse::<u8>().is_ok()) {
+                return Some(candidate.to_string());
+            }
+        }
+    }
+    None
+}
+
 fn find_free_port() -> u16 {
     std::net::TcpListener::bind("127.0.0.1:0")
         .and_then(|l| l.local_addr())
@@ -281,9 +298,17 @@ async fn spawn_worker_instance(
     match cmd.spawn() {
         Ok(mut child) => {
             let child_pid = child.id();
-            let mut stdin = child.stdin.take().unwrap();
-            let stdout = child.stdout.take().unwrap();
-            let stderr = child.stderr.take().unwrap();
+            let (Some(mut stdin), Some(stdout), Some(stderr)) =
+                (child.stdin.take(), child.stdout.take(), child.stderr.take())
+            else {
+                error!("Failed to acquire stdio pipes for esp32_worker");
+                let _ = child.kill().await;
+                let _ = ws_tx.send(serde_json::json!({
+                    "type": "error",
+                    "data": { "message": "Failed to acquire worker stdio pipes" }
+                }).to_string());
+                return;
+            };
 
             let (worker_in_tx, mut worker_in_rx) = mpsc::unbounded_channel::<String>();
             let stopped = Arc::new(std::sync::atomic::AtomicBool::new(false));
@@ -346,10 +371,17 @@ async fn spawn_worker_instance(
             let ws_tx_clone = ws_tx.clone();
             let last_stderr_for_stdout = last_stderr.clone();
             let stopped_clone = stopped.clone();
+            let wifi_ap_name = if wifi_enabled {
+                super::wifi_config::WiFiConfig::load().virtual_ap_name
+            } else {
+                String::new()
+            };
             tokio::spawn(async move {
                 let mut reader = BufReader::new(stdout);
                 let mut line = String::new();
                 let mut uart_buf: Vec<u8> = Vec::new();
+                let mut wifi_scan_buf = String::new();
+                let mut wifi_got_ip_sent = false;
 
                 loop {
                     line.clear();
@@ -397,6 +429,28 @@ async fn spawn_worker_instance(
                                         let byte_val = event.get("byte").and_then(|b| b.as_u64()).unwrap_or(0) as u8;
                                         uart_buf.push(byte_val);
 
+                                        if wifi_enabled && !wifi_got_ip_sent && uart_id == 0 {
+                                            if byte_val == b'\n' || byte_val == b'\r' {
+                                                if let Some(ip) = detect_wifi_ip(&wifi_scan_buf) {
+                                                    wifi_got_ip_sent = true;
+                                                    let _ = ws_tx_clone.send(serde_json::json!({
+                                                        "type": "wifi_status",
+                                                        "data": {
+                                                            "status": "got_ip",
+                                                            "ip": ip,
+                                                            "ssid": wifi_ap_name,
+                                                        }
+                                                    }).to_string());
+                                                }
+                                                wifi_scan_buf.clear();
+                                            } else if byte_val.is_ascii() && !byte_val.is_ascii_control() {
+                                                if wifi_scan_buf.len() >= 256 {
+                                                    wifi_scan_buf.clear();
+                                                }
+                                                wifi_scan_buf.push(byte_val as char);
+                                            }
+                                        }
+
                                         let should_flush = byte_val == b'\n'
                                             || byte_val == b'\r'
                                             || byte_val == b'.'
@@ -424,11 +478,19 @@ async fn spawn_worker_instance(
                                         if let Some(obj) = event_data.as_object_mut() {
                                             obj.remove("type");
                                         }
+                                        let is_booted = etype == "system"
+                                            && event_data.get("event").and_then(|e| e.as_str()) == Some("booted");
                                         let out_msg = serde_json::json!({
                                             "type": etype,
                                             "data": event_data
                                         });
                                         let _ = ws_tx_clone.send(out_msg.to_string());
+                                        if is_booted && wifi_enabled && !wifi_got_ip_sent {
+                                            let _ = ws_tx_clone.send(serde_json::json!({
+                                                "type": "wifi_status",
+                                                "data": { "status": "initializing" }
+                                            }).to_string());
+                                        }
                                     }
                                 }
                             }
@@ -693,6 +755,29 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_resolve_paths_does_not_panic() {
+        let (_worker, _xtensa, _riscv) = resolve_paths();
+    }
+
+    #[test]
+    fn test_detect_wifi_ip_extracts_subnet_ip() {
+        assert_eq!(
+            detect_wifi_ip("Direccion IP: 192.168.4.15"),
+            Some("192.168.4.15".to_string())
+        );
+        assert_eq!(
+            detect_wifi_ip("Dashboard: http://192.168.4.15/"),
+            Some("192.168.4.15".to_string())
+        );
+        assert_eq!(
+            detect_wifi_ip("got ip: 10.13.37.2."),
+            Some("10.13.37.2".to_string())
+        );
+        assert_eq!(detect_wifi_ip("Connecting to WiFi..."), None);
+    }
+
+    #[test]
+    #[ignore = "requires downloaded QEMU runtime in prebuilt/qemu_runtime"]
     fn test_resolve_paths_finds_qemu_libraries() {
         let (_worker, xtensa, riscv) = resolve_paths();
         assert!(xtensa.is_some(), "libqemu-xtensa should be found in prebuilt/qemu_runtime");

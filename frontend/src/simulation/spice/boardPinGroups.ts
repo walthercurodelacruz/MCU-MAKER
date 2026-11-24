@@ -84,12 +84,6 @@ export const BOARD_PIN_GROUPS: Record<AllBoardKinds, BoardPinGroup> = {
     vcc_pins: ['3V3'],
     aux: { volts: 5, pins: ['VIN', '5V'] },
   },
-  'esp32-cam': {
-    vcc: 3.3,
-    gnd: ['GND'],
-    vcc_pins: ['3V3', 'VCC'],
-    aux: { volts: 5, pins: ['5V', '5V.1'] },
-  },
   'esp32-s3': {
     vcc: 3.3,
     gnd: ['GND', 'GND.1', 'GND.2', 'GND.3', 'GND.4'],

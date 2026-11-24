@@ -12,16 +12,15 @@ const CANONICAL_BOARDS: BoardKind[] = [
   'raspberry-pi-pico',
   'pi-pico-w',
   'esp32',
-  'esp32-cam',
   'esp32-s3',
   'esp32-c3',
   'attiny85',
 ];
 
 describe('Canonical Boards Parity and Integrity Test', () => {
-  it('has exactly 10 canonical boards defined', () => {
-    expect(CANONICAL_BOARDS).toHaveLength(10);
-    expect(Object.keys(BOARD_KIND_FQBN)).toHaveLength(10);
+  it('has exactly 9 canonical boards defined', () => {
+    expect(CANONICAL_BOARDS).toHaveLength(9);
+    expect(Object.keys(BOARD_KIND_FQBN)).toHaveLength(9);
   });
 
   for (const boardKind of CANONICAL_BOARDS) {

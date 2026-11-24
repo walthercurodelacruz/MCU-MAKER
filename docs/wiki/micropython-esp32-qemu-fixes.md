@@ -237,7 +237,7 @@ SyntaxError
 The original injection sequence used a fixed timer:
 
 ```typescript
-// ❌ Old approach — race condition
+// [FAIL] Old approach — race condition
 this.sendSerialBytes([0x01]);       // Ctrl+A
 setTimeout(() => {
   sendCodeBytes();                  // code sent after 500ms blind delay
@@ -349,8 +349,8 @@ For a 244-byte script this adds ~600 ms of injection time — imperceptible in a
 [Backend] esp32_worker.py
   5. Write flash image to temp file
   6. Launch QEMU: -drive file=<tmp>.bin,if=mtd
-  7. QEMU boots → ROM reads 2nd-stage from 0x1000 ✓
-  8. MicroPython VFS mounts on SPI flash ✓
+  7. QEMU boots → ROM reads 2nd-stage from 0x1000 [OK]
+  8. MicroPython VFS mounts on SPI flash [OK]
 
 [Frontend] Esp32Bridge.ts — REPL injection state machine
   Stage 1: "Type help()" in serial
@@ -416,9 +416,9 @@ Expected output on success:
 [OK] MicroPython booted: MicroPython v1.20.0 on 2023-04-26; ESP32 module with ESP32
 [OK] Stage 2: >>> seen → sending Ctrl+A
 [OK] Stage 3: raw REPL confirmed → sending code in 64-byte chunks
-[OK] Output marker "velxio_micropython_ok" received ✓
-[OK] Math check "6*7=42" confirmed ✓
-[OK] ALL CHECKS PASSED ✓
+[OK] Output marker "velxio_micropython_ok" received [OK]
+[OK] Math check "6*7=42" confirmed [OK]
+[OK] ALL CHECKS PASSED [OK]
 ```
 
 ---

@@ -259,9 +259,9 @@ npx tsx scripts/generate-component-metadata.ts
 The generator will log:
 
 ```
-  🔧 Applied overrides for resistor
+   Applied overrides for resistor
 
-🔧 Applied overrides to 1 component(s)
+ Applied overrides to 1 component(s)
 ```
 
 ### Step 3: Verify

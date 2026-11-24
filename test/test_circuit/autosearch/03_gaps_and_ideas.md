@@ -46,7 +46,7 @@ const componentFactory: Record<string, (id, pins, props) => SolverComponent> = {
 
 ### 3. UI
 
-- Toggle **"⚡ Voltajes"** en toolbar → overlay SVG con V de cada nodo.
+- Toggle **" Voltajes"** en toolbar → overlay SVG con V de cada nodo.
 - Panel lateral con tabla `nodo | V | I`.
 - Warning: si el solver no converge (`state.converged === false`) mostrar banner naranja.
 

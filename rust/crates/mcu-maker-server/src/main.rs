@@ -79,7 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::subscriber::set_global_default(subscriber).ok();
 
     let config = ServerConfig::from_args_and_env();
-    info!("Starting MCU Maker Rust Engine v1.0.0");
+    info!("Starting MCU Maker Rust Engine v{}", env!("CARGO_PKG_VERSION"));
     info!("Frontend static path: {:?}", config.frontend_dist);
     info!("Artifact cache path: {:?}", config.artifact_cache_dir);
 
@@ -89,7 +89,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.artifact_cache_dir.clone(),
     ));
     let compile_chip = Arc::new(ChipCompileService::new());
-    let gateway = Arc::new(IoTGatewayService::new());
+    let gateway = Arc::new(IoTGatewayService::with_port(config.port));
     let mpy_libs = Arc::new(MicroPythonLibsService::new());
     let simulation_ws = Arc::new(SimulationWsManager::new(gateway.clone()));
     let wifi_config = Arc::new(WiFiConfigService::new());
@@ -131,11 +131,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/cache/clear", post(handle_cache_clear).with_state(compile.clone()))
         // WiFi Configuration
         .route("/api/config/wifi", get(handle_get_wifi_config).post(handle_update_wifi_config).with_state(wifi_config.clone()))
+        .route("/api/config/wifi/", get(handle_get_wifi_config).post(handle_update_wifi_config).with_state(wifi_config.clone()))
         // Custom Chips
         .route("/api/compile-chip", post(handle_compile_chip).with_state(compile_chip.clone()))
+        .route("/api/compile-chip/", post(handle_compile_chip).with_state(compile_chip.clone()))
         .route("/api/compile-chip/status", get(handle_compile_chip_status).with_state(compile_chip.clone()))
         // ROM Compile
         .route("/api/compile-rom", post(handle_compile_rom))
+        .route("/api/compile-rom/", post(handle_compile_rom))
         // Libraries
         .route("/api/libraries/search", get(handle_library_search).with_state(arduino_cli.clone()))
         .route("/api/libraries/install", post(handle_library_install).with_state(arduino_cli.clone()))
@@ -164,7 +167,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // IoT Portal
         .route("/iot", get(handle_iot_portal).with_state(gateway.clone()))
         .route("/iot/", get(handle_iot_portal).with_state(gateway.clone()))
-        .route("/iot/*path", get(handle_iot_portal).with_state(gateway.clone()));
+        .route("/iot/*path", get(handle_iot_portal).with_state(gateway.clone()))
+        // Unmatched /api/* endpoints must return JSON 404 instead of SPA HTML
+        .route("/api/*path", any(api_not_found));
 
     // Static assets router
     let assets_dir = config.frontend_dist.join("assets");
@@ -208,11 +213,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+async fn api_not_found() -> impl IntoResponse {
+    (
+        StatusCode::NOT_FOUND,
+        axum::Json(serde_json::json!({
+            "detail": "API route not found"
+        })),
+    )
+}
+
 async fn health_check() -> impl IntoResponse {
     axum::Json(serde_json::json!({
         "status": "healthy",
         "engine": "rust",
-        "version": "1.0.0"
+        "version": env!("CARGO_PKG_VERSION")
     }))
 }
 
@@ -223,16 +237,36 @@ async fn health_libcache() -> impl IntoResponse {
     }))
 }
 
+fn resolve_safe_dist_file(dist_root: &std::path::Path, rel_path: &str) -> Option<std::path::PathBuf> {
+    if rel_path.is_empty() || rel_path.contains('\0') {
+        return None;
+    }
+    let rel = std::path::Path::new(rel_path);
+    if rel.is_absolute() {
+        return None;
+    }
+    for comp in rel.components() {
+        if !matches!(comp, std::path::Component::Normal(_)) {
+            return None;
+        }
+    }
+    let canon_root = std::fs::canonicalize(dist_root).ok()?;
+    let canon_target = std::fs::canonicalize(dist_root.join(rel)).ok()?;
+    if canon_target.starts_with(&canon_root) && canon_target.is_file() {
+        Some(canon_target)
+    } else {
+        None
+    }
+}
+
 async fn handle_spa_fallback(
     State(state): State<AppState>,
     req: Request,
 ) -> Response {
     let path = req.uri().path().trim_start_matches('/');
-    let target = state.config.frontend_dist.join(path);
-
-    if !path.is_empty() && target.is_file() {
-        if let Ok(content) = tokio::fs::read(&target).await {
-            let mime = mime_guess::from_path(&target).first_or_octet_stream().to_string();
+    if let Some(safe_target) = resolve_safe_dist_file(&state.config.frontend_dist, path) {
+        if let Ok(content) = tokio::fs::read(&safe_target).await {
+            let mime = mime_guess::from_path(&safe_target).first_or_octet_stream().to_string();
             return Response::builder()
                 .header(header::CONTENT_TYPE, mime)
                 .body(Body::from(content))
@@ -257,4 +291,23 @@ async fn handle_spa_fallback(
         </div></body></html>"#,
         state.config.port
     )).into_response()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_resolve_safe_dist_file_blocks_traversal() {
+        let dir = tempfile::tempdir().unwrap();
+        let dist = dir.path().join("dist");
+        std::fs::create_dir_all(&dist).unwrap();
+        std::fs::write(dist.join("index.html"), "ok").unwrap();
+        std::fs::write(dir.path().join("secret.txt"), "secret").unwrap();
+
+        assert!(resolve_safe_dist_file(&dist, "index.html").is_some());
+        assert!(resolve_safe_dist_file(&dist, "../secret.txt").is_none());
+        assert!(resolve_safe_dist_file(&dist, "..\\secret.txt").is_none());
+        assert!(resolve_safe_dist_file(&dist, "").is_none());
+    }
 }

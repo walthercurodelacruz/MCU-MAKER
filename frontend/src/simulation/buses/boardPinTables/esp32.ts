@@ -108,19 +108,6 @@ export const ESP32_DEVKIT_C_V4_TABLE: BoardPinFunctions = matrixTable({
   source: `${SOURCE}, variants/esp32/pins_arduino.h (FQBN esp32:esp32:esp32).`,
 });
 
-/**
- * AI-Thinker ESP32-CAM. The header only carries GPIO 0-4 and 12-16; the core
- * defaults for SPI (18/19/23/5) and Wire (21/22) are camera data lines inside
- * the module, so a sketch must name its pins. 2/4/12-15 are also the onboard
- * microSD (SDMMC), 4 the flash LED, 16 the PSRAM chip select.
- */
-export const ESP32_CAM_TABLE: BoardPinFunctions = matrixTable({
-  controllers: esp32Controllers(VARIANT_ESP32),
-  ioMux: ESP32_IO_MUX,
-  boardPins: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16],
-  source: `${SOURCE}, variants/esp32/pins_arduino.h (FQBN esp32:esp32:esp32cam builds the esp32 variant).`,
-});
-
 /** Wemos Lolin32 Lite: no GPIO1/3/21 on the header. */
 export const LOLIN32_LITE_TABLE: BoardPinFunctions = matrixTable({
   controllers: esp32Controllers(VARIANT_LOLIN32_LITE),

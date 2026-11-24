@@ -1,4 +1,13 @@
-# Project Architecture — Velxio
+# Project Architecture — MCU Maker v1.2.0 (based on Velxio)
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Version-1.2.0-10B981?style=flat-square&logo=semanticrelease&logoColor=white" alt="Version 1.2.0" />
+  <img src="https://img.shields.io/badge/Core-Rust%20(Axum%20%2B%20Tokio)-EA580C?style=flat-square&logo=rust&logoColor=white" alt="Rust Core" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=flat-square&logo=github&logoColor=white" alt="Desarrollador" />
+</p>
+
+> **MCU Maker v1.2.0** — Desarrollado por **Walther Curo De La Cruz** sobre la base de código abierto de Velxio.dev (David Montero Crespo), con backend HTTP/WebSocket y worker QEMU reescritos 100% en **Rust** (`mcu-maker-server`, `mcu-maker-worker`, `mcu-maker-launcher`).
+
 
 ## Overview
 

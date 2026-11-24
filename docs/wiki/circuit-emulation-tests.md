@@ -207,20 +207,20 @@ All 47 tests passed as of 2026-04-15. Running `npm test` from `test/test_circuit
 Full command output:
 
 ```
- ✓ test/ngspice_smoke.test.js        (1 test)  372ms
- ✓ test/spice_passive.test.js        (3 tests) 358ms
- ✓ test/spice_transient.test.js      (2 tests) 629ms
- ✓ test/spice_ac.test.js             (2 tests) 340ms
- ✓ test/spice_active.test.js         (6 tests) 600ms
- ✓ test/spice_digital.test.js        (4 tests) 420ms
- ✓ test/spice_555_astable.test.js    (1 test)  609ms
- ✓ test/spice_avr_mixed.test.js      (3 tests) 800ms
- ✓ test/passive.test.js             (11 tests)   8ms
- ✓ test/transient_rc.test.js         (3 tests)  22ms
- ✓ test/diodes.test.js               (7 tests)  15ms
- ✓ test/avr_blink.test.js            (2 tests) 2400ms
- ✓ test/e2e_pot_pwm_led.test.js      (1 test)   90ms
- ✓ test/e2e_thermistor.test.js       (1 test)  121ms
+ [OK] test/ngspice_smoke.test.js        (1 test)  372ms
+ [OK] test/spice_passive.test.js        (3 tests) 358ms
+ [OK] test/spice_transient.test.js      (2 tests) 629ms
+ [OK] test/spice_ac.test.js             (2 tests) 340ms
+ [OK] test/spice_active.test.js         (6 tests) 600ms
+ [OK] test/spice_digital.test.js        (4 tests) 420ms
+ [OK] test/spice_555_astable.test.js    (1 test)  609ms
+ [OK] test/spice_avr_mixed.test.js      (3 tests) 800ms
+ [OK] test/passive.test.js             (11 tests)   8ms
+ [OK] test/transient_rc.test.js         (3 tests)  22ms
+ [OK] test/diodes.test.js               (7 tests)  15ms
+ [OK] test/avr_blink.test.js            (2 tests) 2400ms
+ [OK] test/e2e_pot_pwm_led.test.js      (1 test)   90ms
+ [OK] test/e2e_thermistor.test.js       (1 test)  121ms
 
  Test Files  14 passed (14)
  Tests       47 passed (47)

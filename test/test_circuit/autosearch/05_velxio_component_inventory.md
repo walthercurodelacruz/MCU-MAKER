@@ -22,13 +22,13 @@ Registradas como Web Components en [`LogicGateElements.ts`](../../../frontend/sr
 
 | Metadata ID | Visual | Digital-sim | Metadata JSON | SPICE mapper |
 |---|---|---|---|---|
-| `logic-gate-and`  | ✅ `wokwi-logic-and`  | ✅ | ❌ | ❌ |
-| `logic-gate-nand` | ✅ `wokwi-logic-nand` | ✅ | ❌ | ❌ |
-| `logic-gate-or`   | ✅ `wokwi-logic-or`   | ✅ | ❌ | ❌ |
-| `logic-gate-nor`  | ✅ `wokwi-logic-nor`  | ✅ | ❌ | ❌ |
-| `logic-gate-xor`  | ✅ `wokwi-logic-xor`  | ✅ | ❌ | ❌ |
-| `logic-gate-not`  | ✅ `wokwi-logic-not`  | ✅ | ❌ | ❌ |
-| **XNOR** | ❌ | ❌ | ❌ | ❌ |
+| `logic-gate-and`  | [OK] `wokwi-logic-and`  | [OK] | [FAIL] | [FAIL] |
+| `logic-gate-nand` | [OK] `wokwi-logic-nand` | [OK] | [FAIL] | [FAIL] |
+| `logic-gate-or`   | [OK] `wokwi-logic-or`   | [OK] | [FAIL] | [FAIL] |
+| `logic-gate-nor`  | [OK] `wokwi-logic-nor`  | [OK] | [FAIL] | [FAIL] |
+| `logic-gate-xor`  | [OK] `wokwi-logic-xor`  | [OK] | [FAIL] | [FAIL] |
+| `logic-gate-not`  | [OK] `wokwi-logic-not`  | [OK] | [FAIL] | [FAIL] |
+| **XNOR** | [FAIL] | [FAIL] | [FAIL] | [FAIL] |
 
 **Hallazgos clave:**
 - Las 6 compuertas existentes son **inaccesibles desde la UI** porque no están en `components-metadata.json`. Hay que añadirlas manualmente en `scripts/generate-component-metadata.ts` (o vía `component-overrides.json`) y regenerar el JSON.
@@ -42,31 +42,31 @@ Registradas como Web Components en [`LogicGateElements.ts`](../../../frontend/sr
 
 | Metadata ID | Tipo | Metadata JSON | Visual dedicado |
 |---|---|---|---|
-| `resistor` | Pasivo | ✅ | ✅ |
-| `resistor-us` | Pasivo (símbolo US) | ❌ | ❌ |
-| `capacitor` | Pasivo | ❌ | ❌ |
-| `inductor` | Pasivo | ❌ | ❌ |
-| `analog-resistor` | Pasivo genérico A/B | ❌ | ❌ |
-| `analog-capacitor` | Pasivo genérico A/B | ❌ | ❌ |
-| `analog-inductor` | Pasivo genérico A/B | ❌ | ❌ |
-| `led` | LED con color→modelo Shockley | ✅ | ✅ |
-| `diode` | Diodo genérico | ❌ | ❌ |
-| `diode-1n4148` | Diodo small-signal | ❌ | ❌ |
-| `diode-1n4007` | Diodo rectificador 1 kV | ❌ | ❌ |
-| `zener-1n4733` | Zener 5.1 V | ❌ | ❌ |
-| `bjt-2n2222` | NPN general-purpose | ❌ | ❌ |
-| `bjt-bc547` | NPN small-signal | ❌ | ❌ |
-| `bjt-2n3055` | NPN potencia | ❌ | ❌ |
-| `mosfet-2n7000` | NMOS logic-level | ❌ | ❌ |
-| `mosfet-irf540` | NMOS potencia | ❌ | ❌ |
-| `opamp-ideal` | Op-amp VCVS gain=1e6 | ❌ | ❌ |
-| `pushbutton` | Switch | ✅ | ✅ |
-| `slide-switch` | Switch | ✅ | ✅ |
-| `slide-potentiometer` | Divisor 3 terminales | ✅ | ✅ |
-| `ntc-temperature-sensor` | Sensor β-model | ✅ | ✅ |
-| `photoresistor` | Sensor R(lux) | ✅ | ✅ |
-| `instr-ammeter` | Amperímetro (V-source 0V + shunt 1 mΩ) | ❌ | ❌ |
-| `instr-voltmeter` | Voltímetro (10 MΩ + probe) | ❌ | ❌ |
+| `resistor` | Pasivo | [OK] | [OK] |
+| `resistor-us` | Pasivo (símbolo US) | [FAIL] | [FAIL] |
+| `capacitor` | Pasivo | [FAIL] | [FAIL] |
+| `inductor` | Pasivo | [FAIL] | [FAIL] |
+| `analog-resistor` | Pasivo genérico A/B | [FAIL] | [FAIL] |
+| `analog-capacitor` | Pasivo genérico A/B | [FAIL] | [FAIL] |
+| `analog-inductor` | Pasivo genérico A/B | [FAIL] | [FAIL] |
+| `led` | LED con color→modelo Shockley | [OK] | [OK] |
+| `diode` | Diodo genérico | [FAIL] | [FAIL] |
+| `diode-1n4148` | Diodo small-signal | [FAIL] | [FAIL] |
+| `diode-1n4007` | Diodo rectificador 1 kV | [FAIL] | [FAIL] |
+| `zener-1n4733` | Zener 5.1 V | [FAIL] | [FAIL] |
+| `bjt-2n2222` | NPN general-purpose | [FAIL] | [FAIL] |
+| `bjt-bc547` | NPN small-signal | [FAIL] | [FAIL] |
+| `bjt-2n3055` | NPN potencia | [FAIL] | [FAIL] |
+| `mosfet-2n7000` | NMOS logic-level | [FAIL] | [FAIL] |
+| `mosfet-irf540` | NMOS potencia | [FAIL] | [FAIL] |
+| `opamp-ideal` | Op-amp VCVS gain=1e6 | [FAIL] | [FAIL] |
+| `pushbutton` | Switch | [OK] | [OK] |
+| `slide-switch` | Switch | [OK] | [OK] |
+| `slide-potentiometer` | Divisor 3 terminales | [OK] | [OK] |
+| `ntc-temperature-sensor` | Sensor β-model | [OK] | [OK] |
+| `photoresistor` | Sensor R(lux) | [OK] | [OK] |
+| `instr-ammeter` | Amperímetro (V-source 0V + shunt 1 mΩ) | [FAIL] | [FAIL] |
+| `instr-voltmeter` | Voltímetro (10 MΩ + probe) | [FAIL] | [FAIL] |
 
 **Hallazgo clave:** de 25 mappers SPICE, **solo 6** (`resistor`, `led`, `pushbutton`, `slide-switch`, `slide-potentiometer`, `ntc-temperature-sensor`, `photoresistor`) tienen entrada en `components-metadata.json`. Los 19 restantes funcionan en el solver pero **son invisibles para el usuario** — se pueden instanciar solo programáticamente.
 

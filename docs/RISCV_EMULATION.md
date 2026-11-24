@@ -180,9 +180,9 @@ ninja qemu-system-riscv32.exe
 ninja -t commands qemu-system-riscv32.exe | tail -1 > dll_link.rsp
 
 # 3. Edit dll_link.rsp:
-#    - Replace -o qemu-system-riscv32.exe with: -shared -o libqemu-riscv32.dll
-#    - Remove the softmmu_main.c.obj entry
-#    - Add: -Wl,--export-all-symbols -Wl,--allow-multiple-definition
+# - Replace -o qemu-system-riscv32.exe with: -shared -o libqemu-riscv32.dll
+# - Remove the softmmu_main.c.obj entry
+# - Add: -Wl,--export-all-symbols -Wl,--allow-multiple-definition
 
 # 4. Relink:
 gcc @dll_link.rsp
@@ -315,10 +315,10 @@ arduino-cli compile \
   mi_sketch/
 
 # The backend automatically creates the merged image:
-#   build/mi_sketch.ino.bootloader.bin  → 0x01000
-#   build/mi_sketch.ino.partitions.bin  → 0x08000
-#   build/mi_sketch.ino.bin             → 0x10000 (app)
-#   → merged: sketch.ino.merged.bin (4 MB)
+# build/mi_sketch.ino.bootloader.bin  → 0x01000
+# build/mi_sketch.ino.partitions.bin  → 0x08000
+# build/mi_sketch.ino.bin             → 0x10000 (app)
+# → merged: sketch.ino.merged.bin (4 MB)
 ```
 
 The Velxio backend produces this image automatically and sends it to the frontend as base64.
@@ -562,8 +562,8 @@ Compiles `blink.c` with `riscv32-esp-elf-gcc` (the arduino-cli toolchain) and ve
 > Note: these TypeScript tests run against `RiscVCore.ts` (the in-browser interpreter), not against the QEMU backend.
 
 ```text
-✓ esp32c3-simulation.test.ts  (30 tests)  ~500ms
-✓ esp32c3-blink.test.ts        (8 tests)  ~300ms
+[OK] esp32c3-simulation.test.ts  (30 tests)  ~500ms
+[OK] esp32c3-blink.test.ts        (8 tests)  ~300ms
 ```
 
 ### Bare-Metal Test Binary

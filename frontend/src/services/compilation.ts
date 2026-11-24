@@ -250,14 +250,17 @@ export async function compileCode(
 ): Promise<CompileResult> {
   // Overlay seam: a project that ships a prebuilt image instead of sources the
   // server can build returns it here. No provider in OSS builds -> null.
-  const prebuilt = await (
-    window as {
-      __mcu_maker_prebuilt_firmware__?: (
-        files: SketchFile[],
-        board: string,
-      ) => Promise<CompileResult | null>;
-    }
-  ).__mcu_maker_prebuilt_firmware__?.(files, board);
+  const prebuilt =
+    typeof window !== 'undefined'
+      ? await (
+          window as {
+            __mcu_maker_prebuilt_firmware__?: (
+              files: SketchFile[],
+              board: string,
+            ) => Promise<CompileResult | null>;
+          }
+        ).__mcu_maker_prebuilt_firmware__?.(files, board)
+      : null;
   if (prebuilt) return prebuilt;
 
   console.log('Sending compilation request to:', `${getApiBase()}/compile/start`);
@@ -289,8 +292,10 @@ export async function compileCode(
   // stands down — the sketch connects to the network the user actually wrote.
   // OSS builds have no provider installed → null → legacy rewrite.
   const customWifiSsids =
-    (window as { __mcu_maker_custom_wifi_ssids__?: () => string[] | null })
-      .__mcu_maker_custom_wifi_ssids__?.() ?? null;
+    typeof window !== 'undefined'
+      ? ((window as { __mcu_maker_custom_wifi_ssids__?: () => string[] | null })
+          .__mcu_maker_custom_wifi_ssids__?.() ?? null)
+      : null;
 
   let jobId: string;
   // A deployment that seeds its libraries at boot answers 503 + Retry-After
@@ -368,6 +373,8 @@ export async function compileCode(
   // budgets so waiting for a slot can never time a build out.
   let queuedMs = 0;
   let lastPollAt = Date.now();
+  let consecutivePollErrors = 0;
+  const MAX_CONSECUTIVE_POLL_ERRORS = 5;
   // Initial small delay so we don't hit /status before the background task
   // has even moved past 'pending'.
   await sleep(500);
@@ -394,18 +401,39 @@ export async function compileCode(
         { withCredentials: true, timeout: 30000 },
       );
       status = resp.data;
+      if (!status || typeof status !== 'object' || typeof status.state !== 'string') {
+        throw new Error('Invalid compile status payload from server');
+      }
+      consecutivePollErrors = 0;
     } catch (error) {
-      // Transient poll error — log, wait, retry. Only abort on 404 (job
-      // expired or never existed).
+      // Transient poll error — log, wait, retry up to a small bound. Abort
+      // immediately on 404 (job expired or never existed).
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         throw new Error(`Compile job ${jobId} not found (server may have restarted)`);
       }
-      console.warn('[compile] status poll error, retrying:', error);
+      consecutivePollErrors += 1;
+      console.warn(
+        `[compile] status poll error (${consecutivePollErrors}/${MAX_CONSECUTIVE_POLL_ERRORS}), retrying:`,
+        error,
+      );
+      if (consecutivePollErrors >= MAX_CONSECUTIVE_POLL_ERRORS) {
+        throw new Error(
+          'Lost connection to the compile server while waiting for the build to finish.',
+        );
+      }
       await sleep(POLL_INTERVAL_MS);
       continue;
     }
 
-    if (status.state === 'done' && status.result) {
+    if (status.state === 'done') {
+      if (!status.result) {
+        return {
+          success: false,
+          stdout: status.stdout || '',
+          stderr: '',
+          error: status.error || 'Compilation finished without a result payload',
+        };
+      }
       const elapsed = Math.round((Date.now() - startedAt) / 1000);
       console.log(`[compile] job ${jobId} done in ${elapsed}s`);
       // Final flush: the buffer grew between the last running-poll and

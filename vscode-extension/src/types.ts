@@ -59,15 +59,18 @@ export interface DiagramPart {
 /** [fromPin, toPin, wireColor, routingHints?] */
 export type DiagramConnection = [string, string, string, string[]?];
 
+export interface McuMakerSection {
+  version: number;
+  board?: string;
+  firmware?: string;
+  elf?: string;
+  language?: LanguageMode;
+}
+
 /** mcu_maker.toml parsed config */
 export interface McuMakerConfig {
-  mcu-maker: {
-    version: number;
-    board?: string;
-    firmware?: string;
-    elf?: string;
-    language?: LanguageMode;
-  };
+  mcu_maker?: McuMakerSection;
+  'mcu-maker'?: McuMakerSection;
 }
 
 export const BOARD_LABELS: Record<BoardKind, string> = {

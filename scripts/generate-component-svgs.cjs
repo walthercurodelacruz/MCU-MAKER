@@ -321,7 +321,6 @@ const BOARD_COPIES = [
   ['raspberry-pi-pico-w',          'pi-pico-w.svg'],
   ['esp32-board',                  'esp32-devkit-c-v4.svg'],
   ['esp32-devkit-c-v4',            'esp32-devkit-c-v4.svg'],
-  ['esp32-cam',                    'esp32-cam.svg'],
   ['esp32-s3',                     'esp32-s3.svg'],
   ['esp32-c3',                     'esp32-c3.svg'],
   ['xiao-esp32-s3',                'xiao-esp32-s3.svg'],

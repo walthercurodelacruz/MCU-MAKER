@@ -100,7 +100,6 @@ export const ADC_PIN_MAP: Partial<Record<BoardKind, Array<{ pinName: string; cha
   // so the SPICE->ADC path silently skipped every esp32-family pin
   // (2026-07 emulation-gaps audit; divider circuits read 0 forever).
   esp32: adcRange('', 32, 8),
-  'esp32-cam': adcRange('', 32, 8),
   'esp32-s3': adcRange('', 1, 10),
   'esp32-c3': adcRange('', 0, 6),
 };
@@ -123,7 +122,6 @@ const ADC_PIN_TO_GPIO: Partial<Record<BoardKind, (pinName: string, channel: numb
   'pi-pico-w': gpioPinFromName,
 
   esp32: gpioPinFromName,
-  'esp32-cam': gpioPinFromName,
   'esp32-s3': gpioPinFromName,
   'esp32-c3': gpioPinFromName,
 };

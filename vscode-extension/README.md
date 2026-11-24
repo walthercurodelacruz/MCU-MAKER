@@ -1,6 +1,12 @@
-# Velxio Simulator for VS Code
+# MCU Maker Simulator for VS Code
 
-Local Arduino, RP2040 and ESP32 simulator inside your editor. Compile
+<p align="left">
+  <img src="https://img.shields.io/badge/MCU%20Maker-v1.2.0-10B981?style=for-the-badge&logo=semanticrelease&logoColor=white" alt="MCU Maker v1.2.0" />
+  <img src="https://img.shields.io/badge/VS%20Code-Extension%20v0.2.0-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code Extension" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=for-the-badge&logo=github&logoColor=white" alt="Desarrollador" />
+</p>
+
+Local Arduino, RP2040 and ESP32 simulator inside your editor (part of **MCU Maker Suite v1.2.0**, developed by **Walther Curo De La Cruz**, based on Velxio.dev). Compile
 your sketch, watch it run in a side-by-side WebView, and stream serial
 to the integrated terminal — no board, no USB cable, no separate IDE.
 

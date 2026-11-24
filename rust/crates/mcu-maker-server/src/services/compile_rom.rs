@@ -31,13 +31,16 @@ pub struct RomCompileResponse {
 
 pub fn parse_intel_hex(text: &str) -> Result<Vec<u8>, String> {
     let mut out = Vec::new();
-    for raw in text.lines() {
+    for (idx, raw) in text.lines().enumerate() {
         let line = raw.trim();
         if !line.starts_with(':') {
             continue;
         }
+        if !line.is_ascii() {
+            return Err(format!("Non-ASCII characters on Intel HEX line {}", idx + 1));
+        }
         if line.len() < 11 {
-            continue;
+            return Err(format!("Truncated Intel HEX record on line {}", idx + 1));
         }
         let length = usize::from_str_radix(&line[1..3], 16).map_err(|e| e.to_string())?;
         let addr = usize::from_str_radix(&line[3..7], 16).map_err(|e| e.to_string())?;
@@ -52,10 +55,19 @@ pub fn parse_intel_hex(text: &str) -> Result<Vec<u8>, String> {
             continue;
         }
 
-        let data_hex = &line[9..9 + length * 2];
+        let data_end = 9 + length * 2;
+        if line.len() < data_end + 2 {
+            return Err(format!(
+                "Intel HEX record length mismatch on line {} (expected at least {} chars, got {})",
+                idx + 1,
+                data_end + 2,
+                line.len()
+            ));
+        }
+        let data_hex = &line[9..data_end];
         let data = hex::decode(data_hex).map_err(|e| e.to_string())?;
 
-        let end = addr + data.len();
+        let end = addr.checked_add(data.len()).ok_or_else(|| "Intel HEX address overflow".to_string())?;
         if end > out.len() {
             out.resize(end, 0);
         }
@@ -125,4 +137,21 @@ pub fn compile_rom_logic(req: RomCompileRequest) -> RomCompileResponse {
 pub async fn handle_compile_rom(Json(payload): Json<RomCompileRequest>) -> impl IntoResponse {
     let res = compile_rom_logic(payload);
     Json(res)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_intel_hex_valid_and_malformed() {
+        let valid = ":02000000ABCD86\n:00000001FF\n";
+        assert_eq!(parse_intel_hex(valid).unwrap(), vec![0xAB, 0xCD]);
+
+        // Must return Err instead of panicking on oversized byte count or truncated line
+        assert!(parse_intel_hex(":FF000000\n").is_err());
+        assert!(parse_intel_hex(":02000000AB\n").is_err());
+        assert!(parse_intel_hex(":02\n").is_err());
+        assert!(parse_intel_hex(":02000000éé\n").is_err());
+    }
 }

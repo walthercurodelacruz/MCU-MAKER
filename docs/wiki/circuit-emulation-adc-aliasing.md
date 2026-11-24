@@ -242,11 +242,11 @@ table have since been implemented:
 
 | Consumer | Status |
 | --- | --- |
-| `<Voltmeter/>` overlay | ✅ Reads `timeWaveforms.nodes[net]` and displays RMS / pk / DC (see Phase 2b) |
-| `<Ammeter/>` overlay | ✅ Reads `timeWaveforms.branches[src]` and displays RMS / pk / DC (see Phase 2c) |
-| `<ElectricalOverlay/>` | ✅ Prefixes AC wires with `~` and shows AC/DC badge (Phase 2d) |
-| Capacitor-charging examples | ✅ `pickDynamicAnalysis` promotes to `.tran` when a reactive element is wired to an MCU-driven pin (Phase 4) |
-| ESP32 per-read ADC | ✅ Waveform pushed to QEMU SAR ADC; interpolated on MMIO read (Phase 3) |
+| `<Voltmeter/>` overlay | [OK] Reads `timeWaveforms.nodes[net]` and displays RMS / pk / DC (see Phase 2b) |
+| `<Ammeter/>` overlay | [OK] Reads `timeWaveforms.branches[src]` and displays RMS / pk / DC (see Phase 2c) |
+| `<ElectricalOverlay/>` | [OK] Prefixes AC wires with `~` and shows AC/DC badge (Phase 2d) |
+| Capacitor-charging examples | [OK] `pickDynamicAnalysis` promotes to `.tran` when a reactive element is wired to an MCU-driven pin (Phase 4) |
+| ESP32 per-read ADC | [OK] Waveform pushed to QEMU SAR ADC; interpolated on MMIO read (Phase 3) |
 
 Still on the backlog (out of scope for the Phase 1-6 delivery):
 

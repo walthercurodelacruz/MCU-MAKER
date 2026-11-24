@@ -150,7 +150,7 @@ QEMU UART0: "I (1200) esp_netif_handlers: sta ip: 192.168.4.15"
 Backend: { status: "got_ip", ip: "192.168.4.15" }
          │
          ▼
-SimulatorCanvas: ícono WiFi cambia a verde ✓
+SimulatorCanvas: ícono WiFi cambia a verde [OK]
 ```
 
 ### IoT Gateway (Servidor HTTP)
@@ -166,7 +166,7 @@ Cuando tu sketch ejecuta un WebServer en el ESP32, Velxio crea un proxy HTTP rev
 Browser → http://localhost:8001/api/gateway/board-1/
        → Proxy → http://127.0.0.1:{hostfwd_port}/
        → QEMU → ESP32 WebServer (192.168.4.15:80)
-       → "<h1>Hola desde ESP32 🚀</h1>"
+       → "<h1>Hola desde ESP32 </h1>"
 ```
 
 ### Bluetooth Low Energy (BLE)
@@ -239,7 +239,7 @@ const char* password = "";
 WebServer server(80);
 
 void handleRoot() {
-  server.send(200, "text/html", "<h1>Hola desde ESP32 🚀</h1>");
+  server.send(200, "text/html", "<h1>Hola desde ESP32 </h1>");
 }
 
 void setup() {

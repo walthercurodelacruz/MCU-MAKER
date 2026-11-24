@@ -21,7 +21,6 @@ import { BOARD_SIZE } from '../utils/boardGeometry';
 
 const ESP32_KINDS: BoardKind[] = [
   'esp32',
-  'esp32-cam',
   'esp32-s3',
   'esp32-c3',
 ];
@@ -68,8 +67,6 @@ describe('mcu-maker-esp32: footprints match the board table', () => {
 describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot', () => {
   it.each([
     ['esp32', 'led'],
-    ['esp32-cam', 'led'],
-    ['esp32-cam', 'flash'],
   ] as const)('%s / %s', (kind, id) => {
     const el = mount(kind);
     el.onboardLeds = { [id]: true };
@@ -81,16 +78,6 @@ describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot',
     expect(d.style.opacity).toBe('0');
     el.onboardLeds = undefined;
     expect(d.style.opacity).toBe('0');
-  });
-
-  it('esp32-cam: the two LEDs are independent', () => {
-    const el = mount('esp32-cam');
-    el.onboardLeds = { flash: true, led: false };
-    expect(dot(el, 'flash')!.style.opacity).toBe('1');
-    expect(dot(el, 'led')!.style.opacity).toBe('0');
-    el.onboardLeds = { flash: false, led: true };
-    expect(dot(el, 'flash')!.style.opacity).toBe('0');
-    expect(dot(el, 'led')!.style.opacity).toBe('1');
   });
 
   it.each(['esp32-s3', 'esp32-c3'] as const)(
@@ -115,12 +102,12 @@ describe('mcu-maker-esp32: the onboardLeds property lights and darkens the dot',
   it('a re-render on a board-kind change keeps the lit state', () => {
     const el = mount('esp32');
     el.onboardLeds = { led: true };
-    el.setAttribute('board-kind', 'esp32-cam');
+    el.setAttribute('board-kind', 'esp32');
     expect(dot(el, 'led')!.style.opacity).toBe('1');
   });
 
   it('the picker thumbnail (no property ever set) shows every LED dark', () => {
-    const el = mount('esp32-cam');
+    const el = mount('esp32');
     for (const d of Array.from(el.shadowRoot!.querySelectorAll<HTMLElement>('[data-onboard-led]'))) {
       expect(d.style.opacity).toBe('0');
     }

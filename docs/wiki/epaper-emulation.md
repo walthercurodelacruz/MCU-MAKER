@@ -32,14 +32,14 @@ parameterised by `panelKind`; the decoder is selected from the panel's
 
 | `panelKind` (metadata id) | Size | Resolution | Palette | Controller IC | AVR Uno? | RP2040? | ESP32? |
 |---|---|---|---|---|:---:|:---:|:---:|
-| `epaper-1in54-bw`  | 1.54" | 200×200 | B/W   | SSD1681           | ✅ paged | ✅ | ✅ |
-| `epaper-2in13-bw`  | 2.13" | 250×122 | B/W   | SSD1675A / IL3897 | ✅ paged | ✅ | ✅ |
-| `epaper-2in13-bwr` | 2.13" | 250×122 | B/W/R | SSD1680 (3-colour)| ⚠️ tight | ✅ | ✅ |
-| `epaper-2in9-bw`   | 2.9"  | 296×128 | B/W   | SSD1680           | ⚠️ tight | ✅ | ✅ |
-| `epaper-2in9-bwr`  | 2.9"  | 296×128 | B/W/R | SSD1680 (3-colour)| ❌ flash | ✅ | ✅ |
-| `epaper-4in2-bw`   | 4.2"  | 400×300 | B/W   | SSD1683 / UC8176  | ❌ flash | ✅ | ✅ |
-| `epaper-7in5-bw`   | 7.5"  | 800×480 | B/W   | UC8179 / GD7965   | ❌       | ⚠️ tight | ✅ |
-| `epaper-5in65-7c`  | 5.65" | 600×448 | **ACeP 7-colour** | **UC8159c** | ❌ flash | ⚠️ tight | ✅ |
+| `epaper-1in54-bw`  | 1.54" | 200×200 | B/W   | SSD1681           | [OK] paged | [OK] | [OK] |
+| `epaper-2in13-bw`  | 2.13" | 250×122 | B/W   | SSD1675A / IL3897 | [OK] paged | [OK] | [OK] |
+| `epaper-2in13-bwr` | 2.13" | 250×122 | B/W/R | SSD1680 (3-colour)| [WARN] tight | [OK] | [OK] |
+| `epaper-2in9-bw`   | 2.9"  | 296×128 | B/W   | SSD1680           | [WARN] tight | [OK] | [OK] |
+| `epaper-2in9-bwr`  | 2.9"  | 296×128 | B/W/R | SSD1680 (3-colour)| [FAIL] flash | [OK] | [OK] |
+| `epaper-4in2-bw`   | 4.2"  | 400×300 | B/W   | SSD1683 / UC8176  | [FAIL] flash | [OK] | [OK] |
+| `epaper-7in5-bw`   | 7.5"  | 800×480 | B/W   | UC8179 / GD7965   | [FAIL]       | [WARN] tight | [OK] |
+| `epaper-5in65-7c`  | 5.65" | 600×448 | **ACeP 7-colour** | **UC8159c** | [FAIL] flash | [WARN] tight | [OK] |
 
 Three of those panels use a **non-SSD168x controller** and have their own
 decoder; `EPaperPart.ts` picks it from `cfg.controllerFamily` on every
@@ -56,8 +56,8 @@ engine:
 > stream the SSD168x decoder ignores. Setting it to `'uc8179'` + adding the
 > decoder fixed it.
 
-"AVR ⚠️ tight" means the GxEPD2 paged build fits but Adafruit_GFX font
-selection matters; "❌" means the binary blows past 32 KB at any sane
+"AVR [WARN] tight" means the GxEPD2 paged build fits but Adafruit_GFX font
+selection matters; "[FAIL]" means the binary blows past 32 KB at any sane
 config.
 
 ## Wiring (every panel — same pinout)
@@ -207,9 +207,9 @@ other tab-side sink receives (see [board-buses.md](./board-buses.md),
 
 | Library | AVR | RP2040 | ESP32 | Notes |
 |---|:---:|:---:|:---:|---|
-| **GxEPD2** (Jean-Marc Zingg) | ✅ (panel must fit flash) | ✅ | ✅ | The de-facto Arduino library; every example is GxEPD2 (BW / 3C / 7C). |
-| **Adafruit_EPD** | ❌ RAM | ✅ | ✅ | Should work — the SSD168x command set is identical. |
-| **ESPHome `waveshare_epaper`** | n/a | n/a | ✅ | Generates the same SPI traffic as Adafruit_EPD; tested on real hardware. |
+| **GxEPD2** (Jean-Marc Zingg) | [OK] (panel must fit flash) | [OK] | [OK] | The de-facto Arduino library; every example is GxEPD2 (BW / 3C / 7C). |
+| **Adafruit_EPD** | [FAIL] RAM | [OK] | [OK] | Should work — the SSD168x command set is identical. |
+| **ESPHome `waveshare_epaper`** | n/a | n/a | [OK] | Generates the same SPI traffic as Adafruit_EPD; tested on real hardware. |
 
 The example sketches use GxEPD2. Both `GxEPD2` and `Adafruit GFX
 Library` are auto-installed by the editor when you load any example

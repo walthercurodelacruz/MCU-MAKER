@@ -36,7 +36,6 @@ const gpio = (pin: number, activeLow: boolean, id = 'led'): OnboardLed => ({
 
 const EXPECTED_ESP32: Record<string, readonly OnboardLed[]> = {
   esp32: [gpio(2, false)],
-  'esp32-cam': [gpio(4, false, 'flash'), gpio(33, true)],
   'esp32-s3': [{ id: 'rgb', kind: 'ws2812', pin: 48 }],
   'esp32-c3': [{ id: 'rgb', kind: 'ws2812', pin: 8 }],
 };
@@ -54,12 +53,6 @@ describe('BOARD_ONBOARD_LEDS: every ESP32 kind declares its real LED, pin and po
         if (led.kind === 'gpio' || led.kind === 'ws2812') expect(led.pin).not.toBe(13);
       }
     }
-  });
-
-  it('the CAM red LED is active-LOW', () => {
-    const activeLow = (kind: string, id = 'led') =>
-      onboardLedsFor(kind).find((l) => l.id === id && l.kind === 'gpio' && l.activeLow);
-    expect(activeLow('esp32-cam')).toBeTruthy();
   });
 });
 

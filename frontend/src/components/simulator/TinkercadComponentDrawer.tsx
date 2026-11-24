@@ -96,7 +96,6 @@ const BOARD_ITEMS: { kind: BoardKind; name: string; desc: string; img: string }[
   { kind: 'esp32', name: 'ESP32 DevKit V1', desc: 'Xtensa dual-core + WiFi', img: '/component-svgs/esp32-devkit-v1.svg' },
   { kind: 'esp32-s3', name: 'ESP32-S3 DevKit', desc: 'Xtensa LX7 + USB OTG', img: '/component-svgs/esp32-s3.svg' },
   { kind: 'esp32-c3', name: 'ESP32-C3 DevKit', desc: 'RISC-V single core', img: '/component-svgs/esp32-c3.svg' },
-  { kind: 'esp32-cam', name: 'ESP32-CAM', desc: 'Cámara 2MP + WiFi', img: '/component-svgs/esp32-cam.svg' },
   { kind: 'attiny85', name: 'ATtiny85 DIP-8', desc: 'AVR 8KB · 6 GPIO', img: '/component-svgs/attiny85.svg' },
 ];
 

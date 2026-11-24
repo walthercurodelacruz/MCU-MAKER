@@ -201,8 +201,10 @@ impl LauncherApp {
     pub fn clear_artifacts_cache(&self) {
         let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         let dirs = [
-            cwd.join("backend").join("artifacts"),
             cwd.join("artifacts"),
+            cwd.join("..").join("artifacts"),
+            cwd.join("..").join("..").join("artifacts"),
+            cwd.join("backend").join("artifacts"),
             cwd.join("..").join("backend").join("artifacts"),
             cwd.join("..").join("..").join("backend").join("artifacts"),
         ];
@@ -318,7 +320,7 @@ impl eframe::App for LauncherApp {
                     });
 
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        let is_running = *self.process_mgr.is_running.lock().unwrap();
+                        let is_running = self.process_mgr.is_server_running();
                         if is_running {
                             render_pill(
                                 ui,
@@ -354,7 +356,7 @@ impl eframe::App for LauncherApp {
             .show(ctx, |ui| {
                 ui.horizontal(|ui| {
                     ui.label(
-                        RichText::new("MCU Maker v1.0.0 (Rust Core + eframe/egui)")
+                        RichText::new(concat!("MCU Maker v", env!("CARGO_PKG_VERSION"), "  |  Desarrollado por Walther Curo De La Cruz"))
                             .color(COLOR_TEXT_DIM)
                             .size(11.5),
                     );
@@ -365,7 +367,16 @@ impl eframe::App for LauncherApp {
                         }
 
                         if ui.add(Button::new(RichText::new(format!("{}  Documentación", ICON_BOOK)).size(11.5))).clicked() {
-                            let _ = open::that(format!("http://localhost:{}/api/docs", self.server_port));
+                            let cwd = std::env::current_dir().unwrap_or_default();
+                            let doc = ["MANUAL_PROYECTO_V1.md", "README.md"]
+                                .iter()
+                                .map(|name| cwd.join(name))
+                                .find(|p| p.is_file());
+                            if let Some(doc_path) = doc {
+                                let _ = open::that(doc_path);
+                            } else {
+                                let _ = open::that(format!("http://localhost:{}/", self.server_port));
+                            }
                         }
                     });
                 });
@@ -423,7 +434,7 @@ impl eframe::App for LauncherApp {
 
 impl LauncherApp {
     fn render_cards(&mut self, ui: &mut egui::Ui) {
-        let is_running = *self.process_mgr.is_running.lock().unwrap();
+        let is_running = self.process_mgr.is_server_running();
 
         // ── Card 1: MCU Maker Studio ─────────────────────────────────────────
         card_frame().show(ui, |ui| {
@@ -444,7 +455,7 @@ impl LauncherApp {
                     });
                     ui.add_space(3.0);
                     ui.label(
-                        RichText::new("Simulador interactivo en tiempo real con soporte AVR8 (Arduino), ESP32, RP2040, STM32 y motor analógico SPICE (ngspice-WASM).")
+                        RichText::new("Simulador interactivo en tiempo real con soporte AVR8 (Arduino), ESP32, RP2040 y motor analógico SPICE (ngspice-WASM).")
                             .size(12.5)
                             .color(COLOR_TEXT_MUTED),
                     );
@@ -574,12 +585,12 @@ impl LauncherApp {
                 ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                     ui.checkbox(&mut self.auto_scroll, "Auto-scroll");
                     if ui.add(Button::new(RichText::new(format!("{}  Copiar Todo", ICON_COPY)).size(11.5))).clicked() {
-                        let logs = self.process_mgr.logs.lock().unwrap();
+                        let logs = self.process_mgr.logs.lock().unwrap_or_else(|e| e.into_inner());
                         let text = logs.iter().map(|l| format!("[{}] [{}] {}", l.timestamp, l.level, l.message)).collect::<Vec<_>>().join("\n");
                         ui.output_mut(|o| o.copied_text = text);
                     }
                     if ui.add(Button::new(RichText::new(format!("{}  Borrar Registros", ICON_TRASH)).size(11.5))).clicked() {
-                        self.process_mgr.logs.lock().unwrap().clear();
+                        self.process_mgr.logs.lock().unwrap_or_else(|e| e.into_inner()).clear();
                     }
                 });
             });
@@ -590,7 +601,7 @@ impl LauncherApp {
                 .auto_shrink([false, false])
                 .stick_to_bottom(self.auto_scroll)
                 .show(ui, |ui| {
-                    let logs = self.process_mgr.logs.lock().unwrap().clone();
+                    let logs = self.process_mgr.logs.lock().unwrap_or_else(|e| e.into_inner()).clone();
                     for entry in logs {
                         ui.horizontal(|ui| {
                             ui.label(RichText::new(format!("[{}]", entry.timestamp)).color(COLOR_TEXT_MUTED).monospace().size(11.0));

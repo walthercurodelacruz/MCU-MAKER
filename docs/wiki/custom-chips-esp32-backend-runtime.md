@@ -221,14 +221,14 @@ firmware's critical path.
 
 ### Implemented
 
-- ✅ All `vx_pin_*` digital APIs (read / write / register / set_mode)
-- ✅ **`vx_pin_write` → real GPIO** via `qemu_picsimlab_set_pin(slot, value)` —
+- [OK] All `vx_pin_*` digital APIs (read / write / register / set_mode)
+- [OK] **`vx_pin_write` → real GPIO** via `qemu_picsimlab_set_pin(slot, value)` —
   chips like PCF8574 that drive output pins work natively. The frontend resolves
   each chip pin name → ESP32 GPIO (via the diagram's wires) and sends a
   `pin_map: {logical_name: gpio}` in the sensor payload.
-- ✅ **`vx_pin_read` → live QEMU GPIO state** via the worker's `_pin_state`
+- [OK] **`vx_pin_read` → live QEMU GPIO state** via the worker's `_pin_state`
   cache (updated from every `_on_pin_change` event).
-- ✅ `vx_attr_register` / `vx_attr_read` (frontend pushes attrs into the sensor payload)
+- [OK] `vx_attr_register` / `vx_attr_read` (frontend pushes attrs into the sensor payload)
 - `vx_i2c_attach` with the 4 callbacks: registers in the `I2cBusTable` by
   (controller, address), every address the chip attaches, on the controller
   its SDA is wired to
@@ -242,29 +242,29 @@ firmware's critical path.
   (acquiring the IO-thread lock). See
   [custom-chips-chip-nets.md](./custom-chips-chip-nets.md#uart-binding) and
   [board-buses.md](./board-buses.md).
-- ✅ **Chip-to-chip nets** — a chip pin wired only to another chip's pin is
+- [OK] **Chip-to-chip nets** — a chip pin wired only to another chip's pin is
   carried by the worker's `ChipNetBus` (`nets` in the payload), and a net
   whose members live in two ESP32 workers is bridged through the frontend
   interconnect. Details, measured latency and limits in
   [custom-chips-chip-nets.md](./custom-chips-chip-nets.md).
-- ✅ **`vx_spi_attach` / `vx_spi_start` / `vx_spi_stop`** — `_on_spi_event`
+- [OK] **`vx_spi_attach` / `vx_spi_start` / `vx_spi_stop`** — `_on_spi_event`
   routes byte exchanges to the chip synchronously. The buffer-based model
   matches the JS runtime's `SPIBus`. The re-arm pattern (chip calls
   `vx_spi_start` again from `on_done`) is supported. SPI shift registers and
   ADCs work.
-- ✅ **`vx_timer_create` / `vx_timer_start` / `vx_timer_stop`** — a dedicated
+- [OK] **`vx_timer_create` / `vx_timer_start` / `vx_timer_stop`** — a dedicated
   scheduler thread (`_chip_timer_thread`) wakes on the soonest deadline,
   acquires the QEMU IO-thread lock, and fires every due timer. The lock means
   a timer callback can safely call `vx_pin_write` etc. without races.
-- ✅ **`vx_pin_watch` (firmware-driven, edge-triggered)** — chip subscribes
+- [OK] **`vx_pin_watch` (firmware-driven, edge-triggered)** — chip subscribes
   to a pin via `vx_pin_watch(handle, edge, cb, ud)`. The worker's
   `_on_pin_change` dispatches to every runtime that has a watch on the
   triggered GPIO; `notify_pin_change` runs the chip callback synchronously
   inside the QEMU thread (lock held), so the callback can drive other GPIOs
   via `vx_pin_write` in the same critical section. Used by the 74HC595 to
   latch on RCLK rising edge.
-- ✅ `vx_log` and `printf` via WASI `fd_write` → `chip_log` WS events
-- ✅ `vx_sim_now_nanos` and the timers on the guest's virtual clock (`QEMU_CLOCK_VIRTUAL`; 0 at the chip's creation, the timer's deadline inside its callback)
+- [OK] `vx_log` and `printf` via WASI `fd_write` → `chip_log` WS events
+- [OK] `vx_sim_now_nanos` and the timers on the guest's virtual clock (`QEMU_CLOCK_VIRTUAL`; 0 at the chip's creation, the timer's deadline inside its callback)
 
 ### Deferred (clear extension paths)
 

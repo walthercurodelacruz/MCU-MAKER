@@ -1,22 +1,28 @@
-# 📋 Catálogo Oficial de Placas, Componentes y Roadmap FPGA — MCU Maker
+# Catálogo Oficial de Placas, Componentes y Roadmap FPGA — MCU Maker v1.2.0
 
-Este documento contiene el inventario exhaustivo de todas las placas de desarrollo, familias de microcontroladores y componentes de hardware simulados disponibles en **MCU Maker**, así como la propuesta arquitectónica para la **futura integración de FPGAs**.
+<p align="left">
+  <img src="https://img.shields.io/badge/Version-1.2.0-10B981?style=for-the-badge&logo=semanticrelease&logoColor=white" alt="Version 1.2.0" />
+  <img src="https://img.shields.io/badge/Placas%20Canónicas-9%20Oficiales-E7352C?style=for-the-badge&logo=espressif&logoColor=white" alt="9 Placas Canónicas" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=for-the-badge&logo=github&logoColor=white" alt="Desarrollador" />
+</p>
+
+Este documento contiene el inventario exhaustivo de todas las placas de desarrollo, familias de microcontroladores y componentes de hardware simulados disponibles en **MCU Maker v1.2.0**, así como la propuesta arquitectónica para la **futura integración de FPGAs**.
 
 ---
 
-## 📑 Tabla de Contenidos
-1. [Placas de Desarrollo y Microcontroladores Disponibles (11 Modelos Canónicos)](#1-placas-de-desarrollo-y-microcontroladores-disponibles-11-modelos-canónicos)
+## Tabla de Contenidos
+1. [Placas de Desarrollo y Microcontroladores Disponibles (9 Modelos Canónicos)](#1-placas-de-desarrollo-y-microcontroladores-disponibles-9-modelos-canónicos)
    - [Familia Arduino (AVR 8-bit)](#a-familia-arduino-arquitectura-avr-8-bit--motor-avr8js)
    - [Familia ESP32 (Xtensa Dual-Core)](#b-familia-esp32-arquitectura-xtensa-dual-core--motor-qemu-nativo)
    - [Familia ESP32 RISC-V](#c-familia-esp32-risc-v-arquitectura-risc-v-rv32imc--motor-qemu-nativo)
    - [Familia Raspberry Pi Pico (RP2040 ARM Cortex-M0+)](#d-familia-raspberry-pi-pico-arquitectura-arm-cortex-m0--motor-rp2040js)
 2. [Catálogo de Componentes (> 160 Dispositivos)](#2-catálogo-de-componentes--160-dispositivos)
-   - [Entradas y Sensores](#-entradas-y-sensores)
-   - [Salidas, Actuadores y Motores](#-salidas-actuadores-y-motores)
-   - [Pantallas y Visualización (Displays)](#-pantallas-y-visualización-displays)
-   - [Pasivos y Analógicos (Motor SPICE / ngspice-WASM)](#-pasivos-y-analógicos-motor-spice--ngspice-wasm)
-   - [Circuitos Integrados y Lógica Digital (Serie 74HC y Primitivas)](#-circuitos-integrados-y-lógica-digital-serie-74hc-y-primitivas)
-   - [Chips Personalizados (Custom Chips SDK)](#-chips-personalizados-custom-chips-sdk)
+   - [Entradas y Sensores](#entradas-y-sensores)
+   - [Salidas, Actuadores y Motores](#salidas-actuadores-y-motores)
+   - [Pantallas y Visualización (Displays)](#pantallas-y-visualización-displays)
+   - [Pasivos y Analógicos (Motor SPICE / `ngspice-WASM`)](#pasivos-y-analógicos-motor-spice--ngspice-wasm)
+   - [Circuitos Integrados y Lógica Digital (Serie 74HC y Primitivas)](#circuitos-integrados-y-lógica-digital-serie-74hc-y-primitivas)
+   - [Chips Personalizados (Custom Chips SDK)](#chips-personalizados-custom-chips-sdk)
 3. [Roadmap de Expansión: Integración de FPGAs (Futuras Versiones)](#3-roadmap-de-expansión-integración-de-fpgas-futuras-versiones)
    - [Modelos Seleccionados para Educación y Makers](#a-modelos-propuestos-para-incorporación)
    - [Pila Tecnológica Sugerida (100% Open Source / WASM)](#b-pila-tecnológica-sugerida-toolchain-libre-y-ligero)
@@ -24,7 +30,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-# 1. Placas de Desarrollo y Microcontroladores Disponibles (11 Modelos Canónicos)
+# 1. Placas de Desarrollo y Microcontroladores Disponibles (9 Modelos Canónicos)
 
 ### A. Familia Arduino (Arquitectura AVR 8-bit · Motor `avr8js`)
 *Simulación de ciclo exacto en el navegador a 16 MHz con soporte de interrupciones, temporizadores, ADC y periféricos.*
@@ -44,7 +50,6 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 | Placa | SoC / Núcleo | Frecuencia / Memoria | Conectividad y Periféricos |
 | :--- | :--- | :--- | :--- |
 | **ESP32 DevKit V1** | Xtensa LX6 dual-core | 240 MHz, 4 MB Flash | WiFi 802.11 b/g/n, BLE, 30/38 pines, 2 DAC, 18 ADC, touch pins. |
-| **ESP32-CAM** | Xtensa LX6 dual-core | 240 MHz, 4 MB PSRAM | Interfaz de cámara OV2640 de 2 MP, slot para tarjeta microSD. |
 | **ESP32-S3 DevKit** | Xtensa LX7 dual-core | 240 MHz, 8 MB Flash | Instrucciones vectoriales AI, USB OTG nativo, RGB WS2812. |
 
 ---
@@ -70,7 +75,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 # 2. Catálogo de Componentes (> 160 Dispositivos)
 
-### 🌡️ Entradas y Sensores
+### Entradas y Sensores
 - **HC-SR04**: Sensor de distancia por ultrasonidos (rango de 2 cm a 400 cm con resolución milimétrica).
 - **DHT22 / AM2302**: Sensor digital calibrado de temperatura ambiental y humedad relativa de alta precisión.
 - **BMP280**: Sensor barométrico digital para medición de presión atmosférica y altitud (I2C/SPI).
@@ -104,7 +109,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-### 💡 Salidas, Actuadores y Motores
+### Salidas, Actuadores y Motores
 - **LEDs estándar**: Diodos emisores de luz con voltaje directo, corriente y color configurable (Rojo, Verde, Azul, Amarillo, Blanco, Naranja).
 - **LED RGB**: Diodo emisor de 3 colores independientes en encapsulado único (ánodo común y cátodo común).
 - **Barra de LEDs (10 segmentos)**: Matriz lineal de 10 LEDs para indicadores de nivel analógico.
@@ -124,7 +129,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-### 📟 Pantallas y Visualización (Displays)
+### Pantallas y Visualización (Displays)
 - **LCD 1602**: Pantalla monocromática de cristal líquido de 16 columnas x 2 filas (bus paralelo 4/8 bits).
 - **LCD 1602 I2C**: Versión con expansor I2C PCF8574 (comunicación mediante 2 pines SDA/SCL).
 - **LCD 2004**: Pantalla grande de 20 columnas x 4 filas en versiones paralela e I2C.
@@ -142,7 +147,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-### ⚡ Pasivos y Analógicos (Motor SPICE / `ngspice-WASM`)
+### Pasivos y Analógicos (Motor SPICE / `ngspice-WASM`)
 - **Protoboards**: Breadboard estándar de 830 puntos de inserción y Mini de 400 puntos.
 - **Resistencias de Película Metálica**: 220Ω, 330Ω, 470Ω, 1kΩ, 2.2kΩ, 4.7kΩ, 10kΩ, 22kΩ, 47kΩ, 100kΩ, 1MΩ y valor personalizado con bandas de color dinámicas.
 - **Condensadores Cerámicos**: 10pF, 22pF, 100pF, 1nF, 10nF, 100nF, 1µF.
@@ -175,7 +180,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-### 🧠 Circuitos Integrados y Lógica Digital (Serie 74HC y Primitivas)
+### Circuitos Integrados y Lógica Digital (Serie 74HC y Primitivas)
 - **74HC00**: 4 compuertas NAND de 2 entradas.
 - **74HC02**: 4 compuertas NOR de 2 entradas.
 - **74HC04**: 6 inversores NOT de alta velocidad.
@@ -188,7 +193,7 @@ Este documento contiene el inventario exhaustivo de todas las placas de desarrol
 
 ---
 
-### 🧩 Chips Personalizados (Custom Chips SDK)
+### Chips Personalizados (Custom Chips SDK)
 - **Entorno SDK WebAssembly**: Cabecera `sdk/mcu_maker_chip.h` para crear cualquier circuito integrado a medida programándolo en **C**, **C++** o **Rust**, permitiendo extender el simulador con chips propietarios, controladores de buses o protocolos específicos.
 
 ---

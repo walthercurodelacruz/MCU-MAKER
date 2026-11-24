@@ -76,7 +76,7 @@ Boot inicial: 400 ms (una sola vez por proceso).
    - Mapeo `metadataId` → primitiva ngspice (ver tabla abajo).
 4. `useSimulatorStore` añade `spiceResults: ResultType | null` y `runSpice: () => Promise<void>`.
 5. Hook en `PinManager.onPinChange()` debounce 50 ms → build netlist → run → inyectar ADC.
-6. Toggle en toolbar `⚡ Simulación eléctrica` (off por defecto para no costar 40 MB a todos).
+6. Toggle en toolbar ` Simulación eléctrica` (off por defecto para no costar 40 MB a todos).
 
 ### Tabla de mapeo
 

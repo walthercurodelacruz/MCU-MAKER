@@ -12,7 +12,7 @@ import { verifyCircuitFromStore } from '../../simulation/verify/verifyFromStore'
 import { CircuitVerificationModal } from '../simulator/CircuitVerificationModal';
 import type { BoardKind, LanguageMode } from '../../types/board';
 import { BOARD_KIND_FQBN, BOARD_SUPPORTS_ESPIDF, BOARD_SUPPORTS_MICROPYTHON, fqbnForLanguage, isKnownBoardKind, isPiBoardKind, boardDisplayName } from '../../types/board';
-import { compileCode, clearCompileCache } from '../../services/compilation';
+import { compileCode } from '../../services/compilation';
 import { compileOptionsForBoard } from '../../utils/boardCompile';
 import {
   compileRom,
@@ -92,7 +92,6 @@ function isQemuBoardKind(kind: BoardKind | undefined): boolean {
     isPiBoardKind(kind) ||
     kind === 'esp32' ||
     kind === 'esp32-s3' ||
-    kind === 'esp32-cam' ||
     kind === 'esp32-c3'
   );
 }
@@ -126,7 +125,6 @@ const BOARD_PILL_ICON: Record<BoardKind, string> = {
   'raspberry-pi-pico': '◆',
   'pi-pico-w': '◇',
   esp32: '⬡',
-  'esp32-cam': '📷',
   'esp32-s3': '⬢',
   'esp32-c3': '⬡',
 };
@@ -139,7 +137,6 @@ const BOARD_PILL_COLOR: Record<BoardKind, string> = {
   'raspberry-pi-pico': '#ce93d8',
   'pi-pico-w': '#ce93d8',
   esp32: 'var(--color-feedback-success)',
-  'esp32-cam': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
 };
@@ -447,12 +444,11 @@ export const EditorToolbar = ({
     setCompileLogs((prev) => prev.filter((l) => l.target?.id === CIRCUIT_CHECK_TARGET.id));
     trackCompileCode();
 
-    // Limpiar programa compilado anterior y caché antes de compilar
+    // Limpiar programa compilado anterior en el estado local antes de compilar
     if (activeBoardId) {
       updateBoard(activeBoardId, { compiledProgram: null });
       getEsp32Bridge(activeBoardId)?.clearFirmware();
     }
-    void clearCompileCache();
 
     // ── Custom-chip preparation ─────────────────────────────────────────
     // Any custom-chip on the canvas is made "live" here so a single
@@ -1129,8 +1125,6 @@ export const EditorToolbar = ({
         !!fqbnForLanguage(b.boardKind, b.languageMode),
     ).length;
     let compiledIndex = 0;
-
-    void clearCompileCache();
 
     for (const board of boardsList) {
       if (!isPiBoardKind(board.boardKind) && board.languageMode !== 'micropython') {

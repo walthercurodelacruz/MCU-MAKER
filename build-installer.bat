@@ -49,12 +49,31 @@ if not exist "frontend\dist\index.html" (
     echo Compilando frontend...
     pushd "%SCRIPT_DIR%frontend"
     call npm.cmd run build:docker
+    if errorlevel 1 (
+        popd
+        echo [ERROR] Fallo la compilacion del frontend.
+        pause
+        exit /b 1
+    )
     popd
 )
 
-:: 4. Asegurar directorios de prebuilt opcionales
+:: 4. Asegurar directorios de prebuilt y descargar runtime si falta
 if not exist "prebuilt\qemu_runtime" mkdir "prebuilt\qemu_runtime"
 if not exist "prebuilt\arduino-cli" mkdir "prebuilt\arduino-cli"
+if not exist "prebuilt\qemu_runtime\libqemu-xtensa.dll" (
+    echo [INFO] Descargando runtime QEMU y Arduino CLI para Windows...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%scripts\download-qemu-runtime.ps1"
+) else if not exist "prebuilt\arduino-cli\arduino-cli.exe" (
+    echo [INFO] Descargando Arduino CLI para Windows...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%scripts\download-qemu-runtime.ps1"
+)
+if not exist "prebuilt\qemu_runtime\libqemu-xtensa.dll" (
+    echo [AVISO] No se encontro prebuilt\qemu_runtime\libqemu-xtensa.dll. El instalador se generara sin soporte de simulacion ESP32.
+)
+if not exist "prebuilt\arduino-cli\arduino-cli.exe" (
+    echo [AVISO] No se encontro prebuilt\arduino-cli\arduino-cli.exe. El usuario debera tener arduino-cli en su PATH.
+)
 
 :: 5. Compilar instalador
 echo [3/3] Compilando instalador de Windows (Inno Setup)...

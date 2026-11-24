@@ -1,8 +1,21 @@
 use std::path::PathBuf;
 use std::process::Stdio;
+use std::sync::Arc;
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
+use tokio::io::AsyncReadExt;
 use tokio::process::Command;
+use tokio::sync::{mpsc, Mutex};
 use tracing::info;
+
+#[derive(Debug, Clone)]
+pub struct CompileProgressEvent {
+    pub line: Option<String>,
+    pub stage: Option<String>,
+    pub progress: Option<f32>,
+}
+
+pub type ProgressTx = mpsc::UnboundedSender<CompileProgressEvent>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SketchFile {
@@ -34,6 +47,7 @@ pub struct CompileResult {
 #[derive(Clone)]
 pub struct ArduinoCLIService {
     pub binary_path: PathBuf,
+    core_install_lock: Arc<Mutex<()>>,
 }
 
 pub const ADDITIONAL_URLS: &str = "https://espressif.github.io/arduino-esp32/package_esp32_index.json,https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json,http://drazzy.com/package_drazzy.com_index.json";
@@ -51,27 +65,58 @@ fn arduino_data_dir() -> Option<PathBuf> {
     }
 }
 
-pub fn ensure_arduino_config() {
-    if let Some(dir) = arduino_data_dir() {
-        let config_file = dir.join("arduino-cli.yaml");
-        let default_yaml = r#"board_manager:
+pub fn ensure_arduino_config_in(dir: &std::path::Path) {
+    let config_file = dir.join("arduino-cli.yaml");
+    let default_yaml = r#"board_manager:
   additional_urls:
     - https://espressif.github.io/arduino-esp32/package_esp32_index.json
     - https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
     - http://drazzy.com/package_drazzy.com_index.json
 "#;
-        if !config_file.exists() {
-            let _ = std::fs::create_dir_all(&dir);
+    if !config_file.exists() {
+        let _ = std::fs::create_dir_all(dir);
+        let _ = std::fs::write(&config_file, default_yaml);
+    } else if let Ok(existing) = std::fs::read_to_string(&config_file) {
+        if !existing.contains("espressif.github.io")
+            || !existing.contains("earlephilhower")
+            || !existing.contains("drazzy.com")
+        {
             let _ = std::fs::write(&config_file, default_yaml);
-        } else if let Ok(existing) = std::fs::read_to_string(&config_file) {
-            if !existing.contains("espressif.github.io")
-                || !existing.contains("earlephilhower")
-                || !existing.contains("drazzy.com")
-            {
-                let _ = std::fs::write(&config_file, default_yaml);
+        }
+    }
+}
+
+pub fn ensure_arduino_config() {
+    if let Some(dir) = arduino_data_dir() {
+        ensure_arduino_config_in(&dir);
+    }
+}
+
+pub fn sanitize_relative_sketch_path(name: &str) -> Result<PathBuf, String> {
+    let trimmed = name.trim();
+    if trimmed.is_empty() || trimmed.contains('\0') {
+        return Err("Invalid empty or null-byte sketch filename".to_string());
+    }
+    if trimmed.contains('\\') {
+        return Err(format!("Backslashes are not permitted in sketch path: {trimmed}"));
+    }
+    let rel = std::path::Path::new(trimmed);
+    if rel.is_absolute() {
+        return Err(format!("Absolute paths are not permitted in sketch: {trimmed}"));
+    }
+    let mut clean = PathBuf::new();
+    for comp in rel.components() {
+        match comp {
+            std::path::Component::Normal(seg) => clean.push(seg),
+            _ => {
+                return Err(format!("Unsafe path component in sketch filename: {trimmed}"));
             }
         }
     }
+    if clean.as_os_str().is_empty() {
+        return Err(format!("Invalid sketch filename: {trimmed}"));
+    }
+    Ok(clean)
 }
 
 impl ArduinoCLIService {
@@ -86,7 +131,10 @@ impl ArduinoCLIService {
         };
 
         info!("Arduino CLI binary resolved to: {:?}", binary_path);
-        Self { binary_path }
+        Self {
+            binary_path,
+            core_install_lock: Arc::new(Mutex::new(())),
+        }
     }
 
     pub fn find_arduino_cli() -> PathBuf {
@@ -188,12 +236,155 @@ impl ArduinoCLIService {
         files: &[SketchFile],
         board_fqbn: &str,
     ) -> Result<CompileResult, String> {
+        self.compile_with_progress(files, board_fqbn, None).await
+    }
+
+    fn infer_stage_progress(line: &str, default_stage: &str) -> (String, Option<f32>) {
+        let low = line.to_lowercase();
+        if low.contains("descargando") || low.contains("downloading") || low.contains("instalando") || low.contains("installing") {
+            ("preparing".to_string(), None)
+        } else if low.contains("linking") || low.contains("esptool") || low.contains("merged.bin") || low.contains("objcopy") {
+            ("linking".to_string(), Some(0.85))
+        } else if low.contains("compiling core") || low.contains("compiling libraries") {
+            ("compiling".to_string(), Some(0.55))
+        } else if low.contains("compiling sketch") {
+            ("compiling".to_string(), Some(0.35))
+        } else if low.contains("detecting libraries") || low.contains("resolving") {
+            ("preparing".to_string(), Some(0.15))
+        } else if low.contains("sketch uses") || low.contains("el sketch usa") {
+            ("packaging".to_string(), Some(0.95))
+        } else {
+            (default_stage.to_string(), None)
+        }
+    }
+
+    async fn read_stream_chunks<R: tokio::io::AsyncRead + Unpin>(
+        mut reader: R,
+        progress_tx: Option<ProgressTx>,
+        default_stage: String,
+    ) -> String {
+        let mut full = Vec::new();
+        let mut line_buf = Vec::new();
+        let mut buf = [0u8; 4096];
+
+        loop {
+            match reader.read(&mut buf).await {
+                Ok(0) | Err(_) => break,
+                Ok(n) => {
+                    full.extend_from_slice(&buf[..n]);
+                    for &b in &buf[..n] {
+                        if b == b'\n' || b == b'\r' {
+                            if !line_buf.is_empty() {
+                                let text = String::from_utf8_lossy(&line_buf).trim().to_string();
+                                line_buf.clear();
+                                if !text.is_empty() {
+                                    if let Some(ref tx) = progress_tx {
+                                        let (stage, prog) = Self::infer_stage_progress(&text, &default_stage);
+                                        let _ = tx.send(CompileProgressEvent {
+                                            line: Some(text),
+                                            stage: Some(stage),
+                                            progress: prog,
+                                        });
+                                    }
+                                }
+                            }
+                        } else {
+                            line_buf.push(b);
+                        }
+                    }
+                }
+            }
+        }
+        if !line_buf.is_empty() {
+            let text = String::from_utf8_lossy(&line_buf).trim().to_string();
+            if !text.is_empty() {
+                if let Some(ref tx) = progress_tx {
+                    let (stage, prog) = Self::infer_stage_progress(&text, &default_stage);
+                    let _ = tx.send(CompileProgressEvent {
+                        line: Some(text),
+                        stage: Some(stage),
+                        progress: prog,
+                    });
+                }
+            }
+        }
+        String::from_utf8_lossy(&full).to_string()
+    }
+
+    async fn run_command_streaming(
+        cmd: &mut Command,
+        timeout_dur: Duration,
+        progress_tx: Option<&ProgressTx>,
+        default_stage: &str,
+        label: &str,
+    ) -> Result<(bool, String, String), String> {
+        cmd.stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .kill_on_drop(true);
+
+        let mut child = cmd
+            .spawn()
+            .map_err(|e| format!("Failed to execute arduino-cli ({label}): {e}"))?;
+
+        let stdout_pipe = child.stdout.take();
+        let stderr_pipe = child.stderr.take();
+        let tx_out = progress_tx.cloned();
+        let tx_err = progress_tx.cloned();
+        let st_out = default_stage.to_string();
+        let st_err = default_stage.to_string();
+
+        let out_task = tokio::spawn(async move {
+            match stdout_pipe {
+                Some(p) => Self::read_stream_chunks(p, tx_out, st_out).await,
+                None => String::new(),
+            }
+        });
+        let err_task = tokio::spawn(async move {
+            match stderr_pipe {
+                Some(p) => Self::read_stream_chunks(p, tx_err, st_err).await,
+                None => String::new(),
+            }
+        });
+
+        let wait_res = tokio::time::timeout(timeout_dur, child.wait()).await;
+        match wait_res {
+            Ok(Ok(status)) => {
+                let stdout = out_task.await.unwrap_or_default();
+                let stderr = err_task.await.unwrap_or_default();
+                Ok((status.success(), stdout, stderr))
+            }
+            Ok(Err(e)) => {
+                let _ = child.kill().await;
+                Err(format!("arduino-cli ({label}) wait failed: {e}"))
+            }
+            Err(_) => {
+                let _ = child.kill().await;
+                let _ = child.wait().await;
+                Err(format!(
+                    "Timeout ({}s) ejecutando arduino-cli ({label}). Verifica tu conexión a internet o cancela procesos colgados.",
+                    timeout_dur.as_secs()
+                ))
+            }
+        }
+    }
+
+    pub async fn compile_with_progress(
+        &self,
+        files: &[SketchFile],
+        board_fqbn: &str,
+        progress_tx: Option<ProgressTx>,
+    ) -> Result<CompileResult, String> {
         // Determine primary ino name and stem for directory naming.
         // Arduino CLI requires that the directory name matches the primary .ino file.
         let mut main_ino_name = "sketch.ino".to_string();
         for f in files {
             if f.name.ends_with(".ino") {
-                main_ino_name = f.name.clone();
+                main_ino_name = sanitize_relative_sketch_path(&f.name)?
+                    .file_name()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or("sketch.ino")
+                    .to_string();
                 break;
             }
         }
@@ -234,7 +425,8 @@ impl ArduinoCLIService {
 
         let mut has_wifi_code = false;
         for f in files {
-            let target_path = sketch_dir.join(&f.name);
+            let safe_rel = sanitize_relative_sketch_path(&f.name)?;
+            let target_path = sketch_dir.join(&safe_rel);
             if let Some(parent) = target_path.parent() {
                 let _ = tokio::fs::create_dir_all(parent).await;
             }
@@ -543,20 +735,24 @@ extern "C" void initVariant() {}
         cmd.arg("--output-dir")
             .arg(&output_dir)
             .arg(&sketch_dir)
-            .arg("--verbose")
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+            .arg("--verbose");
 
-        let output = cmd.output().await.map_err(|e| {
-            format!(
-                "Failed to execute arduino-cli at {:?}: {}",
-                self.binary_path, e
-            )
-        })?;
+        if let Some(ref tx) = progress_tx {
+            let _ = tx.send(CompileProgressEvent {
+                line: Some(format!("Compilando para {}...", effective_fqbn)),
+                stage: Some("compiling".to_string()),
+                progress: Some(0.1),
+            });
+        }
 
-        let mut stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        let mut success = output.status.success();
+        let (mut success, mut stdout, mut stderr) = Self::run_command_streaming(
+            &mut cmd,
+            Duration::from_secs(240),
+            progress_tx.as_ref(),
+            "compiling",
+            "compile",
+        )
+        .await?;
 
         if !success && (stderr.contains("platform not installed") || stderr.contains("not found: platform")) {
             let core_to_install = if board_fqbn.starts_with("arduino:avr") {
@@ -573,6 +769,20 @@ extern "C" void initVariant() {}
 
             if let Some(core) = core_to_install {
                 info!("Auto-installing missing Arduino core {}...", core);
+                if let Some(ref tx) = progress_tx {
+                    let _ = tx.send(CompileProgressEvent {
+                        line: Some(format!(
+                            "Instalando plataforma {} (primera compilación, descargando toolchain)...",
+                            core
+                        )),
+                        stage: Some("preparing".to_string()),
+                        progress: None,
+                    });
+                }
+
+                // Serialize core index updates / installs so concurrent builds don't corrupt Arduino15
+                let _install_guard = self.core_install_lock.lock().await;
+
                 let mut update_cmd = Command::new(&self.binary_path);
                 update_cmd.arg("core")
                     .arg("update-index")
@@ -583,7 +793,14 @@ extern "C" void initVariant() {}
                         update_cmd.arg("--config-file").arg(cf);
                     }
                 }
-                let _ = update_cmd.output().await;
+                let _ = Self::run_command_streaming(
+                    &mut update_cmd,
+                    Duration::from_secs(60),
+                    progress_tx.as_ref(),
+                    "preparing",
+                    "core update-index",
+                )
+                .await;
 
                 let mut install_cmd = Command::new(&self.binary_path);
                 install_cmd.arg("core")
@@ -596,15 +813,47 @@ extern "C" void initVariant() {}
                         install_cmd.arg("--config-file").arg(cf);
                     }
                 }
-                let install_res = install_cmd.output().await;
-                if let Ok(res) = install_res {
-                    if res.status.success() {
+                match Self::run_command_streaming(
+                    &mut install_cmd,
+                    Duration::from_secs(480),
+                    progress_tx.as_ref(),
+                    "preparing",
+                    "core install",
+                )
+                .await
+                {
+                    Ok((true, _i_out, _i_err)) => {
                         info!("Core {} installed successfully. Retrying compilation...", core);
-                        if let Ok(retry_out) = cmd.output().await {
-                            stdout = String::from_utf8_lossy(&retry_out.stdout).to_string();
-                            stderr = String::from_utf8_lossy(&retry_out.stderr).to_string();
-                            success = retry_out.status.success();
+                        drop(_install_guard);
+                        if let Some(ref tx) = progress_tx {
+                            let _ = tx.send(CompileProgressEvent {
+                                line: Some(format!("Plataforma {} instalada. Compilando sketch...", core)),
+                                stage: Some("compiling".to_string()),
+                                progress: Some(0.2),
+                            });
                         }
+                        if let Ok((r_ok, r_out, r_err)) = Self::run_command_streaming(
+                            &mut cmd,
+                            Duration::from_secs(240),
+                            progress_tx.as_ref(),
+                            "compiling",
+                            "compile-retry",
+                        )
+                        .await
+                        {
+                            success = r_ok;
+                            stdout = r_out;
+                            stderr = r_err;
+                        }
+                    }
+                    Ok((false, i_out, i_err)) => {
+                        stderr = format!(
+                            "Error al instalar la plataforma {}: {}\n{}",
+                            core, i_err, i_out
+                        );
+                    }
+                    Err(e) => {
+                        stderr = format!("Error al instalar la plataforma {}: {}", core, e);
                     }
                 }
             }
@@ -708,8 +957,8 @@ extern "C" void initVariant() {}
 
         } else if is_rp2040 {
             use base64::Engine;
-            let uf2_path = output_dir.join("sketch.ino.uf2");
-            let bin_path = output_dir.join("sketch.ino.bin");
+            let uf2_path = output_dir.join(format!("{sketch_stem}.ino.uf2"));
+            let bin_path = output_dir.join(format!("{sketch_stem}.ino.bin"));
             if let Ok(bytes) = tokio::fs::read(&uf2_path).await {
                 uf2_content = Some(base64::engine::general_purpose::STANDARD.encode(&bytes));
             }
@@ -907,36 +1156,46 @@ mod tests {
         ("raspberry-pi-pico", "rp2040:rp2040:rpipico"),
         ("pi-pico-w", "rp2040:rp2040:rpipicow"),
         ("esp32", "esp32:esp32:esp32"),
-        ("esp32-cam", "esp32:esp32:esp32cam"),
         ("esp32-s3", "esp32:esp32:esp32s3"),
         ("esp32-c3", "esp32:esp32:esp32c3"),
     ];
 
     #[test]
     fn test_canonical_boards_count() {
-        assert_eq!(CANONICAL_FQBNS.len(), 10);
+        assert_eq!(CANONICAL_FQBNS.len(), 9);
     }
 
     #[test]
     fn test_arduino_cli_resolution() {
         let path = ArduinoCLIService::find_arduino_cli();
-        assert!(path.is_file() || path == PathBuf::from("arduino-cli"));
+        assert!(path.is_file() || path.as_os_str() == "arduino-cli");
     }
 
     #[test]
     fn test_arduino_config_ensured() {
-        ensure_arduino_config();
-        if let Some(dir) = arduino_data_dir() {
-            let config_file = dir.join("arduino-cli.yaml");
-            assert!(config_file.exists());
-            let content = std::fs::read_to_string(&config_file).unwrap();
-            assert!(content.contains("package_esp32_index.json"));
-            assert!(content.contains("package_rp2040_index.json"));
-            assert!(content.contains("package_drazzy.com_index.json"));
-        }
+        let tmp = tempfile::tempdir().unwrap();
+        ensure_arduino_config_in(tmp.path());
+        let config_file = tmp.path().join("arduino-cli.yaml");
+        assert!(config_file.exists());
+        let content = std::fs::read_to_string(&config_file).unwrap();
+        assert!(content.contains("package_esp32_index.json"));
+        assert!(content.contains("package_rp2040_index.json"));
+        assert!(content.contains("package_drazzy.com_index.json"));
+    }
+
+    #[test]
+    fn test_sanitize_relative_sketch_path() {
+        assert_eq!(sanitize_relative_sketch_path("sketch.ino").unwrap(), PathBuf::from("sketch.ino"));
+        assert_eq!(sanitize_relative_sketch_path("src/helper.h").unwrap(), PathBuf::from("src/helper.h"));
+        assert!(sanitize_relative_sketch_path("").is_err());
+        assert!(sanitize_relative_sketch_path("../evil.ino").is_err());
+        assert!(sanitize_relative_sketch_path("sub/../../evil.ino").is_err());
+        assert!(sanitize_relative_sketch_path("/etc/passwd").is_err());
+        assert!(sanitize_relative_sketch_path(r"C:\evil.ino").is_err());
     }
 
     #[tokio::test]
+    #[ignore = "requires pre-installed arduino-cli and esp32 core"]
     async fn test_compile_esp32s3_arduino_and_espidf() {
         let service = ArduinoCLIService::new(None);
         let arduino_files = vec![SketchFile {

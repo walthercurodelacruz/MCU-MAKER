@@ -5,6 +5,8 @@
  * reads those bytes at chip_setup via vx_rom_size / vx_rom_read.
  */
 
+import { getApiBase } from '../lib/apiBase';
+
 export type RomTarget = '8080' | 'z80' | '8086' | '4004';
 export type RomFormat = 'asm' | 'hex' | 'bin' | 'c';
 
@@ -16,14 +18,12 @@ export interface RomCompileResult {
   error: string | null;
 }
 
-const BASE = '/api/compile-rom';
-
 export async function compileRom(
   source: string,
   target: RomTarget,
   format: RomFormat,
 ): Promise<RomCompileResult> {
-  const res = await fetch(`${BASE}/`, {
+  const res = await fetch(`${getApiBase()}/compile-rom`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
