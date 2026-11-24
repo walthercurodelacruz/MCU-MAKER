@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 use std::process::Stdio;
-use std::sync::Arc;
 use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use tokio::io::AsyncReadExt;
@@ -44,10 +43,98 @@ pub struct CompileResult {
     pub error_kind: Option<String>,
 }
 
+static CORE_INSTALL_LOCK: std::sync::OnceLock<Mutex<()>> = std::sync::OnceLock::new();
+static BUILD_PATH_LOCK: std::sync::OnceLock<Mutex<()>> = std::sync::OnceLock::new();
+
+fn global_core_install_lock() -> &'static Mutex<()> {
+    CORE_INSTALL_LOCK.get_or_init(|| Mutex::new(()))
+}
+
+fn global_build_path_lock() -> &'static Mutex<()> {
+    BUILD_PATH_LOCK.get_or_init(|| Mutex::new(()))
+}
+
+/// Resolves the bundled pure-Python libraries directory (`prebuilt/python_libs`, containing `pyserial`)
+/// so `esptool.py` works out-of-the-box on any Linux host without requiring system `python3-pyserial`.
+pub fn find_python_libs_dir() -> Option<PathBuf> {
+    let mut check_dirs = Vec::new();
+    if let Ok(cwd) = std::env::current_dir() {
+        check_dirs.push(cwd);
+    }
+    if let Ok(cur_exe) = std::env::current_exe() {
+        if let Some(p) = cur_exe.parent() {
+            check_dirs.push(p.to_path_buf());
+        }
+    }
+    for dir in &check_dirs {
+        let mut curr = Some(dir.as_path());
+        while let Some(p) = curr {
+            let candidate = p.join("prebuilt").join("python_libs");
+            if candidate.join("serial").is_dir() {
+                return Some(candidate);
+            }
+            curr = p.parent();
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        let opt = PathBuf::from("/opt/mcu-maker/prebuilt/python_libs");
+        if opt.join("serial").is_dir() {
+            return Some(opt);
+        }
+    }
+    None
+}
+
+fn configure_python_env(cmd: &mut Command) {
+    if let Some(py_libs) = find_python_libs_dir() {
+        let new_pythonpath = match std::env::var_os("PYTHONPATH") {
+            Some(existing) if !existing.is_empty() => {
+                let mut paths = vec![py_libs];
+                paths.extend(std::env::split_paths(&existing));
+                std::env::join_paths(paths).ok()
+            }
+            _ => Some(py_libs.into_os_string()),
+        };
+        if let Some(val) = new_pythonpath {
+            cmd.env("PYTHONPATH", val);
+        }
+    }
+}
+
+/// Persistent build-path directory per board FQBN and sketch stem so `arduino-cli`
+/// reuses compiled core (`core.a`) and library object files across compilations (~2.4s vs ~60s).
+fn persistent_build_path(effective_fqbn: &str, sketch_stem: &str) -> Option<PathBuf> {
+    let sanitized_fqbn: String = effective_fqbn
+        .chars()
+        .map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+        .collect();
+    let sanitized_stem: String = sketch_stem
+        .chars()
+        .map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+        .collect();
+    let dir_name = format!("{sanitized_fqbn}__{sanitized_stem}");
+    let mut bases = Vec::new();
+    if let Ok(cache_env) = std::env::var("MCU_MAKER_ARTIFACT_CACHE") {
+        bases.push(PathBuf::from(cache_env).join("build-cache"));
+    }
+    if let Ok(cwd) = std::env::current_dir() {
+        bases.push(cwd.join("artifacts").join("build-cache"));
+    }
+    bases.push(std::env::temp_dir().join("mcu-maker-build-cache"));
+
+    for base in bases {
+        let dir = base.join(&dir_name);
+        if std::fs::create_dir_all(&dir).is_ok() {
+            return Some(dir);
+        }
+    }
+    None
+}
+
 #[derive(Clone)]
 pub struct ArduinoCLIService {
     pub binary_path: PathBuf,
-    core_install_lock: Arc<Mutex<()>>,
 }
 
 pub const ADDITIONAL_URLS: &str = "https://espressif.github.io/arduino-esp32/package_esp32_index.json,https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json,http://drazzy.com/package_drazzy.com_index.json";
@@ -133,7 +220,6 @@ impl ArduinoCLIService {
         info!("Arduino CLI binary resolved to: {:?}", binary_path);
         Self {
             binary_path,
-            core_install_lock: Arc::new(Mutex::new(())),
         }
     }
 
@@ -239,20 +325,41 @@ impl ArduinoCLIService {
         self.compile_with_progress(files, board_fqbn, None).await
     }
 
+    fn extract_percent(line: &str) -> Option<f32> {
+        // Parse percentage token like "78.80%" from arduino-cli download lines
+        for token in line.split_whitespace() {
+            if let Some(num_str) = token.strip_suffix('%') {
+                if let Ok(pct) = num_str.parse::<f32>() {
+                    if (0.0..=100.0).contains(&pct) {
+                        return Some(pct / 100.0);
+                    }
+                }
+            }
+        }
+        None
+    }
+
     fn infer_stage_progress(line: &str, default_stage: &str) -> (String, Option<f32>) {
         let low = line.to_lowercase();
-        if low.contains("descargando") || low.contains("downloading") || low.contains("instalando") || low.contains("installing") {
-            ("preparing".to_string(), None)
+        if let Some(frac) = Self::extract_percent(line) {
+            if default_stage == "preparing" || low.contains("mib") || low.contains("kib") {
+                return ("preparing".to_string(), Some((0.10 + frac * 0.45).clamp(0.10, 0.55)));
+            }
+        }
+        if low.contains("configuring tool") || low.contains("configurando") || low.contains("instalando") || low.contains("installing") {
+            ("preparing".to_string(), Some(0.58))
+        } else if low.contains("descargando") || low.contains("downloading") {
+            ("preparing".to_string(), Some(0.12))
         } else if low.contains("linking") || low.contains("esptool") || low.contains("merged.bin") || low.contains("objcopy") {
-            ("linking".to_string(), Some(0.85))
+            ("linking".to_string(), Some(0.88))
         } else if low.contains("compiling core") || low.contains("compiling libraries") {
-            ("compiling".to_string(), Some(0.55))
+            ("compiling".to_string(), Some(0.72))
         } else if low.contains("compiling sketch") {
-            ("compiling".to_string(), Some(0.35))
+            ("compiling".to_string(), Some(0.62))
         } else if low.contains("detecting libraries") || low.contains("resolving") {
-            ("preparing".to_string(), Some(0.15))
+            ("preparing".to_string(), Some(0.25))
         } else if low.contains("sketch uses") || low.contains("el sketch usa") {
-            ("packaging".to_string(), Some(0.95))
+            ("packaging".to_string(), Some(0.96))
         } else {
             (default_stage.to_string(), None)
         }
@@ -266,6 +373,9 @@ impl ArduinoCLIService {
         let mut full = Vec::new();
         let mut line_buf = Vec::new();
         let mut buf = [0u8; 4096];
+        let mut last_cr_emit = std::time::Instant::now()
+            .checked_sub(Duration::from_secs(5))
+            .unwrap_or_else(std::time::Instant::now);
 
         loop {
             match reader.read(&mut buf).await {
@@ -278,6 +388,14 @@ impl ArduinoCLIService {
                                 let text = String::from_utf8_lossy(&line_buf).trim().to_string();
                                 line_buf.clear();
                                 if !text.is_empty() {
+                                    // Throttle carriage-return (\r) download progress updates so we don't flood stdout buffer
+                                    let is_cr_progress = b == b'\r' || (text.contains('%') && (text.contains("MiB") || text.contains("KiB")));
+                                    if is_cr_progress && last_cr_emit.elapsed() < Duration::from_millis(750) && !text.contains("100.00%") {
+                                        continue;
+                                    }
+                                    if is_cr_progress {
+                                        last_cr_emit = std::time::Instant::now();
+                                    }
                                     if let Some(ref tx) = progress_tx {
                                         let (stage, prog) = Self::infer_stage_progress(&text, &default_stage);
                                         let _ = tx.send(CompileProgressEvent {
@@ -322,6 +440,7 @@ impl ArduinoCLIService {
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
+        configure_python_env(cmd);
 
         let mut child = cmd
             .spawn()
@@ -732,10 +851,19 @@ extern "C" void initVariant() {}
                 .arg("compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition");
         }
 
+        cmd.arg("--jobs")
+            .arg("0");
+        let build_path_guard = global_build_path_lock().try_lock();
+        if build_path_guard.is_ok() {
+            if let Some(bp) = persistent_build_path(&effective_fqbn, &sketch_stem) {
+                let _ = tokio::fs::remove_dir_all(bp.join("sketch")).await;
+                cmd.arg("--build-path").arg(bp);
+            }
+        }
+
         cmd.arg("--output-dir")
             .arg(&output_dir)
-            .arg(&sketch_dir)
-            .arg("--verbose");
+            .arg(&sketch_dir);
 
         if let Some(ref tx) = progress_tx {
             let _ = tx.send(CompileProgressEvent {
@@ -780,8 +908,8 @@ extern "C" void initVariant() {}
                     });
                 }
 
-                // Serialize core index updates / installs so concurrent builds don't corrupt Arduino15
-                let _install_guard = self.core_install_lock.lock().await;
+                // Serialize core index updates / installs process-wide so concurrent builds don't corrupt Arduino15
+                let _install_guard = global_core_install_lock().lock().await;
 
                 let mut update_cmd = Command::new(&self.binary_path);
                 update_cmd.arg("core")
@@ -815,7 +943,7 @@ extern "C" void initVariant() {}
                 }
                 match Self::run_command_streaming(
                     &mut install_cmd,
-                    Duration::from_secs(480),
+                    Duration::from_secs(900),
                     progress_tx.as_ref(),
                     "preparing",
                     "core install",
@@ -1194,10 +1322,30 @@ mod tests {
         assert!(sanitize_relative_sketch_path(r"C:\evil.ino").is_err());
     }
 
+    async fn installed_cores(service: &ArduinoCLIService) -> String {
+        let mut cmd = Command::new(&service.binary_path);
+        cmd.arg("core").arg("list");
+        if let Some(dir) = arduino_data_dir() {
+            let cf = dir.join("arduino-cli.yaml");
+            if cf.exists() {
+                cmd.arg("--config-file").arg(cf);
+            }
+        }
+        cmd.output()
+            .await
+            .map(|o| String::from_utf8_lossy(&o.stdout).to_string())
+            .unwrap_or_default()
+    }
+
     #[tokio::test]
     #[ignore = "requires pre-installed arduino-cli and esp32 core"]
     async fn test_compile_esp32s3_arduino_and_espidf() {
         let service = ArduinoCLIService::new(None);
+        let cores = installed_cores(&service).await;
+        if !cores.contains("esp32:esp32") {
+            eprintln!("[SKIP] esp32:esp32 core is not pre-installed in ~/.arduino15; skipping heavy download in test.");
+            return;
+        }
         let arduino_files = vec![SketchFile {
             name: "sketch.ino".to_string(),
             content: "void setup() { pinMode(LED_BUILTIN, OUTPUT); } void loop() { digitalWrite(LED_BUILTIN, HIGH); delay(500); }".to_string(),
@@ -1261,15 +1409,22 @@ mod tests {
 
 
     #[tokio::test]
-    #[ignore = "requires pre-installed toolchains and network access for all 10 canonical cores"]
+    #[ignore = "requires pre-installed toolchains and network access for canonical cores"]
     async fn test_compile_all_10_canonical_boards() {
         let service = ArduinoCLIService::new(None);
+        let cores = installed_cores(&service).await;
         let files = vec![SketchFile {
             name: "sketch.ino".to_string(),
             content: "void setup() {} void loop() {}".to_string(),
         }];
 
+        let mut compiled_count = 0usize;
         for (board_name, fqbn) in CANONICAL_FQBNS {
+            let required_core = fqbn.split(':').take(2).collect::<Vec<_>>().join(":");
+            if !cores.contains(&required_core) {
+                eprintln!("[SKIP] Core {} for board {} is not pre-installed; skipping.", required_core, board_name);
+                continue;
+            }
             let res = service.compile(&files, fqbn).await;
             assert!(
                 res.is_ok(),
@@ -1286,6 +1441,8 @@ mod tests {
                 compile_res.error,
                 compile_res.stderr
             );
+            compiled_count += 1;
         }
+        assert!(compiled_count > 0, "At least one pre-installed canonical core should be compiled");
     }
 }

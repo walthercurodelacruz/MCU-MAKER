@@ -77,8 +77,8 @@ Como parte de los estándares de aseguramiento de calidad (QA), el alcance de so
 ### Plataformas Oficialmente Soportadas (Tier-1)
 
 - ![Linux](https://img.shields.io/badge/Linux%20x86__64-Supported-E95420?style=flat-square&logo=linux&logoColor=white) **Linux x86_64:**
-  - **Sistemas objetivo:** Ubuntu 24.04 LTS (Noble Numbat), Debian 12 (Bookworm) y derivados directos (Linux Mint, Pop!_OS), así como soporte planificado para `.rpm` en Fedora/RHEL (`Team_Linux`).
-  - **Formato de distribución:** Paquete nativo Debian (`dist-installer/mcu-maker_1.2.0_amd64.deb`), integrando binarios nativos en `/opt/mcu-maker/`, acceso directo `.desktop` y lanzador `/usr/bin/mcu-maker`.
+  - **Sistemas objetivo:** Ubuntu 24.04 LTS (Noble Numbat), Debian 12 (Bookworm) y derivados (`.deb`), así como Fedora 39+, RHEL 9+, Rocky/AlmaLinux y openSUSE (`.rpm`) y paquete universal `.AppImage`.
+  - **Formato de distribución:** Paquete nativo Debian (`dist-installer/mcu-maker_1.2.0_amd64.deb`), paquete nativo RPM (`dist-installer/mcu-maker-1.2.0-1.x86_64.rpm`) y portable (`dist-installer/MCU-Maker-1.2.0-x86_64.AppImage`), integrando binarios nativos en `/opt/mcu-maker/`, acceso directo `.desktop` y lanzador `/usr/bin/mcu-maker`.
   - **Librerías dinámicas:** QEMU runtime precompilado en formato ELF de 64 bits (`libqemu-xtensa.so`, `libqemu-riscv32.so`) y binarios ROM oficiales (`esp32-v3-rom.bin`, `esp32-v3-rom-app.bin`, `esp32c3-rom.bin`, `esp32s3_rev0_rom.bin`).
 - ![Windows](https://img.shields.io/badge/Windows%2010%2F11%20x64-Supported-0078D4?style=flat-square&logo=windows11&logoColor=white) **Windows 10 / Windows 11 (64-bit):**
   - **Formato de distribución:** Instalador ejecutable oficial (`dist-installer/MCU-Maker-Setup-v1.2.0.exe`) y ejecución portable en un clic (`start-launcher.bat`).
@@ -193,32 +193,40 @@ graph TD
 
 ## Instalación y Primeros Pasos
 
-### 1. En Linux (Ubuntu 24.04 LTS / Debian 12 x86_64) ![Linux](https://img.shields.io/badge/Ubuntu%20%7C%20Debian-.deb-E95420?style=flat-square&logo=ubuntu&logoColor=white)
+### 1. En Linux (Ubuntu / Debian `.deb` y Fedora / RHEL / openSUSE `.rpm`) ![Linux](https://img.shields.io/badge/Linux-.deb%20%7C%20.rpm%20%7C%20.AppImage-E95420?style=flat-square&logo=linux&logoColor=white)
 
-#### Opción A: Instalador Oficial (`.deb`) — Recomendado
+#### Opción A: Instalador Oficial Debian / Ubuntu (`.deb`)
 
 ```bash
 sudo apt update
 sudo apt install ./dist-installer/mcu-maker_1.2.0_amd64.deb
 ```
 
-Una vez instalado, abre **MCU Maker** desde el menú de aplicaciones o ejecutando `mcu-maker` en la terminal. Para desinstalarlo:
+#### Opción B: Instalador Oficial Fedora / RHEL / openSUSE (`.rpm`)
 
 ```bash
-sudo apt remove mcu-maker
+# Fedora / RHEL / Rocky / AlmaLinux:
+sudo dnf install ./dist-installer/mcu-maker-1.2.0-1.x86_64.rpm
+
+# openSUSE:
+sudo zypper install ./dist-installer/mcu-maker-1.2.0-1.x86_64.rpm
 ```
 
-#### Opción B: Construcción desde Código Fuente
+Una vez instalado (`.deb` o `.rpm`), abre **MCU Maker** desde el menú de aplicaciones o ejecutando `mcu-maker` en la terminal. Para desinstalarlo, usa `sudo apt remove mcu-maker` o `sudo dnf remove mcu-maker`.
+
+#### Opción C: Construcción desde Código Fuente
 
 ```bash
-# 1. Instalar dependencias del sistema y Arduino CLI
+# 1. Instalar dependencias del sistema (apt / dnf / zypper), Rust y Arduino CLI
 ./install-deps-linux.sh
 
-# 2. Descargar librerías del motor QEMU (libqemu-xtensa, libqemu-riscv32 y ROMs)
+# 2. Descargar librerías del motor QEMU (libqemu-xtensa.so, libqemu-riscv32.so y ROMs)
 ./scripts/download-qemu-runtime.sh
 
-# 3. Compilar el paquete instalador .deb completo
-./build-installer.sh
+# 3. Compilar los paquetes instaladores (.deb, .rpm y .AppImage)
+./build-installer.sh      # Genera dist-installer/mcu-maker_1.2.0_amd64.deb
+./build-rpm.sh            # Genera dist-installer/mcu-maker-1.2.0-1.x86_64.rpm
+./build-appimage.sh       # Genera dist-installer/MCU-Maker-1.2.0-x86_64.AppImage
 ```
 
 ---

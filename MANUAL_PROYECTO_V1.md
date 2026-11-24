@@ -119,6 +119,25 @@ El ecosistema de MCU Maker está desacoplado en componentes modulares para garan
    start-launcher.bat
    ```
 
+### 3.1 Guía de Instalación en Linux (`.deb`, `.rpm` y `.AppImage`)
+
+- **Ubuntu 24.04 LTS+ / Debian 12+ (`.deb`):**
+  ```bash
+  sudo apt install ./dist-installer/mcu-maker_1.2.0_amd64.deb
+  ```
+- **Fedora 39+ / RHEL 9+ / Rocky / AlmaLinux / openSUSE (`.rpm`):**
+  ```bash
+  sudo dnf install ./dist-installer/mcu-maker-1.2.0-1.x86_64.rpm
+  ```
+- **Construcción desde Código Fuente en Linux:**
+  ```bash
+  ./install-deps-linux.sh
+  ./scripts/download-qemu-runtime.sh
+  ./build-installer.sh   # Genera .deb
+  ./build-rpm.sh         # Genera .rpm
+  ./build-appimage.sh    # Genera .AppImage
+  ```
+
 ---
 
 ## 4. Guía de Uso Rápido

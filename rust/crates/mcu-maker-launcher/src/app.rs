@@ -368,9 +368,23 @@ impl eframe::App for LauncherApp {
 
                         if ui.add(Button::new(RichText::new(format!("{}  Documentación", ICON_BOOK)).size(11.5))).clicked() {
                             let cwd = std::env::current_dir().unwrap_or_default();
-                            let doc = ["MANUAL_PROYECTO_V1.md", "README.md"]
+                            let exe_dir = std::env::current_exe()
+                                .ok()
+                                .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+                                .unwrap_or_default();
+                            let search_roots = [
+                                cwd,
+                                exe_dir,
+                                PathBuf::from("/opt/mcu-maker"),
+                                PathBuf::from("/usr/share/doc/mcu-maker"),
+                            ];
+                            let doc = search_roots
                                 .iter()
-                                .map(|name| cwd.join(name))
+                                .flat_map(|root| {
+                                    ["MANUAL_PROYECTO_V1.md", "README.md"]
+                                        .into_iter()
+                                        .map(move |name| root.join(name))
+                                })
                                 .find(|p| p.is_file());
                             if let Some(doc_path) = doc {
                                 let _ = open::that(doc_path);

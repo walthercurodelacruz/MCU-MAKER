@@ -119,6 +119,10 @@ export class BackendManager {
       candidates.push(path.join(folder.uri.fsPath, binName));
     }
 
+    if (!isWin) {
+      candidates.push('/opt/mcu-maker/mcu-maker-server');
+    }
+
     for (const p of candidates) {
       if (fs.existsSync(p)) return p;
     }
