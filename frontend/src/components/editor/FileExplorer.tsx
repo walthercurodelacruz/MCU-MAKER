@@ -307,7 +307,6 @@ const BOARD_ICON: Record<BoardKind, string> = {
   'raspberry-pi-pico': '◆',
   'pi-pico-w': '◇',
   esp32: '⬡',
-  'esp32-cam': '📷',
   'esp32-s3': '⬢',
   'esp32-c3': '⬡',
 };
@@ -321,7 +320,6 @@ const BOARD_COLOR: Record<BoardKind, string> = {
   'raspberry-pi-pico': '#ce93d8',
   'pi-pico-w': '#ce93d8',
   esp32: 'var(--color-feedback-success)',
-  'esp32-cam': 'var(--color-feedback-success)',
   'esp32-s3': 'var(--color-feedback-success)',
   'esp32-c3': 'var(--color-feedback-success)',
 };

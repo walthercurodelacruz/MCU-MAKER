@@ -21,7 +21,6 @@ const BOARD_DESCRIPTIONS: Record<BoardKind, string> = {
   'raspberry-pi-pico': 'RP2040 dual-core Cortex-M0+',
   'pi-pico-w': 'RP2040 + WiFi/BT, same emulator as Pico',
   esp32: 'Xtensa LX6 dual-core, WiFi+BT, 38 GPIO (QEMU)',
-  'esp32-cam': 'ESP32 + 2MP camera, microSD (QEMU)',
   'esp32-s3': 'Xtensa LX7 dual-core, WiFi+BT, AI accel (QEMU)',
   'esp32-c3': 'RISC-V single-core, WiFi+BLE, 22 GPIO (QEMU)',
 };
@@ -34,7 +33,6 @@ const BOARD_ICON: Record<BoardKind, string> = {
   'raspberry-pi-pico': '◆',
   'pi-pico-w': '◇',
   esp32: '⬡',
-  'esp32-cam': '📷',
   'esp32-s3': '⬢',
   'esp32-c3': '⬡',
 };
@@ -52,8 +50,7 @@ const BOARDS: BoardKind[] = [
   'attiny85',
   'raspberry-pi-pico',
   'pi-pico-w',
-  esp32,
-  'esp32-cam',
+  'esp32',
   'esp32-s3',
   'esp32-c3',
 ];

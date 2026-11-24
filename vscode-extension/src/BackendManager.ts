@@ -1,5 +1,5 @@
 /**
- * BackendManager — Spawns and manages the MCU Maker FastAPI backend process.
+ * BackendManager — Spawns and manages the MCU Maker Rust backend process.
  *
  * The backend provides:
  * - /api/compile — Arduino sketch compilation via arduino-cli
@@ -141,7 +141,7 @@ export class BackendManager {
   private async waitForReady(maxRetries = 30): Promise<void> {
     for (let i = 0; i < maxRetries; i++) {
       try {
-        const response = await fetch(`http://127.0.0.1:${this._port}/docs`);
+        const response = await fetch(`http://127.0.0.1:${this._port}/health`);
         if (response.ok) return;
       } catch {
         // Not ready yet

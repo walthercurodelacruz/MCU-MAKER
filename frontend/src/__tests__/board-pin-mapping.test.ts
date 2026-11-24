@@ -106,10 +106,6 @@ const ESP32_FAMILY_PADS: Record<string, string[]> = {
     '5V.1', '5V.2', 'GND.5', 'GND.6', '19', '18', 'GND.7', '4', '5', '6', '7', 'GND.8',
     '8', '9', 'GND.9', 'RX', 'TX', 'GND.10',
   ],
-  'esp32-cam': [
-    '5V.1', 'GND.1', '12', '13', '15', '14', '2', '4', '3V3', '16', '0', 'GND.2', 'VCC',
-    'RX', 'TX', 'GND.3',
-  ],
 };
 
 const UNRESOLVED_BY_DESIGN: Record<string, string[]> = {};

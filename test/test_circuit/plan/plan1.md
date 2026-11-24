@@ -109,7 +109,7 @@ const result = await sim.runSim()
 
 ### 1.4 Mostrar voltajes en canvas
 
-Overlay SVG semitransparente sobre cada wire/nodo mostrando la tensión calculada. Activado con un botón de toggle "⚡ Voltages" en la toolbar.
+Overlay SVG semitransparente sobre cada wire/nodo mostrando la tensión calculada. Activado con un botón de toggle " Voltages" en la toolbar.
 
 ---
 
@@ -184,7 +184,7 @@ Usar un Web Worker para correr `.tran` sin bloquear la UI. Mostrar formas de ond
 | `frontend/src/simulation/ElectricalGraph.ts` | **CREAR** | Grafo `graphology` de nodos. Métodos: `buildFromWires()`, `getNodeVoltage()`, `getNet()` |
 | `frontend/src/store/useSimulatorStore.ts` | **MODIFICAR** | Añadir `spiceVoltages: Record<string, number>` al estado; trigger SPICE tras pin changes |
 | `frontend/src/simulation/AVRSimulator.ts` | **MODIFICAR** | En pin change callbacks, llamar `spiceEngine.runDC()` con estado actual de pines |
-| `frontend/src/components/simulator/SimulatorCanvas.tsx` | **MODIFICAR** | Overlay de voltajes en canvas; botón "⚡ Voltages" |
+| `frontend/src/components/simulator/SimulatorCanvas.tsx` | **MODIFICAR** | Overlay de voltajes en canvas; botón " Voltages" |
 | `frontend/src/simulation/parts/BasicParts.ts` | **MODIFICAR** | LED usa corriente SPICE para `brightness` en vez de solo boolean |
 | `frontend/package.json` | **MODIFICAR** | Añadir 5 dependencias |
 
@@ -228,7 +228,7 @@ V_GPIO13 net_gpio13 0 DC {pinState ? 5.0 : 0.0}
 ## Verificación end-to-end
 
 1. Cargar ejemplo "Blink LED" (Arduino → Resistor 220Ω → LED → GND)
-2. Activar toggle "⚡ Voltages"
+2. Activar toggle " Voltages"
 3. Cuando pin 13 = HIGH: el canvas debe mostrar ~3.3V en el nodo entre resistor y LED, ~0V en cátodo
 4. Serial monitor debe seguir funcionando (la simulación eléctrica es adicional, no reemplaza el AVR)
 5. Cargar ejemplo "Potenciómetro" → girar el control → `analogRead(A0)` debe reflejar la tensión del divisor real

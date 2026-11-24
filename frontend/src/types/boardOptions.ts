@@ -77,7 +77,6 @@ const ESP32_C3_KINDS: ReadonlySet<BoardKind> = new Set([
 
 const ESP32_XTENSA_KINDS: ReadonlySet<BoardKind> = new Set([
   'esp32',
-  'esp32-cam',
 ]);
 
 // Overlay boards are not in the OSS kind sets, but they declare the chip they

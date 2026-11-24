@@ -12,7 +12,6 @@
 <table>
 <tr>
   <td align="center"><img src="img/boards/esp32-devkit-v1.png" width="160" alt="ESP32 DevKit V1"/><br/><b>ESP32 DevKit V1</b></td>
-  <td align="center"><img src="img/boards/esp32-cam.png" width="160" alt="ESP32-CAM"/><br/><b>ESP32-CAM</b></td>
   <td align="center"><img src="img/boards/esp32-s3.png" width="160" alt="ESP32-S3"/><br/><b>ESP32-S3 DevKit</b></td>
 </tr>
 </table>
@@ -929,9 +928,9 @@ ninja          # ~15-30 min first time
 # 1. Build the full executable first
 ninja qemu-system-riscv32.exe
 # 2. Edit build/riscv32-softmmu/dll_link.rsp:
-#      - Change -o qemu-system-riscv32.exe → -o libqemu-riscv32.dll
-#      - Add -shared flag
-#      - Remove softmmu_main.c.obj from the object list
+# - Change -o qemu-system-riscv32.exe → -o libqemu-riscv32.dll
+# - Add -shared flag
+# - Remove softmmu_main.c.obj from the object list
 gcc -shared -o libqemu-riscv32.dll @dll_link.rsp
 
 # Deploy to backend:
@@ -961,11 +960,11 @@ nm -D build/libqemu-xtensa.so | grep -i "qemu_picsimlab\|qemu_init\|qemu_main"
 objdump -p build/libqemu-xtensa.dll | grep -i "qemu_picsimlab\|qemu_init"
 
 # Should show:
-#   qemu_init, qemu_main_loop, qemu_cleanup
-#   qemu_picsimlab_register_callbacks
-#   qemu_picsimlab_set_pin, qemu_picsimlab_set_apin
-#   qemu_picsimlab_uart_receive
-#   qemu_picsimlab_get_internals, qemu_picsimlab_get_TIOCM
+# qemu_init, qemu_main_loop, qemu_cleanup
+# qemu_picsimlab_register_callbacks
+# qemu_picsimlab_set_pin, qemu_picsimlab_set_apin
+# qemu_picsimlab_uart_receive
+# qemu_picsimlab_get_internals, qemu_picsimlab_get_TIOCM
 ```
 
 ### 10.4 Required Patch on Windows (symlink-install-tree.py)
@@ -1120,14 +1119,14 @@ All backend events are wired to the frontend:
 
 | Event | Component | Status |
 |-------|-----------|--------|
-| `gpio_change` | `PinManager.triggerPinChange()` → connected LEDs/components | ✅ Implemented |
-| `ledc_duty` + `gpio_routing` | SignalRouter resolves channel→pin, then `PinManager.updatePwm(gpio, duty)` → CSS opacity of element connected to the GPIO | ✅ Implemented |
-| `ws2812_update` | `NeoPixel.tsx` — RGB LED strip with canvas | ✅ Implemented |
-| `gpio_dir` | Callback `onPinDir` in `Esp32Bridge.ts` | ✅ Implemented |
-| `i2c_event` | Callback `onI2cEvent` in `Esp32Bridge.ts` | ✅ Implemented |
-| `spi_event` | Callback `onSpiEvent` in `Esp32Bridge.ts` | ✅ Implemented |
-| `system: crash` | Red banner in `SimulatorCanvas.tsx` with Dismiss button | ✅ Implemented |
-| `system: reboot` | `onSystemEvent` in `Esp32Bridge.ts` | ✅ Implemented |
+| `gpio_change` | `PinManager.triggerPinChange()` → connected LEDs/components | [OK] Implemented |
+| `ledc_duty` + `gpio_routing` | SignalRouter resolves channel→pin, then `PinManager.updatePwm(gpio, duty)` → CSS opacity of element connected to the GPIO | [OK] Implemented |
+| `ws2812_update` | `NeoPixel.tsx` — RGB LED strip with canvas | [OK] Implemented |
+| `gpio_dir` | Callback `onPinDir` in `Esp32Bridge.ts` | [OK] Implemented |
+| `i2c_event` | Callback `onI2cEvent` in `Esp32Bridge.ts` | [OK] Implemented |
+| `spi_event` | Callback `onSpiEvent` in `Esp32Bridge.ts` | [OK] Implemented |
+| `system: crash` | Red banner in `SimulatorCanvas.tsx` with Dismiss button | [OK] Implemented |
+| `system: reboot` | `onSystemEvent` in `Esp32Bridge.ts` | [OK] Implemented |
 
 **Available send methods in `Esp32Bridge` (frontend → backend):**
 

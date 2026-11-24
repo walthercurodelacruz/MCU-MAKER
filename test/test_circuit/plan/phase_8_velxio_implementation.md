@@ -11,7 +11,7 @@
 | | |
 |---|---|
 | **Motor de simulación eléctrica** | `eecircuit-engine@^1.7.0` (ngspice compilado a WASM, 39 MB) |
-| **Estrategia de carga** | Lazy-load tras toggle "⚡ Electrical" en la toolbar |
+| **Estrategia de carga** | Lazy-load tras toggle " Electrical" en la toolbar |
 | **Integración con MCU** | Co-simulación cuasi-estática: AVR/RP2040/ESP32 corre `N` ciclos, luego ngspice resuelve el netlist en `.op` o `.tran`; voltajes de nodos se inyectan en ADC; duty de PWM se traduce a fuente DC |
 | **Componentes nuevos (primera oleada)** | ≈ 30: pasivos genéricos, transistores reales (2N2222, 2N3055, BC547, TIP120), MOSFETs (2N7000, IRF540), op-amps (LM358, LM741, TL072, LM324), reguladores (78xx, LM317), Zener (1N4733), referencias (TL431), 555, puente rectificador, etc. |
 | **Instrumentos** | Voltímetro, amperímetro, multímetro DMM, probe de osciloscopio analógico (extiende el osciloscopio actual) |
@@ -116,17 +116,17 @@ Si alguno de estos ha cambiado sustancialmente cuando se empiece la fase 1, para
 
 ```
 frontend/src/simulation/spice/
-├── SpiceEngine.ts                  ★ wrapper de eecircuit-engine (port del sandbox)
-├── SpiceEngine.lazy.ts             ★ dynamic-import wrapper, singleton
-├── NetlistBuilder.ts               ★ wires[] + components[] → netlist string
-├── NetlistBuilder.unionFind.ts     ★ auxiliar
-├── componentToSpice.ts             ★ tabla metadataId → spice card
-├── subcircuits.ts                  ★ .subckt de op-amps, 555, etc.
-├── CircuitScheduler.ts             ★ debouncer, orchestrator
-├── AVRSpiceBridge.ts               ★ co-sim AVR ↔ ngspice (port del sandbox)
-├── RP2040SpiceBridge.ts            ★ análogo para RP2040
-├── ESP32SpiceBridge.ts             ★ análogo para ESP32 (según disponibilidad de ADC)
-└── CircuitSolverJS.ts              ★ port del solver hand-rolled como fallback
+├── SpiceEngine.ts                   wrapper de eecircuit-engine (port del sandbox)
+├── SpiceEngine.lazy.ts              dynamic-import wrapper, singleton
+├── NetlistBuilder.ts                wires[] + components[] → netlist string
+├── NetlistBuilder.unionFind.ts      auxiliar
+├── componentToSpice.ts              tabla metadataId → spice card
+├── subcircuits.ts                   .subckt de op-amps, 555, etc.
+├── CircuitScheduler.ts              debouncer, orchestrator
+├── AVRSpiceBridge.ts                co-sim AVR ↔ ngspice (port del sandbox)
+├── RP2040SpiceBridge.ts             análogo para RP2040
+├── ESP32SpiceBridge.ts              análogo para ESP32 (según disponibilidad de ADC)
+└── CircuitSolverJS.ts               port del solver hand-rolled como fallback
 
 frontend/src/simulation/spice/__tests__/
 ├── netlistBuilder.test.ts
@@ -137,35 +137,35 @@ frontend/src/simulation/spice/__tests__/
 └── (… el resto de los 47 del sandbox …)
 
 frontend/src/components/components-analog/
-├── GenericResistor.tsx             ★ cualquier valor en Ω
-├── GenericCapacitor.tsx            ★ cualquier valor en F, con polaridad opcional
-├── GenericInductor.tsx             ★
-├── GenericDiode.tsx                ★ modelo genérico, dropdown de partes 1N4148/1N4007/1N5819
-├── ZenerDiode.tsx                  ★ dropdown 1N4733/1N4742/etc. o voltaje custom
-├── BJTTransistor.tsx               ★ NPN/PNP + part number (2N2222/2N3055/BC547/BC557/TIP120)
-├── MOSFETTransistor.tsx            ★ N/P + parte (IRF540/IRF9540/2N7000/BS170)
-├── OpAmp.tsx                       ★ LM358/LM741/TL072/LM324 (package-pin-aware)
-├── VoltageRegulator.tsx            ★ 7805/7812/LM317 + externals
-├── Timer555.tsx                    ★ chip NE555 en DIP-8
-├── BridgeRectifier.tsx             ★ puente de 4 diodos
-└── GenericSwitch.tsx               ★ SPST / SPDT / DPDT
+├── GenericResistor.tsx              cualquier valor en Ω
+├── GenericCapacitor.tsx             cualquier valor en F, con polaridad opcional
+├── GenericInductor.tsx             
+├── GenericDiode.tsx                 modelo genérico, dropdown de partes 1N4148/1N4007/1N5819
+├── ZenerDiode.tsx                   dropdown 1N4733/1N4742/etc. o voltaje custom
+├── BJTTransistor.tsx                NPN/PNP + part number (2N2222/2N3055/BC547/BC557/TIP120)
+├── MOSFETTransistor.tsx             N/P + parte (IRF540/IRF9540/2N7000/BS170)
+├── OpAmp.tsx                        LM358/LM741/TL072/LM324 (package-pin-aware)
+├── VoltageRegulator.tsx             7805/7812/LM317 + externals
+├── Timer555.tsx                     chip NE555 en DIP-8
+├── BridgeRectifier.tsx              puente de 4 diodos
+└── GenericSwitch.tsx                SPST / SPDT / DPDT
 
 frontend/src/components/components-instruments/
-├── Voltmeter.tsx                   ★ DC: lee V(node+) − V(node−); probe de 2 terminales
-├── Ammeter.tsx                     ★ DC: inserta 0.001 Ω en serie y lee i(Vsense)
-├── Multimeter.tsx                  ★ DMM: V/I/R/diode/continuity
-├── OscilloscopeAnalogProbe.tsx     ★ señala un nodo ngspice como canal del scope
-└── SignalGenerator.tsx             ★ fuente V controlada desde UI (sin, pulse, pwl)
+├── Voltmeter.tsx                    DC: lee V(node+) − V(node−); probe de 2 terminales
+├── Ammeter.tsx                      DC: inserta 0.001 Ω en serie y lee i(Vsense)
+├── Multimeter.tsx                   DMM: V/I/R/diode/continuity
+├── OscilloscopeAnalogProbe.tsx      señala un nodo ngspice como canal del scope
+└── SignalGenerator.tsx              fuente V controlada desde UI (sin, pulse, pwl)
 
 frontend/src/components/analog-ui/
-├── ComponentValueEditor.tsx        ★ input con unidades (k, M, u, n, p)
-├── ElectricalOverlay.tsx           ★ SVG overlay: V de cada nodo, I de cada cable
-├── ElectricalModeToggle.tsx        ★ toolbar button ⚡
-├── SpiceErrorBanner.tsx            ★ banner de no-convergencia
-└── MeasurementPanel.tsx            ★ lateral con todas las lecturas de probes
+├── ComponentValueEditor.tsx         input con unidades (k, M, u, n, p)
+├── ElectricalOverlay.tsx            SVG overlay: V de cada nodo, I de cada cable
+├── ElectricalModeToggle.tsx         toolbar button 
+├── SpiceErrorBanner.tsx             banner de no-convergencia
+└── MeasurementPanel.tsx             lateral con todas las lecturas de probes
 
 frontend/scripts/
-└── generate-analog-metadata.ts     ★ genera components-metadata.json para analog/instruments
+└── generate-analog-metadata.ts      genera components-metadata.json para analog/instruments
 ```
 
 ### 3.2 Archivos modificados
@@ -426,7 +426,7 @@ Si `components` y `wires` no han cambiado desde la última invocación, reutiliz
 **Goal**: usuario puede activar modo eléctrico y ver voltajes en el canvas.
 
 **Entregables**:
-- `ElectricalModeToggle.tsx` en toolbar (icono ⚡).
+- `ElectricalModeToggle.tsx` en toolbar (icono ).
 - `ElectricalOverlay.tsx` — SVG overlay que etiqueta cada nodo con `V(n) ≈ 2.50 V`.
 - `SpiceErrorBanner.tsx` — si `!converged`, muestra banner con mensaje de ngspice (`getError()`).
 - `LED.tsx` — usar `brightness = electrical.componentCurrents[id] / 0.020` en lugar del bool actual.

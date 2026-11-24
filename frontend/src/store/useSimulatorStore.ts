@@ -1470,7 +1470,6 @@ export const setBoardWifiStatus = (id: string, ws: WifiStatus) =>
 // Xtensa-based ESP32 boards — use QEMU bridge (backend)
 const ESP32_KINDS = new Set<BoardKind>([
   'esp32',
-  'esp32-cam',
   'esp32-s3',
 ]);
 

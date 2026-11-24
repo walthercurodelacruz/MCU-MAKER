@@ -48,12 +48,6 @@ const ACCEPTED_UNCOVERED: ReadonlySet<BoardKind> = new Set([
   'raspberry-pi-4',
   'raspberry-pi-5',
 
-  // ESP32 Xtensa LX6 variants — all share the same QEMU backend as
-  // the primary `esp32` boardKind (which IS covered).  Adding a
-  // dedicated example per variant adds zero engine coverage; the
-  // canvas just renders a different SVG.
-  'esp32-cam',
-
   // ESP32-S3 Xtensa LX7 family — share the `esp32-s3` QEMU backend.
   // No primary `esp32-s3` example today either; the family is
   // emulator-ready but lacks a demo circuit.  Add one when product

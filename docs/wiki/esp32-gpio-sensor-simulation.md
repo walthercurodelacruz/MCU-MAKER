@@ -202,7 +202,7 @@ Firmware:                         Backend:
 
 ### 3.5 Resultado
 
-✅ **DHT22 funciona al 100%** desde esta implementación. El serial monitor muestra:
+[OK] **DHT22 funciona al 100%** desde esta implementación. El serial monitor muestra:
 ```
 Temp: 28.0 C   Humidity: 65.0 %
 ```
@@ -558,20 +558,20 @@ class HCSR04SyncHandler:
 Test end-to-end con 4 distancias:
 
 ```
-sent=40 cm  → received=40 cm  ✓ (delta=0)
-sent=40 cm  → received=39 cm  ✓ (delta=1)
-sent=40 cm  → received=40 cm  ✓ (delta=0)
-sent=100 cm → received=100 cm ✓ (delta=1)
-sent=100 cm → received=101 cm ✓ (delta=2)
-sent=100 cm → received=100 cm ✓ (delta=1)
-sent=10 cm  → received=10 cm  ✓ (delta=0)
-sent=10 cm  → received=11 cm  ✓ (delta=1)
-sent=10 cm  → received=10 cm  ✓ (delta=0)
-sent=200 cm → received=200 cm ✓ (delta=1)
-sent=200 cm → received=199 cm ✓ (delta=1)
-sent=200 cm → received=200 cm ✓ (delta=1)
+sent=40 cm  → received=40 cm  [OK] (delta=0)
+sent=40 cm  → received=39 cm  [OK] (delta=1)
+sent=40 cm  → received=40 cm  [OK] (delta=0)
+sent=100 cm → received=100 cm [OK] (delta=1)
+sent=100 cm → received=101 cm [OK] (delta=2)
+sent=100 cm → received=100 cm [OK] (delta=1)
+sent=10 cm  → received=10 cm  [OK] (delta=0)
+sent=10 cm  → received=11 cm  [OK] (delta=1)
+sent=10 cm  → received=10 cm  [OK] (delta=0)
+sent=200 cm → received=200 cm [OK] (delta=1)
+sent=200 cm → received=199 cm [OK] (delta=1)
+sent=200 cm → received=200 cm [OK] (delta=1)
 
-✓ PASS — 12/12 lecturas dentro de ±15 cm, 4 distancias, miss rate 0%
+[OK] PASS — 12/12 lecturas dentro de ±15 cm, 4 distancias, miss rate 0%
 ```
 
 ---

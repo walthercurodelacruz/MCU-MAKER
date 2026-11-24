@@ -604,16 +604,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://mcumaker.dev/examples/esp32cam-webcam-demo/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://mcumaker.dev/examples/esp32cam-lcd-preview/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://mcumaker.dev/examples/esp32-doom/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

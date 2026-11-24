@@ -30,13 +30,6 @@ describe('ESP32 UART pin classification (multi-board Serial)', () => {
     });
   }
 
-  it('esp32-cam: TX/RX -> UART0; it breaks out no UART2 pin', () => {
-    expect(classifyPin('esp32-cam', 'TX')).toEqual({ kind: 'uart-tx', uart: 0 });
-    expect(classifyPin('esp32-cam', 'RX')).toEqual({ kind: 'uart-rx', uart: 0 });
-    // GPIO16 is the PSRAM line on this module and GPIO17 is not on the header.
-    expect(classifyPin('esp32-cam', 'TX2')).toEqual({ kind: 'digital' });
-  });
-
   it('esp32-s3: TX/RX -> UART0 on 43/44, and 17/16 are UART1, not UART2', () => {
     expect(classifyPin('esp32-s3', 'TX')).toEqual({ kind: 'uart-tx', uart: 0 });
     expect(classifyPin('esp32-s3', 'RX')).toEqual({ kind: 'uart-rx', uart: 0 });

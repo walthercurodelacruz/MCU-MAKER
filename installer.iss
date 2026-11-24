@@ -2,9 +2,9 @@
 ; Genera el instalador oficial de Windows para estudiantes y desarrolladores.
 
 #define MyAppName "MCU Maker"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Walther Curo De La Cruz"
-#define MyAppURL "http://localhost:8001"
+#define MyAppURL "https://github.com/walthercurodelacruz/MCU-MAKER"
 #define MyAppExeName "mcu-maker-launcher.exe"
 #define MyAppCopyright "MCU Maker - Un proyecto basado en Velxio.dev con Backend 100% en Rust. Desarrollador: Walther Curo De La Cruz"
 #define MyAppComments "MCU Maker - Un proyecto basado en Velxio.dev con Backend 100% en Rust. Desarrollador: Walther Curo De La Cruz"

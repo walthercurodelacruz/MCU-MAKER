@@ -173,15 +173,15 @@ the rest of the backend already uses.
 
 | Layer | Suite | Status |
 |---|---|---|
-| Bit decoder | `test/test_Raspberry_Pi_Pico_W/test_code/tests/01_pio_decoder.test.ts` | ✅ 9/9 |
-| Bus handshake | `…/02_handshake.test.ts` | ✅ 6/6 |
-| SDPCM codec | `…/04_sdpcm.test.ts` | ✅ 7/7 |
-| IOCTL responses | `…/05_ioctl.test.ts` | ✅ 5/5 |
-| Full lifecycle | `…/06_full_lifecycle.test.ts` | ✅ 3/3 |
-| Real 100-days projects | `…/07_picow_iot_projects.test.ts` | ✅ 10/10 |
-| Performance budgets | `…/08_viability.test.ts` | ✅ 9/9 |
-| Frontend integration | `frontend/src/__tests__/picow-cyw43-integration.test.ts` | ✅ 6/6 |
-| Backend bridge | `test/backend/integration/test_picow_net_bridge.py` | ✅ 18/18 |
+| Bit decoder | `test/test_Raspberry_Pi_Pico_W/test_code/tests/01_pio_decoder.test.ts` | [OK] 9/9 |
+| Bus handshake | `…/02_handshake.test.ts` | [OK] 6/6 |
+| SDPCM codec | `…/04_sdpcm.test.ts` | [OK] 7/7 |
+| IOCTL responses | `…/05_ioctl.test.ts` | [OK] 5/5 |
+| Full lifecycle | `…/06_full_lifecycle.test.ts` | [OK] 3/3 |
+| Real 100-days projects | `…/07_picow_iot_projects.test.ts` | [OK] 10/10 |
+| Performance budgets | `…/08_viability.test.ts` | [OK] 9/9 |
+| Frontend integration | `frontend/src/__tests__/picow-cyw43-integration.test.ts` | [OK] 6/6 |
+| Backend bridge | `test/backend/integration/test_picow_net_bridge.py` | [OK] 18/18 |
 | **Total** | — | **73 passed, 0 failed** |
 
 The backend integration suite includes a **real TCP round-trip**: the

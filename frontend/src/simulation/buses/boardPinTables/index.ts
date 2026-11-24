@@ -9,7 +9,6 @@ import { registerBoardPinFunctions, type BoardPinFunctions } from '../pinFunctio
 import { ATMEGA2560_TABLE, ATMEGA328P_TABLE, ATTINY85_TABLE } from './avr';
 import { PICO_TABLE } from './rp2040';
 import {
-  ESP32_CAM_TABLE,
   ESP32_DEVKIT_V1_TABLE,
 } from './esp32';
 import { ESP32S3_DEVKITC_TABLE } from './esp32s3';
@@ -24,7 +23,6 @@ export const OSS_BOARD_PIN_TABLES: Record<BoardKind, BoardPinFunctions> = {
   'raspberry-pi-pico': PICO_TABLE,
   'pi-pico-w': PICO_TABLE,
   esp32: ESP32_DEVKIT_V1_TABLE,
-  'esp32-cam': ESP32_CAM_TABLE,
   'esp32-s3': ESP32S3_DEVKITC_TABLE,
   'esp32-c3': ESP32C3_DEVKITM_TABLE,
 };

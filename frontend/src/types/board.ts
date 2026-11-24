@@ -7,7 +7,6 @@ export type BoardKind =
   | 'raspberry-pi-pico' // RP2040, browser emulation
   | 'pi-pico-w' // RP2040 + WiFi, browser emulation (WiFi ignored)
   | 'esp32' // Xtensa LX6, QEMU backend
-  | 'esp32-cam' // ESP32-CAM, QEMU (esp32)
   | 'esp32-s3' // Xtensa LX7, QEMU backend
   | 'esp32-c3' // RISC-V RV32IMC, QEMU backend
   | 'attiny85'; // AVR ATtiny85, browser emulation (avr8js)
@@ -41,7 +40,6 @@ export const BOARD_SUPPORTS_MICROPYTHON = new Set<BoardKind>([
   'pi-pico-w',
   // ESP32 Xtensa (QEMU bridge)
   'esp32',
-  'esp32-cam',
   // ESP32-S3 Xtensa (QEMU bridge)
   'esp32-s3',
   // ESP32-C3 RISC-V (QEMU bridge)
@@ -55,7 +53,6 @@ export const BOARD_SUPPORTS_MICROPYTHON = new Set<BoardKind>([
 export const BOARD_SUPPORTS_ESPIDF = new Set<BoardKind>([
   // ESP32 Xtensa (QEMU bridge)
   'esp32',
-  'esp32-cam',
   // ESP32-S3 Xtensa (QEMU bridge)
   'esp32-s3',
   // ESP32-C3 RISC-V (QEMU bridge)
@@ -213,7 +210,6 @@ export const BOARD_KIND_LABELS: Record<BoardKind, string> = {
   'raspberry-pi-pico': 'Raspberry Pi Pico',
   'pi-pico-w': 'Raspberry Pi Pico W',
   esp32: 'ESP32 DevKit V1',
-  'esp32-cam': 'ESP32-CAM',
   'esp32-s3': 'ESP32-S3 DevKit',
   'esp32-c3': 'ESP32-C3 DevKit',
   attiny85: 'ATtiny85',
@@ -233,7 +229,6 @@ export const BOARD_KIND_FQBN: Record<BoardKind, string | null> = {
   'raspberry-pi-pico': 'rp2040:rp2040:rpipico',
   'pi-pico-w': 'rp2040:rp2040:rpipicow',
   esp32: 'esp32:esp32:esp32',
-  'esp32-cam': 'esp32:esp32:esp32cam',
   'esp32-s3': 'esp32:esp32:esp32s3',
   'esp32-c3': 'esp32:esp32:esp32c3',
   attiny85: 'ATTinyCore:avr:attinyx5:chip=85,clock=16pll',
@@ -320,14 +315,6 @@ export const BOARD_ONBOARD_LEDS: Record<BoardKind, readonly OnboardLed[]> = {
   // the generic esp32 variant, which defines no LED_BUILTIN at all, so a
   // MicroPython Pin(2) or an explicit GPIO is what sketches use here.
   esp32: [{ id: 'led', kind: 'gpio', pin: 2, activeLow: false }],
-  // AI-Thinker ESP32-CAM: the white flash LED on GPIO4 (through a transistor,
-  // HIGH lights it) and the small red LED on GPIO33 between 3V3 and the pin
-  // (LOW lights it). Its FQBN builds with the plain esp32 variant, so
-  // LED_BUILTIN is undefined in Arduino and sketches name the GPIO.
-  'esp32-cam': [
-    { id: 'flash', kind: 'gpio', pin: 4, activeLow: false },
-    { id: 'led', kind: 'gpio', pin: 33, activeLow: true },
-  ],
   // ESP32-S3-DevKitC-1: an addressable RGB LED on GPIO48 (variants/esp32s3:
   // PIN_RGB_LED 48, LED_BUILTIN = SOC_GPIO_PIN_COUNT + 48, which is how the
   // core sends digitalWrite(LED_BUILTIN) through rgbLedWrite).

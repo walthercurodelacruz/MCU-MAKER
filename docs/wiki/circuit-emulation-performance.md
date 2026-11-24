@@ -75,7 +75,7 @@ At larger circuit sizes (50+ nodes), the dense Gaussian elimination becomes quad
 | `avr8js` shared harness | ~1.5 MB | a few MB for CPU + SRAM + listeners |
 | `eecircuit-engine` | **39 MB** | ~15–20 MB when booted (WASM linear memory) |
 
-**Velxio production impact**: adding ngspice-WASM grows the browser bundle by 39 MB (the WASM is bundled inside the JS module). Unacceptable as a hard dependency for every page load; tolerable behind a lazy-loaded "⚡ Electrical simulation" feature flag. The user clicks to activate; the browser fetches, caches, and initializes; ~400 ms later they can simulate.
+**Velxio production impact**: adding ngspice-WASM grows the browser bundle by 39 MB (the WASM is bundled inside the JS module). Unacceptable as a hard dependency for every page load; tolerable behind a lazy-loaded " Electrical simulation" feature flag. The user clicks to activate; the browser fetches, caches, and initializes; ~400 ms later they can simulate.
 
 ## Scalability projections
 

@@ -198,10 +198,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('mcu_maker.selectBoard', async () => {
       const boards = Object.entries(BOARD_LABELS) as [BoardKind, string][];
-      const items = boards.map(([kind, label]) => ({
+      const items = boards.map(([boardKind, label]) => ({
         label,
-        description: kind,
-        kind: kind,
+        description: boardKind,
+        boardKind,
       }));
 
       const selected = await vscode.window.showQuickPick(items, {
@@ -210,14 +210,14 @@ export function activate(context: vscode.ExtensionContext) {
       });
 
       if (selected) {
-        const boardKind = selected.description as BoardKind;
+        const boardKind = selected.boardKind;
         updateStatusBar(boardKind);
 
         // Update mcu_maker.toml if it exists
         const workspaceRoot = getWorkspaceRoot();
         if (workspaceRoot) {
           const config = new ProjectConfig(workspaceRoot);
-          const existingConfig = config.readMCU MakerToml();
+          const existingConfig = config.readMcuMakerToml();
           if (existingConfig) {
             await config.createDefaultConfig(boardKind);
           }
@@ -240,7 +240,7 @@ export function activate(context: vscode.ExtensionContext) {
   const workspaceRoot = getWorkspaceRoot();
   if (workspaceRoot) {
     const config = new ProjectConfig(workspaceRoot);
-    const mcuMakerConfig = config.readMCU MakerToml();
+    const mcuMakerConfig = config.readMcuMakerToml();
     if (mcuMakerConfig) {
       updateStatusBar(config.getBoard());
       statusBarItem.show();
@@ -390,10 +390,25 @@ async function compileAndLoad(context: vscode.ExtensionContext): Promise<void> {
           throw new Error(error.detail ?? `Compilation failed (${response.status})`);
         }
 
-        const result = await response.json() as { hex?: string; binary?: string };
-        if (result.hex) {
-          panel.loadHex(result.hex, board);
+        const result = await response.json() as {
+          success?: boolean;
+          hex_content?: string | null;
+          binary_content?: string | null;
+          error?: string | null;
+          hex?: string;
+          binary?: string;
+        };
+        if (result.success === false) {
+          throw new Error(result.error ?? 'Compilation failed');
+        }
+        const hex = result.hex_content ?? result.hex;
+        const bin = result.binary_content ?? result.binary;
+        if (hex) {
+          panel.loadHex(hex, board);
           outputChannel.appendLine('[Compile] Success — hex loaded');
+        } else if (bin) {
+          panel.loadBinary(bin, board);
+          outputChannel.appendLine('[Compile] Success — binary loaded');
         }
       },
     );
@@ -414,7 +429,7 @@ function getBoardFqbn(board: BoardKind): string {
     'esp32': 'esp32:esp32:esp32',
     'esp32-s3': 'esp32:esp32:esp32s3',
     'esp32-c3': 'esp32:esp32:esp32c3',
-    'attiny85': 'ATTinyCore:avr:attinyx5:chip=85,clock=internal16mhz',
+    'attiny85': 'ATTinyCore:avr:attinyx5:chip=85,clock=16pll',
   };
   return fqbnMap[board] ?? 'arduino:avr:uno';
 }

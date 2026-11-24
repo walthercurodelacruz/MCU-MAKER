@@ -164,7 +164,7 @@ sees the frames it should.
 
 - **Pyright vs underscore-prefixed unused params.** Pyright still
   warns on `_inst`/`_ether` even though that's the standard
-  Python convention. We left the warnings as `★` (info) since the
+  Python convention. We left the warnings as `` (info) since the
   function signatures are part of the public bridge contract.
 - **Strict TS `Uint8Array<ArrayBuffer>` vs `Uint8Array<ArrayBufferLike>`.**
   TS 5.7 tightened these. The fix was to widen the IOCTL response

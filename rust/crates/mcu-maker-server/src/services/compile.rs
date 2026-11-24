@@ -12,7 +12,7 @@ use sha2::{Digest, Sha256};
 use tokio::sync::RwLock;
 use tracing::info;
 
-use super::arduino_cli::{ArduinoCLIService, CompileResult, SketchFile};
+use super::arduino_cli::{ArduinoCLIService, CompileProgressEvent, CompileResult, ProgressTx, SketchFile};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct CompileRequest {
@@ -49,7 +49,6 @@ impl CompileRequest {
             "esp32" | "esp32-devkit" | "esp32dev" => "esp32:esp32:esp32".to_string(),
             "esp32s3" | "esp32-s3" => "esp32:esp32:esp32s3".to_string(),
             "esp32c3" | "esp32-c3" => "esp32:esp32:esp32c3".to_string(),
-            "esp32cam" | "esp32-cam" => "esp32:esp32:esp32cam".to_string(),
             "uno" => "arduino:avr:uno".to_string(),
             "nano" => "arduino:avr:nano".to_string(),
             "mega" => "arduino:avr:mega".to_string(),
@@ -80,6 +79,7 @@ pub struct AsyncJobStatus {
     pub job_id: String,
     pub state: String, // "pending" | "running" | "done" | "error"
     pub stage: Option<String>,
+    pub progress: Option<f32>,
     pub started_at: f64,
     pub stdout: String,
     pub result: Option<CompileResult>,
@@ -147,18 +147,35 @@ impl CompileService {
     }
 
     pub async fn execute_compile(&self, req: CompileRequest) -> CompileResult {
+        self.execute_compile_with_progress(req, None).await
+    }
+
+    pub async fn execute_compile_with_progress(
+        &self,
+        req: CompileRequest,
+        progress_tx: Option<ProgressTx>,
+    ) -> CompileResult {
         let board = req.resolved_board();
         let files = req.resolved_files();
-
-        // Limpiar cachés y compilados anteriores antes de compilar
-        self.clear_cache().await;
 
         let wifi_cfg = super::wifi_config::WiFiConfig::load();
         let salt = format!("v4:{}:{}:{}", wifi_cfg.ssid, wifi_cfg.universal_redirect, wifi_cfg.virtual_ap_name);
         let cache_key = Self::compute_cache_key(&files, &board, &salt);
 
+        if let Some(cached) = self.load_cached(&cache_key).await {
+            info!("Cache hit for board {} (key: {})", board, &cache_key[..12]);
+            if let Some(ref tx) = progress_tx {
+                let _ = tx.send(CompileProgressEvent {
+                    line: Some(format!("Caché SHA-256 encontrada para {}", board)),
+                    stage: Some("packaging".to_string()),
+                    progress: Some(1.0),
+                });
+            }
+            return cached;
+        }
+
         info!("Starting compilation for board {}", board);
-        match self.arduino_cli.compile(&files, &board).await {
+        match self.arduino_cli.compile_with_progress(&files, &board, progress_tx).await {
             Ok(res) => {
                 if res.success {
                     self.save_cached(&cache_key, &res).await;
@@ -190,7 +207,8 @@ impl CompileService {
         let initial_status = AsyncJobStatus {
             job_id: job_id.clone(),
             state: "running".to_string(),
-            stage: Some("compiling".to_string()),
+            stage: Some("preparing".to_string()),
+            progress: Some(0.05),
             started_at: now,
             stdout: String::new(),
             result: None,
@@ -199,13 +217,58 @@ impl CompileService {
 
         {
             let mut jobs = self.jobs.write().await;
+            if jobs.len() >= 200 {
+                // Evict finished jobs oldest-first to prevent unbounded memory growth
+                let mut finished: Vec<(String, f64)> = jobs
+                    .iter()
+                    .filter(|(_, j)| j.state == "done" || j.state == "error")
+                    .map(|(id, j)| (id.clone(), j.started_at))
+                    .collect();
+                finished.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap_or(std::cmp::Ordering::Equal));
+                for (old_id, _) in finished.into_iter().take(100) {
+                    jobs.remove(&old_id);
+                }
+            }
             jobs.insert(job_id.clone(), initial_status);
         }
+
+        let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<CompileProgressEvent>();
+        let jobs_for_stream = self.jobs.clone();
+        let jid_for_stream = job_id.clone();
+        let stream_task = tokio::spawn(async move {
+            const MAX_STDOUT_BYTES: usize = 256 * 1024;
+            while let Some(ev) = rx.recv().await {
+                let mut jobs = jobs_for_stream.write().await;
+                if let Some(job) = jobs.get_mut(&jid_for_stream) {
+                    if let Some(line) = ev.line {
+                        if !job.stdout.is_empty() {
+                            job.stdout.push('\n');
+                        }
+                        job.stdout.push_str(&line);
+                        if job.stdout.len() > MAX_STDOUT_BYTES {
+                            let excess = job.stdout.len() - MAX_STDOUT_BYTES;
+                            if let Some(nl) = job.stdout[excess..].find('\n') {
+                                job.stdout.drain(..excess + nl + 1);
+                            } else {
+                                job.stdout.drain(..excess);
+                            }
+                        }
+                    }
+                    if let Some(stage) = ev.stage {
+                        job.stage = Some(stage);
+                    }
+                    if ev.progress.is_some() {
+                        job.progress = ev.progress;
+                    }
+                }
+            }
+        });
 
         let this = self.clone();
         let jid = job_id.clone();
         tokio::spawn(async move {
-            let result = this.execute_compile(req).await;
+            let result = this.execute_compile_with_progress(req, Some(tx)).await;
+            let _ = stream_task.await;
             let mut jobs = this.jobs.write().await;
             if let Some(job) = jobs.get_mut(&jid) {
                 job.state = if result.success {
@@ -214,7 +277,10 @@ impl CompileService {
                     "error".to_string()
                 };
                 job.stage = Some("done".to_string());
-                job.stdout = result.stdout.clone();
+                job.progress = Some(1.0);
+                if job.stdout.is_empty() && !result.stdout.is_empty() {
+                    job.stdout = result.stdout.clone();
+                }
                 job.error = if result.success {
                     None
                 } else {
@@ -260,6 +326,7 @@ pub async fn handle_compile_status(
             "job_id": status.job_id,
             "state": status.state,
             "stage": status.stage,
+            "progress": status.progress,
             "started_at": status.started_at,
             "stdout": status.stdout,
             "result": status.result,
@@ -278,4 +345,49 @@ pub async fn handle_cache_clear(
 ) -> impl IntoResponse {
     service.clear_cache().await;
     Json(serde_json::json!({ "success": true, "message": "Cache cleared" }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_resolved_board_aliases() {
+        let req = CompileRequest {
+            board: Some("esp32-s3".to_string()),
+            ..Default::default()
+        };
+        assert_eq!(req.resolved_board(), "esp32:esp32:esp32s3");
+    }
+
+    #[tokio::test]
+    async fn test_compile_cache_roundtrip() {
+        let temp = tempfile::tempdir().unwrap();
+        let cli = Arc::new(ArduinoCLIService::new(Some("nonexistent-cli".to_string())));
+        let svc = CompileService::new(cli, temp.path().to_path_buf());
+        let files = vec![SketchFile {
+            name: "sketch.ino".to_string(),
+            content: "void setup(){} void loop(){}".to_string(),
+        }];
+        let key = CompileService::compute_cache_key(&files, "arduino:avr:uno", "v4:test");
+        let sample = CompileResult {
+            success: true,
+            hex_content: Some(":00000001FF".to_string()),
+            binary_content: None,
+            binary_type: None,
+            uf2_content: None,
+            has_wifi: Some(false),
+            stdout: "cached".to_string(),
+            stderr: String::new(),
+            error: None,
+            error_kind: None,
+        };
+        svc.save_cached(&key, &sample).await;
+        let loaded = svc.load_cached(&key).await;
+        assert!(loaded.is_some());
+        assert_eq!(loaded.unwrap().hex_content.as_deref(), Some(":00000001FF"));
+
+        svc.clear_cache().await;
+        assert!(svc.load_cached(&key).await.is_none());
+    }
 }

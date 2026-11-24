@@ -265,7 +265,6 @@ export const BOARD_COMPONENT_IDS = [
   'raspberry-pi-pico',
   'pi-pico-w',
   'esp32',
-  'esp32-cam',
   'esp32-s3',
   'esp32-c3',
 ];

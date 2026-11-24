@@ -66,7 +66,6 @@ function fallbackPinsForBoardKind(boardKind: BoardKind): { pin: number; label: s
     case 'pi-pico-w':
       return Array.from({ length: 29 }, (_, i) => ({ pin: i, label: `GP${i}` }));
     case 'esp32':
-    case 'esp32-cam':
       return Array.from({ length: 40 }, (_, i) => ({ pin: i, label: `GPIO${i}` }));
     case 'esp32-s3':
       return Array.from({ length: 45 }, (_, i) => ({ pin: i, label: `GPIO${i}` }));

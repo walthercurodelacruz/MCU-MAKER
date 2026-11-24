@@ -1,8 +1,14 @@
-# MCU Maker — Roadmap & Arquitectura de Evolución
+# MCU Maker v1.2.0 — Roadmap y Arquitectura de Evolución
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-1.2.0-10B981?style=for-the-badge&logo=semanticrelease&logoColor=white" alt="Version 1.2.0" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=for-the-badge&logo=github&logoColor=white" alt="Desarrollador" />
+  <img src="https://img.shields.io/badge/License-GNU%20AGPLv3-2563EB?style=for-the-badge&logo=gnu&logoColor=white" alt="GNU AGPLv3" />
+</p>
 
 <p align="center">
   <strong>MCU Maker — Un proyecto basado en Velxio.dev con Backend 100% en Rust</strong><br />
-  <strong>Desarrollador:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
+  <strong>Desarrollador Principal:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
 </p>
 
 ---
@@ -21,27 +27,12 @@
 - Soporte para sketches multi-archivo con compilador asíncrono y monitor de salida en vivo.
 - Pipeline de compilación de circuitos integrados personalizados (C -> WebAssembly vía Emscripten).
 
-### Microcontroladores y Placas (24 Modelos en 5 Arquitecturas)
-- **AVR8 (Navegador, `avr8js`):** Arduino Uno R3, Arduino Nano, Arduino Mega 2560, ATtiny85, Franzininho DIY.
+### Microcontroladores y Placas Canónicas (9 Modelos Oficiales)
+- **AVR8 (Navegador, `avr8js`):** Arduino Uno R3, Arduino Nano, Arduino Mega 2560, ATtiny85.
 - **RP2040 (`rp2040js`):** Raspberry Pi Pico, Raspberry Pi Pico W (Wi-Fi CYW43439 integrado).
-- **Xtensa LX6/LX7 (QEMU Nativo):** ESP32 DevKit V1, DevKit-C V4, ESP32-CAM, Wemos Lolin32 Lite, ESP32-S3 DevKit, XIAO ESP32-S3.
-- **RISC-V RV32IMC (QEMU Nativo):** ESP32-C3 DevKit, XIAO ESP32-C3, ESP32-C3 SuperMini, WCH CH32V003.
-- **ARM Cortex-M & Cortex-A:** STM32 Blue Pill (F103), Black Pill (F401/F411), Raspberry Pi Zero / 1 / 2 / 3B / 4B / 5.
+- **Xtensa LX6/LX7 (QEMU Nativo):** ESP32 DevKit V1, ESP32-S3 DevKit.
+- **RISC-V RV32IMC (QEMU Nativo):** ESP32-C3 DevKit.
 - **Procesadores Clásicos:** Zilog Z80, Intel 8080, Intel 4004 (SDK C-to-WASM).
-- Arduino Nano (ATmega328P @ 16 MHz)
-- Arduino Mega 2560 (ATmega2560 @ 16 MHz)
-- ATtiny85 (8 MHz internal / 16 MHz external PLL)
-
-#### RP2040 (browser, rp2040js)
-
-- Raspberry Pi Pico (RP2040 @ 133 MHz)
-- Raspberry Pi Pico W (RP2040 + simulated CYW43439 WiFi)
-
-#### Xtensa LX6/LX7 (backend, lcgamboa QEMU)
-
-- ESP32 DevKit V1, ESP32 DevKit C V4
-- ESP32-CAM, Wemos Lolin32 Lite
-- ESP32-S3 DevKit, XIAO ESP32-S3
 
 #### RISC-V RV32IMC (backend, lcgamboa QEMU)
 
@@ -185,9 +176,9 @@
 
 ---
 
-## 🔮 Futuras Versiones & Expansión de Hardware
+## Futuras Versiones & Expansión de Hardware
 
-### ⚡ 1. FPGAs Clásicas y Lógica Programable (Open RTL Toolchain)
+### 1. FPGAs Clásicas y Lógica Programable (Open RTL Toolchain)
 - **Placas y Silicios en Plan:**
   - **Lattice iCE40:** iCEstick (HX1K), iCEBreaker (UP5K con 128KB SPRAM), TinyFPGA BX (LP8K).
   - **Gowin Tang Nano 9K / 20K:** Silicios accesibles para makers con controladores de video y memoria.
@@ -200,22 +191,22 @@
   - Comunicación en vivo entre pines de la FPGA y microcontroladores (Arduino / ESP32) vía SPI, I2C y GPIOs.
   - Sondas de Analizador Lógico para inspeccionar buses y estados internos en tiempo real.
 
-### 📡 2. Conectividad Inalámbrica y Redes Avanzadas
+### 2. Conectividad Inalámbrica y Redes Avanzadas
 - Simulación de topologías de malla **ESP-NOW** entre múltiples nodos ESP32.
 - Módulos transceptores **LoRa (SX1276 / SX1278)** para telemetría de largo alcance.
 - Periféricos simulados de **Bluetooth Low Energy (BLE)** (servicios GATT, notificaciones).
 
-### 📊 3. Instrumentación Virtual de Laboratorio
+### 3. Instrumentación Virtual de Laboratorio
 - **Osciloscopio Digital de 2 Canales:** Acoplamiento AC/DC, disparo (trigger) por flanco, análisis de frecuencia FFT.
 - **Analizador Lógico Digital de 8 Canales:** Decodificador de tramas para I2C, SPI, UART y 1-Wire con exportación VCD (*Value Change Dump*).
 
-### 🐧 4. Distribución Multiplataforma
+### 4. Distribución Multiplataforma
 - Paquetes universales **AppImage** y **Flatpak** para sistemas Linux (Ubuntu, Debian, Fedora, Arch).
 - Paquetes **DMG** para macOS (Apple Silicon y x86_64).
 
 ---
 
-## ⚖️ Licencia y Contribuciones
+## Licencia y Contribuciones
 
 **MCU Maker** es un proyecto de código abierto distribuido bajo la licencia **GNU Affero General Public License v3.0 (GNU AGPLv3)**.
 

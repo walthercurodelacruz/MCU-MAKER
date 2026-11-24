@@ -136,7 +136,7 @@ for (const custom of customComps) {
   // Evitar duplicados: si ya existe por id, saltar (el escaneo wokwi-elements gana)
   if (components.find(c => c.id === custom.id)) continue;
   components.push(custom);
-  console.log(`  ➕ Added custom component ${custom.id}`);
+  console.log(`   Added custom component ${custom.id}`);
 }
 ```
 
@@ -204,11 +204,11 @@ Orden exacto:
 
 Cada mapper nuevo debe:
 
-1. ✅ Pasar un test de **convergencia DC** en ngspice con `.op` en < 1 s (evita el síndrome `W=0.1`).
-2. ✅ Pasar un test de **behavior** — truth table para gates, saturación/cutoff para transistores, ganancia para op-amps, regulación para reguladores.
-3. ✅ Tener entrada en `components-metadata.json` con `pinCount`, `properties[]`, `category`.
-4. ✅ Aparecer en el `ComponentPickerModal` categorizado.
-5. ✅ No romper los 88 tests del sandbox ni los 62 tests de `frontend/src/__tests__/spice-*`.
+1. [OK] Pasar un test de **convergencia DC** en ngspice con `.op` en < 1 s (evita el síndrome `W=0.1`).
+2. [OK] Pasar un test de **behavior** — truth table para gates, saturación/cutoff para transistores, ganancia para op-amps, regulación para reguladores.
+3. [OK] Tener entrada en `components-metadata.json` con `pinCount`, `properties[]`, `category`.
+4. [OK] Aparecer en el `ComponentPickerModal` categorizado.
+5. [OK] No romper los 88 tests del sandbox ni los 62 tests de `frontend/src/__tests__/spice-*`.
 
 ## 4. Out-of-scope explícito
 

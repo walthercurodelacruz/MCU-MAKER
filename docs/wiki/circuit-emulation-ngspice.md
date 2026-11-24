@@ -40,7 +40,7 @@ node_modules/eecircuit-engine/
 Total: 39 MB
 ```
 
-Yes, 39 MB is large. In Velxio production this must be **lazy-loaded**: the user hits a "⚡ Electrical simulation" toggle, and only then is the bundle fetched. The size trade-off is documented in [performance](circuit-emulation-performance.md).
+Yes, 39 MB is large. In Velxio production this must be **lazy-loaded**: the user hits a " Electrical simulation" toggle, and only then is the bundle fetched. The size trade-off is documented in [performance](circuit-emulation-performance.md).
 
 ## API surface (from `dist/main.d.ts`)
 

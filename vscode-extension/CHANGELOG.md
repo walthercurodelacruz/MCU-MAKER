@@ -1,9 +1,10 @@
 # Changelog
 
-All notable changes to the **Velxio Simulator** VS Code extension are
-documented here.
+All notable changes to the **MCU Maker Simulator** VS Code extension (companion to **MCU Maker v1.2.0**, developed by **Walther Curo De La Cruz**) are documented here.
 
-## 0.2.0
+## 0.2.0 (MCU Maker v1.2.0 Compatibility)
+
+- Aligned with the **9 canonical boards** (`arduino-uno`, `arduino-nano`, `arduino-mega`, `attiny85`, `raspberry-pi-pico`, `pi-pico-w`, `esp32`, `esp32-s3`, `esp32-c3`) and Rust backend `/health` / `/api/compile` contracts.
 
 ### Breaking
 

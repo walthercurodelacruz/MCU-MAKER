@@ -667,11 +667,11 @@ fprintf(stderr, "[wifi-tx-sent] sub=%d ch=%d → next_inlink=0x%x\n",
 d0 → next=0x3ffb62dc  (beacon 1)
 dc → next=0x3ffb62e8  (beacon 2)
 e8 → next=0x3ffb62f4  (beacon 3)
-f4 → next=0x3ffb62d0  (beacon 4, circular ✓)
+f4 → next=0x3ffb62d0  (beacon 4, circular [OK])
 d0 → next=0x3ffb62dc  (beacon 5)
 dc → next=0x3ffb62e8  (beacon 6)
 e8 → next=0x3ffb62f4  (beacon 7)
-f4 → next=0x3ffb62d0  (beacon 8, circular ✓)
+f4 → next=0x3ffb62d0  (beacon 8, circular [OK])
 d0 → next=0x0          ← ZERO on beacon 9!
 ```
 

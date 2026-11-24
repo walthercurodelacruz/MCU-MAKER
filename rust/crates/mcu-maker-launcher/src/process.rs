@@ -1,7 +1,11 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::process::{Child, Command, Stdio};
 use std::io::{BufRead, BufReader};
 use std::time::Duration;
+
+fn lock_unpoisoned<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(|e| e.into_inner())
+}
 
 #[derive(Clone, Debug)]
 pub struct LogEntry {
@@ -29,17 +33,36 @@ impl ProcessManager {
     }
 
     pub fn set_port(&self, port: u16) {
-        *self.server_port.lock().unwrap() = port;
+        *lock_unpoisoned(&self.server_port) = port;
     }
 
     #[allow(dead_code)]
     pub fn get_port(&self) -> u16 {
-        *self.server_port.lock().unwrap()
+        *lock_unpoisoned(&self.server_port)
+    }
+
+    /// Checks live child state (detects unexpected exits) and returns whether the server is running.
+    pub fn is_server_running(&self) -> bool {
+        let mut child_guard = lock_unpoisoned(&self.child);
+        if let Some(child) = child_guard.as_mut() {
+            match child.try_wait() {
+                Ok(Some(status)) => {
+                    *child_guard = None;
+                    *lock_unpoisoned(&self.is_running) = false;
+                    drop(child_guard);
+                    self.add_log("WARN", &format!("El servidor MCU Maker finalizó ({})", status));
+                    return false;
+                }
+                Ok(None) => return true,
+                Err(_) => {}
+            }
+        }
+        *lock_unpoisoned(&self.is_running)
     }
 
     pub fn add_log(&self, level: &str, msg: &str) {
         let time = chrono_mock_time();
-        let mut logs = self.logs.lock().unwrap();
+        let mut logs = lock_unpoisoned(&self.logs);
         logs.push(LogEntry {
             timestamp: time,
             level: level.to_string(),
@@ -51,9 +74,12 @@ impl ProcessManager {
     }
 
     pub fn start_server(&self) {
-        let mut child_guard = self.child.lock().unwrap();
-        if child_guard.is_some() {
-            return;
+        let mut child_guard = lock_unpoisoned(&self.child);
+        if let Some(child) = child_guard.as_mut() {
+            if let Ok(None) = child.try_wait() {
+                return;
+            }
+            *child_guard = None;
         }
 
         self.add_log("INFO", "Iniciando motor MCU Maker Core (Rust)...");
@@ -86,12 +112,12 @@ impl ProcessManager {
             }
         }
 
-        let port = *self.server_port.lock().unwrap();
+        let port = *lock_unpoisoned(&self.server_port);
 
         // Si el puerto ya está escuchando (instancia previa activa), vincularla sin colisionar
         if std::net::TcpStream::connect(("127.0.0.1", port)).is_ok() {
             self.add_log("SUCCESS", &format!("Servidor MCU Maker ya activo y respondiendo en el puerto {}.", port));
-            *self.is_running.lock().unwrap() = true;
+            *lock_unpoisoned(&self.is_running) = true;
             return;
         }
 
@@ -125,7 +151,7 @@ impl ProcessManager {
                 let stdout = child.stdout.take();
                 let stderr = child.stderr.take();
                 *child_guard = Some(child);
-                *self.is_running.lock().unwrap() = true;
+                *lock_unpoisoned(&self.is_running) = true;
                 self.add_log("SUCCESS", "Servidor MCU Maker iniciado correctamente.");
 
                 // Stream stdout
@@ -138,7 +164,7 @@ impl ProcessManager {
                             if clean_line.trim().is_empty() {
                                 continue;
                             }
-                            let mut l = logs.lock().unwrap();
+                            let mut l = lock_unpoisoned(&logs);
                             l.push(LogEntry {
                                 timestamp: chrono_mock_time(),
                                 level: "SERVER".to_string(),
@@ -161,7 +187,7 @@ impl ProcessManager {
                             if clean_line.trim().is_empty() {
                                 continue;
                             }
-                            let mut l = logs.lock().unwrap();
+                            let mut l = lock_unpoisoned(&logs);
                             l.push(LogEntry {
                                 timestamp: chrono_mock_time(),
                                 level: "STDERR".to_string(),
@@ -175,19 +201,23 @@ impl ProcessManager {
                 }
             }
             Err(e) => {
+                *lock_unpoisoned(&self.is_running) = false;
                 self.add_log("ERROR", &format!("No se pudo iniciar el servidor: {}", e));
             }
         }
     }
 
     pub fn stop_server(&self) {
-        let mut child_guard = self.child.lock().unwrap();
+        let mut child_guard = lock_unpoisoned(&self.child);
         if let Some(mut child) = child_guard.take() {
             self.add_log("WARN", "Deteniendo servidor MCU Maker...");
             let _ = child.kill();
             let _ = child.wait();
-            *self.is_running.lock().unwrap() = false;
+            *lock_unpoisoned(&self.is_running) = false;
             self.add_log("INFO", "Servidor detenido.");
+        } else if *lock_unpoisoned(&self.is_running) {
+            *lock_unpoisoned(&self.is_running) = false;
+            self.add_log("WARN", "La instancia del servidor fue iniciada externamente; desconectado del monitor.");
         }
     }
 

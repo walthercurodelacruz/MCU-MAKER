@@ -16,7 +16,7 @@ export class ProjectConfig {
   }
 
   /** Read and parse mcu_maker.toml from the workspace root */
-  readMCU MakerToml(): McuMakerConfig | null {
+  readMcuMakerToml(): McuMakerConfig | null {
     const tomlPath = path.join(this.workspaceRoot, 'mcu_maker.toml');
     if (!fs.existsSync(tomlPath)) return null;
 
@@ -46,24 +46,27 @@ export class ProjectConfig {
 
   /** Resolve the board kind from config or settings */
   getBoard(): BoardKind {
-    const config = this.readMCU MakerToml();
-    if (config?.mcu_maker?.board) {
-      return config.mcu_maker.board as BoardKind;
+    const config = this.readMcuMakerToml();
+    const section = config?.mcu_maker ?? config?.['mcu-maker'];
+    if (section?.board) {
+      return section.board as BoardKind;
     }
     return vscode.workspace.getConfiguration('mcu_maker').get<BoardKind>('defaultBoard') ?? 'arduino-uno';
   }
 
   /** Get the language mode (arduino or micropython) */
   getLanguageMode(): 'arduino' | 'micropython' {
-    const config = this.readMCU MakerToml();
-    return config?.mcu_maker?.language ?? 'arduino';
+    const config = this.readMcuMakerToml();
+    const section = config?.mcu_maker ?? config?.['mcu-maker'];
+    return section?.language ?? 'arduino';
   }
 
   /** Get the pre-compiled firmware path (if specified) */
   getFirmwarePath(): string | null {
-    const config = this.readMCU MakerToml();
-    if (!config?.mcu_maker?.firmware) return null;
-    return path.resolve(this.workspaceRoot, config.mcu_maker.firmware);
+    const config = this.readMcuMakerToml();
+    const section = config?.mcu_maker ?? config?.['mcu-maker'];
+    if (!section?.firmware) return null;
+    return path.resolve(this.workspaceRoot, section.firmware);
   }
 
   /** Collect all sketch files (.ino, .h, .cpp, .py) from the workspace */

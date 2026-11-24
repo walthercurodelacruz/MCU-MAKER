@@ -47,7 +47,6 @@ interface BoardDockProps {
 /** Boards with an on-board camera: the two OSS kinds plus any overlay board
  *  whose def declares builtInCamera. */
 function cameraFor(boardKind: string): { maxFrameBytes?: number } | null {
-  if (boardKind === 'esp32-cam') return {};
   // The S3 esp32-camera build allocates width*height/5 bytes for a QVGA JPEG
   // frame (15360) and stops copying at fb_size - one 1 KiB DMA half-buffer:
   // frames must stay under ~14336 or the EOI marker is truncated (NO-EOI).

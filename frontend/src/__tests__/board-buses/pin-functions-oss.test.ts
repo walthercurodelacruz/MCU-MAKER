@@ -97,8 +97,6 @@ const sorted = (xs: Iterable<number>) => Array.from(new Set(xs)).sort((a, b) => 
  * lands on a line no wire can touch.
  */
 const DEFAULTS_OFF_HEADER: Partial<Record<BoardKind, number[]>> = {
-  // Camera module: SPI (18/19/23/5), Wire (21/22), Serial1 (26/27), Serial2 TX (25) are internal.
-  'esp32-cam': [5, 18, 19, 21, 22, 23, 25, 26, 27],
   // SS = PB12: mcu_maker draws only part of the Discovery headers.
   'stm32-f4-discovery': [stm32PinNumber('PB12')],
 };

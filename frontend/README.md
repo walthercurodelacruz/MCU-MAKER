@@ -1,8 +1,15 @@
-# MCU Maker — Frontend Web UI (SPA)
+# MCU Maker v1.2.0 — Frontend Web UI (SPA)
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-1.2.0-10B981?style=for-the-badge&logo=semanticrelease&logoColor=white" alt="Version 1.2.0" />
+  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript%20%2B%20Vite-0EA5E9?style=for-the-badge&logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/Desarrollador-Walther%20Curo%20De%20La%20Cruz-06B6D4?style=for-the-badge&logo=github&logoColor=white" alt="Desarrollador" />
+  <img src="https://img.shields.io/badge/License-GNU%20AGPLv3-2563EB?style=for-the-badge&logo=gnu&logoColor=white" alt="License" />
+</p>
 
 <p align="center">
   <strong>MCU Maker — Un proyecto basado en Velxio.dev con Backend 100% en Rust</strong><br />
-  <strong>Desarrollador:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
+  <strong>Desarrollador Principal:</strong> Walther Curo De La Cruz &nbsp;|&nbsp; <strong>Licencia:</strong> GNU AGPLv3
 </p>
 
 React 18 + TypeScript + Vite frontend para la suite **MCU Maker**, con simulador interactivo de circuitos, editor de código Monaco y motor analógico SPICE (`ngspice-WASM`).

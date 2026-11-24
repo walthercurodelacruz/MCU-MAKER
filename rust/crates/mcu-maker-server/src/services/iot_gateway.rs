@@ -137,10 +137,37 @@ pub struct BoardInstance {
 pub struct IoTGatewayService {
     client: reqwest::Client,
     pub instances: Arc<RwLock<HashMap<String, BoardInstance>>>,
+    pub server_port: u16,
+}
+
+fn escape_html(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    for ch in input.chars() {
+        match ch {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '"' => out.push_str("&quot;"),
+            '\'' => out.push_str("&#x27;"),
+            _ => out.push(ch),
+        }
+    }
+    out
+}
+
+fn sanitize_client_id_segment(input: &str) -> String {
+    input
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-' || *c == '_' || *c == '.' || *c == ':')
+        .collect()
 }
 
 impl IoTGatewayService {
     pub fn new() -> Self {
+        Self::with_port(8001)
+    }
+
+    pub fn with_port(server_port: u16) -> Self {
         Self {
             client: reqwest::Client::builder()
                 .redirect(reqwest::redirect::Policy::none())
@@ -148,6 +175,7 @@ impl IoTGatewayService {
                 .build()
                 .unwrap_or_default(),
             instances: Arc::new(RwLock::new(HashMap::new())),
+            server_port,
         }
     }
 
@@ -212,6 +240,10 @@ pub async fn handle_iot_portal(
         );
     } else {
         for inst in &instances {
+            let safe_id_html = escape_html(&inst.client_id);
+            let safe_ip_html = escape_html(&inst.ip);
+            let safe_desc_html = escape_html(&inst.description);
+            let safe_id_url = sanitize_client_id_segment(&inst.client_id);
             cards_html.push_str(&format!(
                 r#"<div class="device-card">
                     <div class="badge">ONLINE</div>
@@ -220,7 +252,7 @@ pub async fn handle_iot_portal(
                     <p class="desc">{}</p>
                     <a href="/api/gateway/{}/" class="btn">Abrir Panel Web del ESP32 →</a>
                 </div>"#,
-                inst.client_id, inst.ip, inst.hostfwd_port, inst.description, inst.client_id
+                safe_id_html, safe_ip_html, inst.hostfwd_port, safe_desc_html, safe_id_url
             ));
         }
     }
@@ -381,7 +413,7 @@ pub async fn handle_iot_portal(
         <div class="header">
             <h1>🌐 Pasarela IoT LAN de MCU Maker</h1>
             <p class="subtitle">Conexión directa a tus microcontroladores y servidores web simulados</p>
-            <div class="lan-pill">Portal LAN: http://{}:8001/iot/</div>
+            <div class="lan-pill">Portal LAN: http://{}:{}/iot/</div>
         </div>
         <div class="grid">
             {}
@@ -389,7 +421,7 @@ pub async fn handle_iot_portal(
     </div>
 </body>
 </html>"#,
-        refresh_tag, local_ip, cards_html
+        refresh_tag, local_ip, gateway.server_port, cards_html
     );
 
     Html(html)
@@ -418,10 +450,21 @@ async fn handle_gateway_proxy_inner(
     req: Request,
 ) -> Response {
     let instance = gateway.get_instance(&client_id).await;
-    let target_port = if let Some(inst) = instance {
-        inst.hostfwd_port
-    } else {
-        8080
+    let target_port = match instance {
+        Some(inst) => inst.hostfwd_port,
+        None => {
+            let safe_id = escape_html(&client_id);
+            let not_found_html = format!(
+                r#"<!doctype html><html><head><meta charset="utf-8"><title>MCU Maker — Dispositivo no activo</title>
+                <style>body{{background:#0b0f19;color:#cbd5e1;font-family:sans-serif;display:flex;min-height:100vh;margin:0;align-items:center;justify-content:center;text-align:center}}.box{{max-width:520px;padding:32px}}h1{{font-size:22px;color:#f87171}}code{{background:#1e293b;color:#38bdf8;padding:2px 6px;border-radius:4px}}</style></head>
+                <body><div class="box">
+                    <h1>Dispositivo IoT no encontrado</h1>
+                    <p>No hay ninguna simulación Wi-Fi activa registrada para <code>{}</code>.</p>
+                </div></body></html>"#,
+                safe_id
+            );
+            return (StatusCode::NOT_FOUND, Html(not_found_html)).into_response();
+        }
     };
 
     let (parts, body) = req.into_parts();
@@ -603,6 +646,46 @@ mod tests {
         let replaced = GATEWAY_SHIM.replace("%PREFIX%", prefix);
         assert!(replaced.contains("var P=\"/api/gateway/test-client/\";"));
         assert!(!replaced.contains("%PREFIX%"));
+    }
+
+    #[test]
+    fn test_escape_html_prevents_xss() {
+        assert_eq!(
+            escape_html(r#"<script>alert("x")</script>&'"#),
+            "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;&amp;&#x27;"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_iot_portal_preserves_colons_in_client_id() {
+        let service = Arc::new(IoTGatewayService::with_port(8001));
+        let cid = "43d3cc3c-4a5d-49a6-8e3f-89a2341b511c::esp32";
+        service
+            .register(
+                cid.to_string(),
+                54321,
+                "192.168.4.15".to_string(),
+                "ESP32 Web Server".to_string(),
+            )
+            .await;
+
+        let resp = handle_iot_portal(State(service)).await.into_response();
+        assert_eq!(resp.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(resp.into_body(), usize::MAX).await.unwrap();
+        let html = String::from_utf8(body.to_vec()).unwrap();
+        assert!(
+            html.contains(&format!(r#"href="/api/gateway/{}/""#, cid)),
+            "Portal link stripped colons from client_id: {}",
+            html
+        );
+    }
+
+    #[tokio::test]
+    async fn test_unregistered_client_returns_404() {
+        let service = Arc::new(IoTGatewayService::with_port(8001));
+        let req = Request::builder().uri("/").body(Body::empty()).unwrap();
+        let resp = handle_gateway_proxy_inner(service, "unknown-client".to_string(), String::new(), req).await;
+        assert_eq!(resp.status(), StatusCode::NOT_FOUND);
     }
 }
 

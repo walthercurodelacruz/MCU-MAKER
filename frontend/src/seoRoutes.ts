@@ -200,7 +200,7 @@ const OSS_SEO_ROUTES: SeoRoute[] = [
     seoMeta: {
       title: 'Free ESP32 Simulator Online — Xtensa LX6 Emulation | MCU Maker',
       description:
-        'Simulate ESP32 code in your browser for free. Real Xtensa LX6 emulation at 240 MHz via QEMU — ESP32 DevKit, ESP32-S3, ESP32-CAM. 48+ components, Serial Monitor, no install.',
+        'Simulate ESP32 code in your browser for free. Real Xtensa LX6 emulation at 240 MHz via QEMU — ESP32 DevKit, ESP32-S3, ESP32-C3. 48+ components, Serial Monitor, no install.',
       url: `${DOMAIN}/esp32-simulator`,
     },
   },

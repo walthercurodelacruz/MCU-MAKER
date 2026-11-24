@@ -56,31 +56,9 @@ describe('attachOnboardLeds: single-colour LEDs follow their own pin with the bo
     expect(r.last()).toEqual(['led', false]);
   });
 
-  it.each([
-    ['esp32-cam', 33],
-  ])('%s: GPIO%i LOW lights, HIGH darkens (active LOW)', (kind, pin) => {
-    const r = rig(kind);
-    r.mcu(pin, false);
-    expect(r.last()).toEqual(['led', true]);
-    r.mcu(pin, true);
-    expect(r.last()).toEqual(['led', false]);
-  });
-
-  it('esp32-cam: the flash on GPIO4 is active HIGH and the red LED on GPIO33 active LOW, each its own', () => {
-    const r = rig('esp32-cam');
-    r.mcu(4, true);
-    expect(r.last()).toEqual(['flash', true]);
-    r.mcu(33, false);
-    expect(r.last()).toEqual(['led', true]);
-    r.mcu(33, true);
-    expect(r.last()).toEqual(['led', false]);
-    expect(r.seen.filter(([id]) => id === 'flash')).toEqual([['flash', true]]);
-  });
-
   it('pin 13 means nothing to any ESP32 kind (the old default)', () => {
     for (const kind of [
       'esp32',
-      'esp32-cam',
       'esp32-s3',
       'esp32-c3',
     ]) {
@@ -93,49 +71,13 @@ describe('attachOnboardLeds: single-colour LEDs follow their own pin with the bo
 });
 
 describe('attachOnboardLeds: the boot case, a pad that becomes an output without a level change', () => {
-  // pinMode(pin, OUTPUT) drives the pad at its reset latch, LOW, and the engine
-  // reports the direction only: the level did not move. On the active-LOW
-  // boards the real LED is lit from that instant (measured on mcumaker.dev
-  // 2026-10-04: a sketch writing LOW once in setup() left the dot dark).
-  it.each([
-    ['esp32-cam', 33],
-  ])('%s: pinMode(%i, OUTPUT) alone lights the active-LOW LED', (kind, pin) => {
-    const r = rig(kind);
-    r.dir(pin, 1);
-    expect(r.seen).toEqual([['led', true]]);
-    r.mcu(pin, false); // the setup() write at the level the pad already holds
-    expect(r.seen.every(([, v]) => v === true)).toBe(true);
-    r.mcu(pin, true);
-    expect(r.last()).toEqual(['led', false]);
-  });
-
-  it('esp32-cam: pinMode(33, OUTPUT) lights the red LED, pinMode(4, OUTPUT) leaves the flash dark', () => {
-    const r = rig('esp32-cam');
-    r.dir(33, 1);
-    expect(r.last()).toEqual(['led', true]);
-    r.dir(4, 1);
-    expect(r.last()).toEqual(['flash', false]);
-  });
-
   it('esp32 (DevKit V1): pinMode(2, OUTPUT) paints the active-HIGH LED dark, never lit', () => {
     const r = rig('esp32');
     r.dir(2, 1);
     expect(r.seen).toEqual([['led', false]]);
   });
 
-  it('a HIGH written before pinMode is the level the pad shows when it becomes an output', () => {
-    const r = rig('esp32-cam');
-    r.mcu(33, true); // digitalWrite(HIGH) first: off on an active-LOW board
-    r.dir(33, 1);
-    expect(r.seen.some(([, v]) => v === true)).toBe(false);
-  });
-
-  it('pinMode(INPUT) releases the pad and the LED goes dark, whichever polarity', () => {
-    const lo = rig('esp32-cam');
-    lo.dir(33, 1);
-    expect(lo.last()).toEqual(['led', true]);
-    lo.dir(33, 0);
-    expect(lo.last()).toEqual(['led', false]);
+  it('pinMode(INPUT) releases the pad and the LED goes dark', () => {
     const hi = rig('esp32');
     hi.mcu(2, true);
     hi.dir(2, 1);
@@ -144,16 +86,9 @@ describe('attachOnboardLeds: the boot case, a pad that becomes an output without
     expect(hi.last()).toEqual(['led', false]);
   });
 
-  it('a board already running when the canvas attaches shows its driven pad at once', () => {
-    const r = rig('esp32-cam', (pm) => pm.setPinDirection(33, 1));
-    expect(r.seen).toEqual([['led', true]]);
-    const idle = rig('esp32-cam');
-    expect(idle.seen).toEqual([]);
-  });
-
   it('a pull change on a pad that is not an output says nothing at attach and darkens on config', () => {
-    const r = rig('esp32-cam');
-    r.pm.setPinPull(33, 1); // INPUT_PULLUP: the LED hangs off a pad at 3V3, off
+    const r = rig('esp32');
+    r.pm.setPinPull(2, 1);
     expect(r.seen).toEqual([['led', false]]);
   });
 });
@@ -219,10 +154,9 @@ describe('attachOnboardLeds: the kinds that already worked', () => {
 
 describe('attachOnboardLeds: lifecycle and helpers', () => {
   it('the returned function detaches every subscription', () => {
-    const r = rig('esp32-cam');
+    const r = rig('esp32');
     r.detach();
-    r.mcu(4, true);
-    r.mcu(33, false);
+    r.mcu(2, true);
     expect(r.seen).toEqual([]);
   });
 

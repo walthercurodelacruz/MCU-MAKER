@@ -3,6 +3,8 @@
  * C source to a base64-encoded WASM blob via the backend.
  */
 
+import { getApiBase } from '../lib/apiBase';
+
 export interface ChipCompileResult {
   success: boolean;
   wasm_base64: string | null;
@@ -18,10 +20,10 @@ export interface ChipCompileStatus {
   sdk_include: string | null;
 }
 
-const BASE = '/api/compile-chip';
+const baseUrl = () => `${getApiBase()}/compile-chip`;
 
 export async function compileChip(source: string, chipJson?: string): Promise<ChipCompileResult> {
-  const res = await fetch(`${BASE}/`, {
+  const res = await fetch(baseUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -46,6 +48,6 @@ export async function compileChip(source: string, chipJson?: string): Promise<Ch
 }
 
 export async function chipCompileStatus(): Promise<ChipCompileStatus> {
-  const res = await fetch(`${BASE}/status`, { credentials: 'include' });
+  const res = await fetch(`${baseUrl()}/status`, { credentials: 'include' });
   return (await res.json()) as ChipCompileStatus;
 }

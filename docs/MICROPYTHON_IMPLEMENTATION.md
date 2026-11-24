@@ -18,7 +18,7 @@ Velxio supports MicroPython across **15 board variants** using two distinct exec
 
 ```
 RP2040 (browser):       raspberry-pi-pico, pi-pico-w
-ESP32 Xtensa (QEMU):    esp32, esp32-cam
+ESP32 Xtensa (QEMU):    esp32
 ESP32-S3 Xtensa (QEMU): esp32-s3
 ESP32-C3 RISC-V (QEMU): esp32-c3
 ```
@@ -158,7 +158,7 @@ FIRMWARE_MAP = {
 
 Board kind → firmware variant mapping:
 ```
-esp32, esp32-cam                           → 'esp32'
+esp32                                     → 'esp32'
 esp32-s3                                   → 'esp32-s3'
 esp32-c3                                   → 'esp32-c3'
 ```

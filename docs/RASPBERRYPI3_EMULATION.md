@@ -602,7 +602,7 @@ PRO_BINARIES_DIR=$PWD/binaries ./scripts/upload-binary.sh \
     --file raspios-trixie-armhf-autologin.img.zst
 
 # 4. Update upstream manifest with the printed SHA + sizes, commit, push,
-#    bump the velxio submodule pointer in velxio-prod, push, deploy.
+# bump the velxio submodule pointer in velxio-prod, push, deploy.
 ./scripts/deploy.sh
 ```
 

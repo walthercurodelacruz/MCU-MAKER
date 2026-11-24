@@ -15,6 +15,12 @@ if exist "frontend\dist\index.html" (
     echo [INFO] Compilando frontend para empaquetado...
     cd frontend
     call npm.cmd run build:docker
+    if errorlevel 1 (
+        cd ..
+        echo [ERROR] Fallo la compilacion del frontend.
+        pause
+        exit /b 1
+    )
     cd ..
 )
 

@@ -117,10 +117,10 @@ For the `adcReadProgram` loop:
 7-8:   STS ADCSRA, r17         (2 words)
 9-10:  LDS r17, ADCSRA         (2 words)
 11:    SBRC r17, 6
-12:    RJMP -4                  → PC+1=13, target=9, offset=−4  ✓
+12:    RJMP -4                  → PC+1=13, target=9, offset=−4  [OK]
 13-14: LDS r20, ADCH           (2 words)
 15-16: LDS r21, ADCL           (2 words)
-17:    RJMP -12                 → PC+1=18, target=6, offset=−12 ✓
+17:    RJMP -12                 → PC+1=18, target=6, offset=−12 [OK]
 ```
 
 **Principle**: every `STS` and `LDS` is a 32-bit instruction (2 words). Count accordingly when computing offsets.
@@ -240,7 +240,7 @@ Vpwm pwm 0 DC 2.5           ; duty=0.5 → 2.5V DC
 
 ### G-P2. First `runSim` call is 400 ms slower
 
-The `eecircuit-engine` WASM boot is lazy. In Vitest, we use a singleton — the first test in a run pays 400 ms; subsequent tests pay 5–500 ms each. In a browser context, the 400 ms boot is user-visible; lazy-load the module behind a "⚡ Electrical simulation" toggle.
+The `eecircuit-engine` WASM boot is lazy. In Vitest, we use a singleton — the first test in a run pays 400 ms; subsequent tests pay 5–500 ms each. In a browser context, the 400 ms boot is user-visible; lazy-load the module behind a " Electrical simulation" toggle.
 
 ## G-N. Unicode arrow (→) in netlist title silently hangs ngspice
 

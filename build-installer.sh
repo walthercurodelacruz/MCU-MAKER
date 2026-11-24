@@ -6,7 +6,7 @@
 # Linux counterpart of build-installer.bat (Windows / Inno Setup).
 #
 # Usage:   ./build-installer.sh
-# Install: sudo apt install ./dist-installer/mcu-maker_1.0.0_amd64.deb
+# Install: sudo apt install ./dist-installer/mcu-maker_1.2.0_amd64.deb
 #
 # Build on the OLDEST Ubuntu you want to support (24.04): binaries then run on
 # every newer release (26.04 included) because glibc is forward compatible.
@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-VERSION="1.1.0"
+VERSION="1.2.0"
 PKG="mcu-maker"
 ARCH="amd64"
 ARDUINO_CLI_VERSION="${ARDUINO_CLI_VERSION:-1.1.1}"

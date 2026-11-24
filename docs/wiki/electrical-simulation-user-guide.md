@@ -4,7 +4,7 @@ Velxio can now simulate **real electrical behaviour** of your circuits alongside
 
 ## Enabling it
 
-Click the **⚡ Electrical** button in the editor toolbar.
+Click the ** Electrical** button in the editor toolbar.
 
 The first time you enable electrical simulation, your browser downloads the ngspice engine (~39 MB). This happens once per browser; after that, activation is instant. The download is completely client-side — nothing is sent to our servers.
 
@@ -64,7 +64,7 @@ Some circuits, especially those with many non-linear devices (BJTs / MOSFETs), c
 - Remove redundant components.
 - Use simpler models (e.g., op-amp ideal instead of LM358 macromodel) if absolute accuracy isn't required.
 
-### The ⚡ button isn't showing
+### The  button isn't showing
 
 Electrical simulation may have been disabled at build time via `VITE_ELECTRICAL_SIM=false`. This is an ops/admin-level flag; ask your Velxio deployer.
 
@@ -82,7 +82,7 @@ Solves are debounced 50 ms so interactive edits feel instant.
 
 - The ngspice engine is loaded **lazily, client-side only**. Nothing about your circuit is sent to our servers.
 - Once downloaded, the engine is cached by your browser. Subsequent uses are free.
-- If you are on a metered connection, you can keep the ⚡ button off. Everything else about Velxio still works exactly as before.
+- If you are on a metered connection, you can keep the  button off. Everything else about Velxio still works exactly as before.
 
 ## Advanced: inspecting the netlist
 
