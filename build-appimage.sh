@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 #
 # build-appimage.sh - Empaqueta MCU Maker como un binario portable AppImage (x86_64)
-# Todo-en-uno: incluye servidor Rust, lanzador gráfico, worker QEMU, Arduino CLI y frontend.
+# Todo-en-uno: incluye servidor Rust, lanzador gráfico, worker QEMU, Arduino CLI,
+# pyserial embebido, artefactos precompilados y frontend.
 # No requiere permisos de root (sudo) para ejecutarse en ningún Linux.
 #
 # Uso: ./build-appimage.sh
@@ -19,12 +20,14 @@ APPDIR="$ROOT/build-appdir"
 APPIMAGETOOL="$ROOT/prebuilt/appimagetool-x86_64.AppImage"
 
 echo "==================================================================="
-echo "        MCU MAKER - CREADOR DE PAQUETE PORTABLE (AppImage)"
+echo "     MCU MAKER v${VERSION} - CREADOR DE PAQUETE PORTABLE (AppImage)"
 echo "==================================================================="
+
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "[ERROR] Falta '$1'. $2"; exit 1; }; }
 need cargo "Instale Rust: https://rustup.rs"
-need curl  "sudo apt install curl"
+need curl  "sudo apt install curl (o sudo dnf install curl)"
 
 # 1. Compilación Release de Rust
 echo "[1/5] Compilando suite Rust (release)..."
@@ -43,7 +46,10 @@ mkdir -p "$APPDIR/usr/bin" \
          "$APPDIR/usr/lib" \
          "$APPDIR/usr/share/mcu-maker/frontend" \
          "$APPDIR/usr/share/mcu-maker/prebuilt/arduino-cli" \
-         "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime" \
+         "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/fw" \
+         "$APPDIR/usr/share/mcu-maker/prebuilt/python_libs" \
+         "$APPDIR/usr/share/mcu-maker/prebuilt/artifacts" \
+         "$APPDIR/usr/share/mcu-maker/sdk" \
          "$APPDIR/usr/share/applications" \
          "$APPDIR/usr/share/icons/hicolor/512x512/apps"
 
@@ -52,8 +58,20 @@ for b in mcu-maker-launcher mcu-maker-server mcu-maker-worker; do
   install -m 0755 "rust/target/release/$b" "$APPDIR/usr/bin/$b"
 done
 
-# Copiar frontend
+# Copiar frontend, SDK, pyserial, artefactos precompilados y documentación
 cp -r frontend/dist "$APPDIR/usr/share/mcu-maker/frontend/dist"
+if [ -d "sdk" ]; then
+  cp -a sdk/* "$APPDIR/usr/share/mcu-maker/sdk/"
+fi
+if [ -d "prebuilt/python_libs" ]; then
+  cp -a prebuilt/python_libs/* "$APPDIR/usr/share/mcu-maker/prebuilt/python_libs/"
+fi
+if [ -d "prebuilt/artifacts" ] && compgen -G "prebuilt/artifacts/*.json" >/dev/null; then
+  cp -a prebuilt/artifacts/*.json "$APPDIR/usr/share/mcu-maker/prebuilt/artifacts/"
+fi
+install -m 0644 LICENSE "$APPDIR/usr/share/mcu-maker/LICENSE"
+install -m 0644 README.md "$APPDIR/usr/share/mcu-maker/README.md"
+[ -f MANUAL_PROYECTO_V1.md ] && install -m 0644 MANUAL_PROYECTO_V1.md "$APPDIR/usr/share/mcu-maker/MANUAL_PROYECTO_V1.md"
 
 # Copiar Arduino CLI
 if [ -f "prebuilt/arduino-cli-linux/arduino-cli" ]; then
@@ -62,12 +80,20 @@ elif [ -f "prebuilt/arduino-cli/arduino-cli" ]; then
   install -m 0755 "prebuilt/arduino-cli/arduino-cli" "$APPDIR/usr/share/mcu-maker/prebuilt/arduino-cli/arduino-cli"
 fi
 
-# Copiar QEMU Runtime (ROMs y librerías .so)
+# Copiar QEMU Runtime (ROMs en raíz y fw/ + librerías .so)
 for rom in prebuilt/qemu_runtime/*.bin; do
-  [ -f "$rom" ] && install -m 0644 "$rom" "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/"
+  if [ -f "$rom" ]; then
+    install -m 0644 "$rom" "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/"
+    install -m 0644 "$rom" "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/fw/"
+  fi
 done
 if [ -d "prebuilt/qemu_runtime/fw" ]; then
-  cp -r prebuilt/qemu_runtime/fw "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/"
+  for rom in prebuilt/qemu_runtime/fw/*.bin; do
+    if [ -f "$rom" ]; then
+      install -m 0644 "$rom" "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/"
+      install -m 0644 "$rom" "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/fw/"
+    fi
+  done
 fi
 if compgen -G "prebuilt/qemu_runtime_linux/*.so*" >/dev/null; then
   cp -a prebuilt/qemu_runtime_linux/*.so* "$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime/"
@@ -101,11 +127,20 @@ APPDIR=$(dirname "$SELF")
 
 export PATH="$APPDIR/usr/bin:$APPDIR/usr/share/mcu-maker/prebuilt/arduino-cli:$PATH"
 export LD_LIBRARY_PATH="$APPDIR/usr/lib:$APPDIR/usr/share/mcu-maker/prebuilt/qemu_runtime:${LD_LIBRARY_PATH:-}"
+export PYTHONPATH="$APPDIR/usr/share/mcu-maker/prebuilt/python_libs:${PYTHONPATH:-}"
 
 DATA="${XDG_DATA_HOME:-$HOME/.local/share}/mcu-maker"
 mkdir -p "$DATA/artifacts"
+if [ -d "$APPDIR/usr/share/mcu-maker/prebuilt/artifacts" ]; then
+    for f in "$APPDIR/usr/share/mcu-maker/prebuilt/artifacts/"*.json; do
+        [ -f "$f" ] && cp -n "$f" "$DATA/artifacts/" 2>/dev/null || true
+    done
+fi
 ln -sfn "$APPDIR/usr/share/mcu-maker/frontend" "$DATA/frontend"
 ln -sfn "$APPDIR/usr/share/mcu-maker/prebuilt" "$DATA/prebuilt"
+[ -d "$APPDIR/usr/share/mcu-maker/sdk" ] && ln -sfn "$APPDIR/usr/share/mcu-maker/sdk" "$DATA/sdk"
+[ -f "$APPDIR/usr/share/mcu-maker/README.md" ] && ln -sfn "$APPDIR/usr/share/mcu-maker/README.md" "$DATA/README.md"
+[ -f "$APPDIR/usr/share/mcu-maker/MANUAL_PROYECTO_V1.md" ] && ln -sfn "$APPDIR/usr/share/mcu-maker/MANUAL_PROYECTO_V1.md" "$DATA/MANUAL_PROYECTO_V1.md"
 
 cd "$DATA" || exit 1
 
@@ -118,7 +153,7 @@ for arg in "$@"; do
     esac
 done
 
-if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
+if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
     USE_SERVER=1
 fi
 

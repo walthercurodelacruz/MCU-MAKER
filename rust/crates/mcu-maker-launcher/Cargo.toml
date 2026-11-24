@@ -15,7 +15,12 @@ egui = "0.29"
 tokio = { version = "1.40", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-reqwest = { version = "0.12", features = ["json"] }
 local-ip-address = "0.6"
 open = "5.3"
 tracing = "0.1"
+
+[target.'cfg(windows)'.dependencies]
+reqwest = { version = "0.12", features = ["json"] }
+
+[target.'cfg(not(windows))'.dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "http2", "charset"] }

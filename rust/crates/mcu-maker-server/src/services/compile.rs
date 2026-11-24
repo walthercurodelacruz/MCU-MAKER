@@ -127,10 +127,25 @@ impl CompileService {
     }
 
     pub async fn load_cached(&self, key: &str) -> Option<CompileResult> {
-        let file_path = self.artifact_cache_dir.join(format!("{key}.json"));
-        if let Ok(bytes) = tokio::fs::read(&file_path).await {
-            if let Ok(res) = serde_json::from_slice::<CompileResult>(&bytes) {
-                return Some(res);
+        let filename = format!("{key}.json");
+        let mut candidates = vec![self.artifact_cache_dir.join(&filename)];
+        if let Ok(cwd) = std::env::current_dir() {
+            candidates.push(cwd.join("prebuilt").join("artifacts").join(&filename));
+        }
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(dir) = exe.parent() {
+                candidates.push(dir.join("prebuilt").join("artifacts").join(&filename));
+                candidates.push(dir.join("artifacts").join(&filename));
+            }
+        }
+        #[cfg(not(windows))]
+        candidates.push(PathBuf::from("/opt/mcu-maker/prebuilt/artifacts").join(&filename));
+
+        for file_path in candidates {
+            if let Ok(bytes) = tokio::fs::read(&file_path).await {
+                if let Ok(res) = serde_json::from_slice::<CompileResult>(&bytes) {
+                    return Some(res);
+                }
             }
         }
         None
@@ -236,7 +251,7 @@ impl CompileService {
         let jobs_for_stream = self.jobs.clone();
         let jid_for_stream = job_id.clone();
         let stream_task = tokio::spawn(async move {
-            const MAX_STDOUT_BYTES: usize = 256 * 1024;
+            const MAX_STDOUT_BYTES: usize = 1024 * 1024;
             while let Some(ev) = rx.recv().await {
                 let mut jobs = jobs_for_stream.write().await;
                 if let Some(job) = jobs.get_mut(&jid_for_stream) {

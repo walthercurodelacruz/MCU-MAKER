@@ -584,6 +584,9 @@ export const EditorToolbar = ({
         currentProject?.id ?? null,
         (info) => {
           const { stdout } = info;
+          if (stdout.length < lastStreamedLen) {
+            lastStreamedLen = 0;
+          }
           const grew = stdout.length > lastStreamedLen;
           const delta = grew ? stdout.slice(lastStreamedLen) : '';
           if (grew) lastStreamedLen = stdout.length;
@@ -1198,6 +1201,9 @@ export const EditorToolbar = ({
           currentProject?.id ?? null,
           (info) => {
             const { stdout } = info;
+            if (stdout.length < lastStreamedLen) {
+              lastStreamedLen = 0;
+            }
             const grew = stdout.length > lastStreamedLen;
             const delta = grew ? stdout.slice(lastStreamedLen) : '';
             if (grew) lastStreamedLen = stdout.length;

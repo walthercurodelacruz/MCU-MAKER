@@ -71,11 +71,18 @@ impl ChipCompileService {
     }
 
     fn find_sdk_include() -> Option<PathBuf> {
-        let candidates = [
+        let mut candidates = vec![
             PathBuf::from("sdk"),
             PathBuf::from("../sdk"),
             PathBuf::from("../../sdk"),
         ];
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(exe_dir) = exe.parent() {
+                candidates.push(exe_dir.join("sdk"));
+            }
+        }
+        #[cfg(not(windows))]
+        candidates.push(PathBuf::from("/opt/mcu-maker/sdk"));
         candidates.into_iter().find(|cand| cand.join("mcu_maker_chip.h").is_file() || cand.join("velxio_chip.h").is_file())
     }
 
